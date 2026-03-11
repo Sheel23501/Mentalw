@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TruCare Video Test</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 { color: white; margin-bottom: 20px; }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 800px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .video-container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .video-box {
+      position: relative;
+      background: #1a1a2e;
+      border-radius: 15px;
+      overflow: hidden;
+    }
+    video {
+      width: 350px;
+      height: 260px;
+      object-fit: cover;
+      display: block;
+    }
+    .label {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button:hover { transform: translateY(-2px); }
+    .btn-green { background: #10b981; color: white; }
+    .btn-green:hover { background: #059669; }
+    .btn-red { background: #ef4444; color: white; }
+    .btn-red:hover { background: #dc2626; }
+    .btn-blue { background: #3b82f6; color: white; }
+    .btn-blue:hover { background: #2563eb; }
+    .btn-gray { background: #6b7280; color: white; }
+    .btn-gray:hover { background: #4b5563; }
+    .status {
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+      font-size: 14px;
+    }
+    .status.success { background: #d1fae5; color: #065f46; }
+    .status.error { background: #fee2e2; color: #991b1b; }
+    .status.info { background: #dbeafe; color: #1e40af; }
+    .room-code {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f3f4f6;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 15px 0;
+    }
+    .room-code input {
+      flex: 1;
+      padding: 10px 15px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: monospace;
+    }
+    .room-code input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+    h3 { color: #374151; margin: 20px 0 10px; }
+    .checklist { 
+      background: #f9fafb; 
+      padding: 15px; 
+      border-radius: 10px; 
+      margin: 15px 0;
+    }
+    .checklist div { 
+      padding: 8px 0; 
+      display: flex; 
+      align-items: center; 
+      gap: 10px;
+    }
+    .check { color: #10b981; font-size: 18px; }
+    .cross { color: #ef4444; font-size: 18px; }
+    .pending { color: #f59e0b; font-size: 18px; }
+  </style>
+</head>
+<body>
+  <h1>🎥 TruCare Video Call Test</h1>
+  
+  <div class="container">
+    <div id="status" class="status info">Click "Start Camera" to begin testing</div>
+    
+    <div class="video-container">
+      <div class="video-box">
+        <video id="localVideo" autoplay muted playsinline></video>
+        <span class="label">📹 Your Camera</span>
+      </div>
+      <div class="video-box">
+        <video id="remoteVideo" autoplay playsinline></video>
+        <span class="label">👤 Remote User</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="startBtn" class="btn-green" onclick="startCamera()">📹 Start Camera</button>
+      <button id="stopBtn" class="btn-red" onclick="stopCamera()" disabled>⏹️ Stop Camera</button>
+      <button id="toggleMic" class="btn-gray" onclick="toggleMic()" disabled>🎤 Mute</button>
+      <button id="toggleVideo" class="btn-gray" onclick="toggleVideo()" disabled>📷 Hide Video</button>
+    </div>
+
+    <h3>🔗 WebRTC Connection Test</h3>
+    <div class="room-code">
+      <input type="text" id="roomCode" placeholder="Enter room code to join...">
+      <button class="btn-blue" onclick="createRoom()">Create Room</button>
+      <button class="btn-green" onclick="joinRoom()">Join Room</button>
+    </div>
+
+    <h3>✅ System Checklist</h3>
+    <div class="checklist">
+      <div><span id="check-camera" class="pending">⏳</span> Camera Access</div>
+      <div><span id="check-mic" class="pending">⏳</span> Microphone Access</div>
+      <div><span id="check-server" class="pending">⏳</span> Signaling Server (localhost:3001)</div>
+      <div><span id="check-socket" class="pending">⏳</span> Socket.IO Connection</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <script>
+    let localStream = null;
+    let socket = null;
+    let peerConnection = null;
+    let currentRoomId = null;
+    let micEnabled = true;
+    let videoEnabled = true;
+
+    const config = {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' }
+      ]
+    };
+
+    function setStatus(msg, type = 'info') {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = `status ${type}`;
+    }
+
+    function setCheck(id, status) {
+      const el = document.getElementById(id);
+      if (status === 'success') el.innerHTML = '✅';
+      else if (status === 'error') el.innerHTML = '❌';
+      else el.innerHTML = '⏳';
+    }
+
+    async function startCamera() {
+      try {
+        setStatus('Requesting camera and microphone access...', 'info');
+        
+        localStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 1280, height: 720 },
+          audio: true
+        });
+        
+        document.getElementById('localVideo').srcObject = localStream;
+        setCheck('check-camera', 'success');
+        setCheck('check-mic', 'success');
+        
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+        document.getElementById('toggleMic').disabled = false;
+        document.getElementById('toggleVideo').disabled = false;
+        
+        setStatus('✅ Camera and microphone ready! Now connect to signaling server.', 'success');
+        
+        // Auto-connect to signaling server
+        connectToServer();
+      } catch (err) {
+        console.error('Camera error:', err);
+        setCheck('check-camera', 'error');
+        setCheck('check-mic', 'error');
+        setStatus(`❌ Error: ${err.message}`, 'error');
+      }
+    }
+
+    function stopCamera() {
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+        document.getElementById('localVideo').srcObject = null;
+      }
+      
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('stopBtn').disabled = true;
+      document.getElementById('toggleMic').disabled = true;
+      document.getElementById('toggleVideo').disabled = true;
+      
+      setStatus('Camera stopped', 'info');
+    }
+
+    function toggleMic() {
+      if (localStream) {
+        micEnabled = !micEnabled;
+        localStream.getAudioTracks().forEach(track => track.enabled = micEnabled);
+        document.getElementById('toggleMic').textContent = micEnabled ? '🎤 Mute' : '🔇 Unmute';
+      }
+    }
+
+    function toggleVideo() {
+      if (localStream) {
+        videoEnabled = !videoEnabled;
+        localStream.getVideoTracks().forEach(track => track.enabled = videoEnabled);
+        document.getElementById('toggleVideo').textContent = videoEnabled ? '📷 Hide Video' : '📷 Show Video';
+      }
+    }
+
+    function connectToServer() {
+      setStatus('Connecting to signaling server...', 'info');
+      
+      socket = io('http://localhost:3001', {
+        reconnection: true,
+        timeout: 5000
+      });
+
+      socket.on('connect', () => {
+        console.log('Connected to signaling server');
+        setCheck('check-server', 'success');
+        setCheck('check-socket', 'success');
+        setStatus('✅ Connected to signaling server! Create or join a room.', 'success');
+        
+        // Register user
+        const userId = `test-user-${Date.now()}`;
+        socket.emit('user:register', { userId, userName: 'Test User' });
+      });
+
+      socket.on('connect_error', (err) => {
+        console.error('Connection error:', err);
+        setCheck('check-server', 'error');
+        setCheck('check-socket', 'error');
+        setStatus('❌ Cannot connect to server. Make sure server.js is running on port 3001', 'error');
+      });
+
+      // WebRTC signaling handlers
+      socket.on('webrtc:offer', async (data) => {
+        console.log('Received offer');
+        await handleOffer(data.from, data.offer);
+      });
+
+      socket.on('webrtc:answer', async (data) => {
+        console.log('Received answer');
+        if (peerConnection) {
+          await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+        }
+      });
+
+      socket.on('webrtc:ice-candidate', async (data) => {
+        if (peerConnection && data.candidate) {
+          await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+        }
+      });
+
+      socket.on('room:participantJoined', async (data) => {
+        console.log('Participant joined:', data.participant);
+        setStatus(`👤 ${data.participant.userName || 'User'} joined the call!`, 'success');
+        
+        // Create and send offer to new participant
+        await createPeerConnection();
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        socket.emit('webrtc:offer', { to: data.participant.socketId, offer });
+      });
+
+      socket.on('room:participantLeft', (data) => {
+        setStatus(`👋 ${data.participant?.userName || 'User'} left the call`, 'info');
+        document.getElementById('remoteVideo').srcObject = null;
+      });
+    }
+
+    async function createPeerConnection() {
+      peerConnection = new RTCPeerConnection(config);
+      
+      // Add local tracks
+      if (localStream) {
+        localStream.getTracks().forEach(track => {
+          peerConnection.addTrack(track, localStream);
+        });
+      }
+
+      // Handle remote stream
+      peerConnection.ontrack = (event) => {
+        console.log('Received remote track');
+        document.getElementById('remoteVideo').srcObject = event.streams[0];
+      };
+
+      // Handle ICE candidates
+      peerConnection.onicecandidate = (event) => {
+        if (event.candidate && socket) {
+          socket.emit('webrtc:ice-candidate', {
+            roomId: currentRoomId,
+            to: 'broadcast',
+            candidate: event.candidate
+          });
+        }
+      };
+
+      return peerConnection;
+    }
+
+    async function handleOffer(from, offer) {
+      await createPeerConnection();
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+      socket.emit('webrtc:answer', { to: from, answer });
+    }
+
+    function createRoom() {
+      if (!socket || !socket.connected) {
+        setStatus('❌ Not connected to server. Start camera first.', 'error');
+        return;
+      }
+
+      const roomId = `room-${Date.now().toString(36)}`;
+      currentRoomId = roomId;
+      
+      socket.emit('room:create', { roomName: roomId }, (response) => {
+        if (response?.success) {
+          document.getElementById('roomCode').value = roomId;
+          setStatus(`🏠 Room created! Share this code: ${roomId}`, 'success');
+          
+          // Join the room we just created
+          socket.emit('room:join', { roomId });
+        }
+      });
+    }
+
+    function joinRoom() {
+      const roomId = document.getElementById('roomCode').value.trim();
+      if (!roomId) {
+        setStatus('❌ Enter a room code first', 'error');
+        return;
+      }
+      if (!socket || !socket.connected) {
+        setStatus('❌ Not connected to server. Start camera first.', 'error');
+        return;
+      }
+
+      currentRoomId = roomId;
+      socket.emit('room:join', { roomId }, (response) => {
+        if (response?.success) {
+          setStatus(`✅ Joined room: ${roomId}. Waiting for others...`, 'success');
+        } else {
+          setStatus('❌ Failed to join room', 'error');
+        }
+      });
+    }
+
+    // Check server on load
+    fetch('http://localhost:3001/api/rooms/test')
+      .then(() => setCheck('check-server', 'success'))
+      .catch(() => setCheck('check-server', 'error'));
+  </script>
+</body>
+</html>

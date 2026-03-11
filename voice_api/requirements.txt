@@ -1,0 +1,8 @@
+SpeechRecognition
+google-generativeai
+sentence-transformers
+faiss-cpu
+pydub
+numpy
+pandas
+google-api-core
