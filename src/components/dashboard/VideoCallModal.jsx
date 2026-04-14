@@ -35,7 +35,7 @@ const VideoCallModal = ({
   const listenersSetupRef = useRef(false);
   const retryTimerRef = useRef(null);
   
-  const { callStatus, endCall: endGlobalCall, outgoingCall, cancelOutgoingCall, getWebRTC } = useSocket();
+  const { callStatus, endCall: endGlobalCall, outgoingCall, cancelOutgoingCall, getWebRTC, remoteCallEnded } = useSocket();
 
   const [cameraOn, setCameraOn] = useState(false);
   const [micOn, setMicOn] = useState(true);
@@ -304,6 +304,42 @@ const VideoCallModal = ({
       setError(callStatus === 'rejected' ? 'Call was declined' : 'Call failed — user may be offline');
     }
   }, [callStatus, callState]);
+
+  // ====== Watch for remote side ending the call ======
+  useEffect(() => {
+    if (remoteCallEnded && open && (callState === 'connected' || callState === 'waiting' || callState === 'calling')) {
+      console.log('📴 Remote side ended the call — auto-closing');
+      // Cleanup local side
+      const webrtc = getSharedWebRTC();
+      if (webrtc) {
+        try { webrtc.leaveRoom(); } catch(e) { /* ignore */ }
+        webrtc.peerConnections.forEach(pc => pc.close());
+        webrtc.peerConnections.clear();
+        webrtc.localStream = null;
+      }
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach(track => track.stop());
+        localStreamRef.current = null;
+      }
+      if (localVideoRef.current?.srcObject) {
+        localVideoRef.current.srcObject.getTracks().forEach(track => track.stop());
+        localVideoRef.current.srcObject = null;
+      }
+      if (remoteVideoRef.current?.srcObject) {
+        remoteVideoRef.current.srcObject = null;
+      }
+      removeWebRTCListeners();
+      setCameraOn(false);
+      setCallState('idle');
+      setRoomId(null);
+      setRoomCode(null);
+      setRemoteParticipants([]);
+      setHasRemoteStream(false);
+      // Don't call endGlobalCall() here — SocketContext already reset via onCallEnded
+      // Just close the modal
+      onClose();
+    }
+  }, [remoteCallEnded, open, callState]);
 
   // ====== Manual: Create a new call room ======
   const handleCreateCall = async () => {
