@@ -25,9 +25,19 @@ try {
 
 const app = express();
 
-// Enhanced CORS configuration
+// Enhanced CORS configuration — accept any localhost port for dev
+const corsOriginCheck = (origin, callback) => {
+  // Allow requests with no origin (mobile apps, curl, etc.)
+  if (!origin) return callback(null, true);
+  // Allow any localhost / 127.0.0.1 origin
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+    return callback(null, true);
+  }
+  callback(new Error('Not allowed by CORS'));
+};
+
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176'],
+  origin: corsOriginCheck,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -242,10 +252,20 @@ app.post('/api/cv/emotion', upload.single('image'), async (req, res) => {
 
     let stdout = '';
     let stderr = '';
+    let responded = false;
+    py.on('error', (err) => {
+      fs.unlink(imagePath, () => {});
+      if (!responded) {
+        responded = true;
+        return res.status(500).json({ success: false, error: `Python process error: ${err.message}. Set CV_PYTHON env var or install Python venv.` });
+      }
+    });
     py.stdout.on('data', (d) => { stdout += d.toString(); });
     py.stderr.on('data', (d) => { stderr += d.toString(); });
     py.on('close', (code) => {
       fs.unlink(imagePath, () => {});
+      if (responded) return;
+      responded = true;
       if (code !== 0) {
         return res.status(500).json({ success: false, error: stderr || 'Python process failed' });
       }
@@ -327,6 +347,7 @@ app.post('/api/cv/emotion/batch', uploadMany.array('images', 5), async (req, res
         const py = spawn(pythonExec, [pythonScript, '--image', f.path], { env: process.env });
         let stdout = ''; let stderr = '';
         await new Promise((resolve) => {
+          py.on('error', (err) => { stderr = err.message; resolve(); });
           py.stdout.on('data', d => { stdout += d.toString(); });
           py.stderr.on('data', d => { stderr += d.toString(); });
           py.on('close', () => resolve());
@@ -449,7 +470,7 @@ const PORT = process.env.PORT || 3001;
 const httpServer = createServer(app);
 const io = new SocketIOServer(httpServer, {
   cors: {
-    origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176'],
+    origin: corsOriginCheck,
     credentials: true,
     methods: ['GET', 'POST']
   }
@@ -457,6 +478,7 @@ const io = new SocketIOServer(httpServer, {
 
 // ============== WebRTC Signaling Server ==============
 const connectedUsers = new Map(); // socketId -> { userId, userName }
+const userSocketMap = new Map(); // userId -> socketId (reverse lookup for call routing)
 const videoRooms = new Map(); // roomId -> { participants: [], createdAt }
 
 io.on('connection', (socket) => {
@@ -464,12 +486,94 @@ io.on('connection', (socket) => {
 
   // Register user
   socket.on('user:register', (data, callback) => {
-    const { userId, userName } = data;
-    connectedUsers.set(socket.id, { userId, userName, socketId: socket.id });
-    console.log(`✅ User registered: ${userName} (${userId})`);
+    const { userId, userName, userImage } = data;
+    connectedUsers.set(socket.id, { userId, userName, userImage, socketId: socket.id });
+    userSocketMap.set(userId, socket.id); // reverse lookup
+    console.log(`✅ User registered: ${userName} (${userId}) -> socket ${socket.id}`);
     
     if (callback) callback({ success: true, socketId: socket.id });
     socket.emit('user:registered', { success: true, socketId: socket.id });
+  });
+
+  // ============== Call Notification Events ==============
+
+  // Initiate a call to a specific user
+  socket.on('call:initiate', (data, callback) => {
+    const { targetUserId, callerName, callerImage, roomId } = data;
+    const caller = connectedUsers.get(socket.id);
+    const targetSocketId = userSocketMap.get(targetUserId);
+
+    console.log(`📞 Call initiated: ${caller?.userName} -> ${targetUserId} (room: ${roomId})`);
+
+    if (!targetSocketId) {
+      console.log(`❌ Target user ${targetUserId} not online`);
+      if (callback) callback({ success: false, reason: 'user_offline' });
+      socket.emit('call:failed', { reason: 'user_offline', message: 'User is not online' });
+      return;
+    }
+
+    // Send incoming call notification to target user
+    io.to(targetSocketId).emit('call:incoming', {
+      callerId: caller?.userId,
+      callerName: callerName || caller?.userName || 'Unknown',
+      callerImage: callerImage || caller?.userImage || '',
+      callerSocketId: socket.id,
+      roomId,
+      timestamp: Date.now(),
+    });
+
+    console.log(`📲 Incoming call sent to socket ${targetSocketId}`);
+    if (callback) callback({ success: true, message: 'Call notification sent' });
+  });
+
+  // Accept an incoming call
+  socket.on('call:accept', (data) => {
+    const { callerId, callerSocketId, roomId } = data;
+    const accepter = connectedUsers.get(socket.id);
+
+    // Notify the caller that the call was accepted
+    const targetSocketId = callerSocketId || userSocketMap.get(callerId);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit('call:accepted', {
+        acceptedBy: accepter?.userId,
+        acceptedByName: accepter?.userName,
+        acceptedBySocketId: socket.id,
+        roomId,
+      });
+      console.log(`✅ Call accepted: ${accepter?.userName} accepted call from ${callerId}`);
+    }
+  });
+
+  // Reject an incoming call
+  socket.on('call:reject', (data) => {
+    const { callerId, callerSocketId, roomId } = data;
+    const rejecter = connectedUsers.get(socket.id);
+
+    const targetSocketId = callerSocketId || userSocketMap.get(callerId);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit('call:rejected', {
+        rejectedBy: rejecter?.userId,
+        rejectedByName: rejecter?.userName,
+        roomId,
+      });
+      console.log(`❌ Call rejected: ${rejecter?.userName} rejected call from ${callerId}`);
+    }
+  });
+
+  // Cancel an outgoing call (caller hangs up before answer)
+  socket.on('call:cancel', (data) => {
+    const { targetUserId, roomId } = data;
+    const canceller = connectedUsers.get(socket.id);
+
+    const targetSocketId = userSocketMap.get(targetUserId);
+    if (targetSocketId) {
+      io.to(targetSocketId).emit('call:cancelled', {
+        cancelledBy: canceller?.userId,
+        cancelledByName: canceller?.userName,
+        roomId,
+      });
+      console.log(`🚫 Call cancelled: ${canceller?.userName} cancelled call to ${targetUserId}`);
+    }
   });
 
   // Create room
@@ -608,6 +712,10 @@ io.on('connection', (socket) => {
     });
     
     connectedUsers.delete(socket.id);
+    // Clean up reverse lookup
+    if (user?.userId) {
+      userSocketMap.delete(user.userId);
+    }
   });
 });
 

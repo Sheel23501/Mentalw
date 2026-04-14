@@ -8,6 +8,7 @@ import VideoCallModal from '../components/dashboard/VideoCallModal.jsx';
 import AITherapistChat from '../components/dashboard/AITherapistChat.jsx';
 import { useEmotionMonitor } from '../utils/useEmotionMonitor';
 import { toFriendlyLabel } from '../utils/emotionLabels';
+import { useSocket } from '../contexts/SocketContext';
 
 // Helper to get emoji for emotion
 const getEmotionEmoji = (emotion) => {
@@ -47,6 +48,20 @@ const Dashboard = () => {
   const [emotionAnalysisEnabled, setEmotionAnalysisEnabled] = useState(false);
   const [detectedEmotion, setDetectedEmotion] = useState(null);
   const [emotionAnalyzing, setEmotionAnalyzing] = useState(false);
+  const [pendingVideoRoomCode, setPendingVideoRoomCode] = useState(null);
+  const [isOutgoingCall, setIsOutgoingCall] = useState(false);
+
+  // Socket context for direct video calls
+  const { startCall, callStatus, activeCallRoomId, incomingCall } = useSocket();
+
+  // When an incoming call is accepted (from IncomingCallNotification), open the video call modal
+  useEffect(() => {
+    if (callStatus === 'connected' && incomingCall && !videoCallOpen) {
+      setPendingVideoRoomCode(incomingCall.roomId);
+      setIsOutgoingCall(false);
+      setVideoCallOpen(true);
+    }
+  }, [callStatus, incomingCall, videoCallOpen]);
 
   // Emotion monitoring hook - captures webcam frames and sends to Hugging Face API
   useEmotionMonitor({
@@ -385,7 +400,15 @@ const Dashboard = () => {
                       <FaBrain className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => setVideoCallOpen(true)}
+                      onClick={() => {
+                        // Initiate call via socket for real-time notification
+                        if (selectedDoctor) {
+                          const doctorName = selectedDoctor.displayName || selectedDoctor.name || selectedDoctor.email || 'Doctor';
+                          startCall(selectedDoctor.id, doctorName);
+                        }
+                        setIsOutgoingCall(true);
+                        setVideoCallOpen(true);
+                      }}
                       className="bg-primary-100 hover:bg-primary-200 text-primary-700 p-2 rounded-full transition shadow flex items-center justify-center"
                       title="Start Video Call"
                     >
@@ -475,17 +498,6 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-            <VideoCallModal
-              open={videoCallOpen}
-              onClose={() => {
-                setVideoCallOpen(false);
-                addSystemMessage('Video call ended');
-              }}
-              patientName={currentUser?.displayName}
-              doctorName={selectedDoctor?.displayName}
-              patientId={currentUser?.uid}
-              onRoomCreated={(roomCode) => sendVideoCallInvitation(roomCode)}
-            />
           </>
         )}
 
@@ -582,6 +594,32 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Video Call Modal — rendered outside all other modals so it works
+          regardless of whether a chat modal is open */}
+      <VideoCallModal
+        open={videoCallOpen}
+        onClose={() => {
+          setVideoCallOpen(false);
+          setPendingVideoRoomCode(null);
+          setIsOutgoingCall(false);
+          // Only add system message if chat is open
+          if (showChatModal && selectedDoctor) {
+            addSystemMessage('Video call ended');
+          }
+        }}
+        patientName={currentUser?.displayName}
+        doctorName={selectedDoctor?.displayName}
+        patientId={currentUser?.uid}
+        onRoomCreated={(roomCode) => {
+          if (showChatModal && selectedDoctor) {
+            sendVideoCallInvitation(roomCode);
+          }
+        }}
+        initialRoomCode={pendingVideoRoomCode}
+        isDirectCall={isOutgoingCall && !!activeCallRoomId}
+        directCallRoomId={activeCallRoomId}
+      />
     </div>
   );
 };
