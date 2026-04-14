@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext.jsx';
+import { SocketProvider } from './contexts/SocketContext.jsx';
 import Layout from './components/layout/Layout';
 import { useAuth } from './contexts/AuthContext.jsx';
+import IncomingCallNotification from './components/dashboard/IncomingCallNotification.jsx';
 
 // Pages
 import Home from './pages/Home';
@@ -39,62 +41,67 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<AuthPage />} />
-            <Route path="/signup" element={<AuthPage />} />
-            
-            {/* Patient Dashboard */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute requiredRole="patient">
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            
-            {/* Doctor Dashboard */}
-            <Route
-              path="/dashboard/doctor"
-              element={
-                <ProtectedRoute requiredRole="doctor">
-                  <DoctorDashboard />
-                </ProtectedRoute>
-              }
-            />
-            
-            {/* Common Dashboard Routes */}
-            <Route
-              path="/dashboard/tests"
-              element={
-                <ProtectedRoute>
-                  <MentalHealthTest />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard/chat"
-              element={
-                <ProtectedRoute>
-                  <ChatPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard/ai-chat"
-              element={
-                <ProtectedRoute>
-                  <AIChat />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </Layout>
+        <SocketProvider>
+          <Layout>
+            {/* Incoming call notification renders on any page */}
+            <IncomingCallNotification />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<AuthPage />} />
+              <Route path="/signup" element={<AuthPage />} />
+              
+              {/* Patient Dashboard */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute requiredRole="patient">
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              
+              {/* Doctor Dashboard */}
+              <Route
+                path="/dashboard/doctor"
+                element={
+                  <ProtectedRoute requiredRole="doctor">
+                    <DoctorDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              
+              {/* Common Dashboard Routes */}
+              <Route
+                path="/dashboard/tests"
+                element={
+                  <ProtectedRoute>
+                    <MentalHealthTest />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/chat"
+                element={
+                  <ProtectedRoute>
+                    <ChatPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/ai-chat"
+                element={
+                  <ProtectedRoute>
+                    <AIChat />
+                  </ProtectedRoute>
+                }
+              />
+            </Routes>
+          </Layout>
+        </SocketProvider>
       </AuthProvider>
     </Router>
   );
 }
 
 export default App;
+

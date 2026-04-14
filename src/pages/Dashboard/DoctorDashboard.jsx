@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { FaComments, FaCalendarAlt, FaEnvelope, FaTimes, FaHistory, FaArrowLeft, FaBrain, FaChartLine, FaVideo } from 'react-icons/fa';
+import { FaComments, FaCalendarAlt, FaEnvelope, FaTimes, FaHistory, FaArrowLeft, FaBrain, FaChartLine, FaVideo, FaPhoneSlash } from 'react-icons/fa';
 import { useEmotionMonitor } from '../../utils/useEmotionMonitor';
 import { toFriendlyLabel } from '../../utils/emotionLabels';
 import { 
@@ -17,6 +17,7 @@ import {
 import SessionNotes from '../../components/dashboard/SessionNotes.jsx';
 import EmotionPanel from '../../components/dashboard/EmotionPanel.jsx';
 import VideoCallModal from '../../components/dashboard/VideoCallModal.jsx';
+import { useSocket } from '../../contexts/SocketContext';
 
 const DoctorDashboard = () => {
   const { currentUser } = useAuth();
@@ -42,6 +43,8 @@ const DoctorDashboard = () => {
   const [chatReport, setChatReport] = useState(null);
   const [videoCallOpen, setVideoCallOpen] = useState(false);
   const [pendingRoomCode, setPendingRoomCode] = useState(null);
+  const [videoCallPatient, setVideoCallPatient] = useState(null); // track which patient is being video called
+  const [isOutgoingCall, setIsOutgoingCall] = useState(false);
 
   const [viewingPatientHistory, setViewingPatientHistory] = useState(null);
   const [patientHistory, setPatientHistory] = useState([]);
@@ -50,6 +53,30 @@ const DoctorDashboard = () => {
   const [detectedEmotion, setDetectedEmotion] = useState(null);
   const [emotionHistory, setEmotionHistory] = useState([]);
   const [showEmotionPanel, setShowEmotionPanel] = useState(false);
+
+  // Socket context for direct video calls
+  const { startCall, callStatus, activeCallRoomId, incomingCall, outgoingCall } = useSocket();
+
+  // Handle starting a direct video call to a patient
+  const handleStartVideoCall = (patient) => {
+    const patientName = patient.displayName || patient.name || patient.email || 'Patient';
+    setVideoCallPatient(patient);
+    setIsOutgoingCall(true);
+    setVideoCallOpen(true);
+    startCall(patient.id, patientName);
+  };
+
+  // When an incoming call is accepted (from IncomingCallNotification), open the video call modal
+  useEffect(() => {
+    if (callStatus === 'connected' && incomingCall && !videoCallOpen) {
+      // Find the patient by callerId
+      const callerPatient = patients.find(p => p.id === incomingCall.callerId);
+      setVideoCallPatient(callerPatient || { id: incomingCall.callerId, displayName: incomingCall.callerName });
+      setPendingRoomCode(incomingCall.roomId);
+      setIsOutgoingCall(false);
+      setVideoCallOpen(true);
+    }
+  }, [callStatus, incomingCall, videoCallOpen, patients]);
 
   // Helper to get emoji for emotion
   const getEmotionEmoji = (emotion) => {
@@ -538,6 +565,12 @@ const DoctorDashboard = () => {
                         )}
                       </button>
                       <button
+                        className="w-full sm:w-auto flex items-center justify-center bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-600 transition-colors shadow-sm"
+                        onClick={() => handleStartVideoCall(patient)}
+                      >
+                        <FaVideo className="mr-2" /> Video Call
+                      </button>
+                      <button
                         className="w-full sm:w-auto flex items-center justify-center bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors shadow-sm"
                         onClick={() => handleViewHistory(patient)}
                       >
@@ -592,6 +625,26 @@ const DoctorDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Standalone Video Call Modal (for direct calls from patient list) */}
+      {videoCallOpen && !chatPatient && !modalOpen && (
+        <VideoCallModal
+          open={videoCallOpen}
+          onClose={() => {
+            setVideoCallOpen(false);
+            setPendingRoomCode(null);
+            setVideoCallPatient(null);
+            setIsOutgoingCall(false);
+          }}
+          patientName={videoCallPatient?.displayName || videoCallPatient?.name || 'Patient'}
+          doctorName={currentUser?.displayName || 'Doctor'}
+          patientId={videoCallPatient?.id}
+          doctorId={currentUser?.uid}
+          initialRoomCode={pendingRoomCode}
+          isDirectCall={isOutgoingCall && !!activeCallRoomId}
+          directCallRoomId={activeCallRoomId}
+        />
+      )}
 
       {/* Modal for Chat/View */}
       {modalOpen && modalData && (
@@ -763,11 +816,14 @@ const DoctorDashboard = () => {
                   onClose={() => {
                     setVideoCallOpen(false);
                     setPendingRoomCode(null);
+                    setIsOutgoingCall(false);
                   }}
                   patientName={modalData?.patientName}
                   doctorName={currentUser?.displayName}
                   doctorId={currentUser?.uid}
                   initialRoomCode={pendingRoomCode}
+                  isDirectCall={isOutgoingCall && !!activeCallRoomId}
+                  directCallRoomId={activeCallRoomId}
                 />
               </>
             ) : null}
@@ -808,7 +864,10 @@ const DoctorDashboard = () => {
                 )}
                 {/* Video Call Button */}
                 <button
-                  onClick={() => setVideoCallOpen(true)}
+                  onClick={() => {
+                    setIsOutgoingCall(false);
+                    setVideoCallOpen(true);
+                  }}
                   className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition"
                   title="Start Video Call"
                 >
@@ -960,12 +1019,15 @@ const DoctorDashboard = () => {
               onClose={() => {
                 setVideoCallOpen(false);
                 setPendingRoomCode(null);
+                setIsOutgoingCall(false);
               }}
               patientName={chatPatient?.displayName || chatPatient?.name || 'Patient'}
               doctorName={currentUser?.displayName || 'Doctor'}
               patientId={chatPatient?.id}
               doctorId={currentUser?.uid}
               initialRoomCode={pendingRoomCode}
+              isDirectCall={isOutgoingCall && !!activeCallRoomId}
+              directCallRoomId={activeCallRoomId}
             />
           </div>
         </div>

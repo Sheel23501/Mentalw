@@ -88,10 +88,11 @@ class WebRTCVideoCall {
 
   /**
    * Create a new room using Socket.IO
+   * @param {string} [customRoomName] - Optional room name. If not provided, generates one.
    */
-  async createRoom() {
+  async createRoom(customRoomName) {
     return new Promise((resolve, reject) => {
-      const roomName = `call-${Date.now()}`;
+      const roomName = customRoomName || `call-${Date.now()}`;
       
       this.socket.emit('room:create', {
         roomName,
@@ -344,6 +345,101 @@ class WebRTCVideoCall {
         track.enabled = enabled;
       });
     }
+  }
+
+  // ============== Call Signaling Methods ==============
+
+  /**
+   * Initiate a call to a specific user
+   */
+  initiateCall(targetUserId, callerName, callerImage, roomId) {
+    return new Promise((resolve, reject) => {
+      this.socket.emit('call:initiate', {
+        targetUserId,
+        callerName,
+        callerImage,
+        roomId,
+      }, (response) => {
+        if (response?.success) {
+          resolve(response);
+        } else {
+          reject(new Error(response?.reason || 'Failed to initiate call'));
+        }
+      });
+
+      // Fallback: if no ack callback, resolve after short delay
+      setTimeout(() => resolve({ success: true }), 2000);
+    });
+  }
+
+  /**
+   * Accept an incoming call
+   */
+  acceptCall(callerId, callerSocketId, roomId) {
+    this.socket.emit('call:accept', {
+      callerId,
+      callerSocketId,
+      roomId,
+    });
+  }
+
+  /**
+   * Reject an incoming call
+   */
+  rejectCall(callerId, callerSocketId, roomId) {
+    this.socket.emit('call:reject', {
+      callerId,
+      callerSocketId,
+      roomId,
+    });
+  }
+
+  /**
+   * Cancel an outgoing call
+   */
+  cancelCall(targetUserId, roomId) {
+    this.socket.emit('call:cancel', {
+      targetUserId,
+      roomId,
+    });
+  }
+
+  /**
+   * Setup call event listeners
+   * Returns a cleanup function to remove all listeners
+   */
+  setupCallListeners({ onIncomingCall, onCallAccepted, onCallRejected, onCallCancelled, onCallFailed }) {
+    if (!this.socket) return () => {};
+
+    const handlers = {};
+
+    if (onIncomingCall) {
+      handlers['call:incoming'] = onIncomingCall;
+      this.socket.on('call:incoming', onIncomingCall);
+    }
+    if (onCallAccepted) {
+      handlers['call:accepted'] = onCallAccepted;
+      this.socket.on('call:accepted', onCallAccepted);
+    }
+    if (onCallRejected) {
+      handlers['call:rejected'] = onCallRejected;
+      this.socket.on('call:rejected', onCallRejected);
+    }
+    if (onCallCancelled) {
+      handlers['call:cancelled'] = onCallCancelled;
+      this.socket.on('call:cancelled', onCallCancelled);
+    }
+    if (onCallFailed) {
+      handlers['call:failed'] = onCallFailed;
+      this.socket.on('call:failed', onCallFailed);
+    }
+
+    // Return cleanup function
+    return () => {
+      Object.entries(handlers).forEach(([event, handler]) => {
+        this.socket?.off(event, handler);
+      });
+    };
   }
 }
 
