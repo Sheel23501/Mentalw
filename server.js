@@ -576,6 +576,23 @@ io.on('connection', (socket) => {
     }
   });
 
+  // End an active call — notify everyone else in the room
+  socket.on('call:end', (data) => {
+    const { roomId } = data;
+    const ender = connectedUsers.get(socket.id);
+
+    console.log(`📴 Call ended by: ${ender?.userName} in room ${roomId}`);
+
+    // Broadcast to all other sockets in the room
+    if (roomId) {
+      socket.to(roomId).emit('call:ended', {
+        endedBy: ender?.userId,
+        endedByName: ender?.userName,
+        roomId,
+      });
+    }
+  });
+
   // Create room
   socket.on('room:create', (data, callback) => {
     const { roomName } = data;

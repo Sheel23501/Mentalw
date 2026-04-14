@@ -18,6 +18,7 @@ export const SocketProvider = ({ children }) => {
   const [callStatus, setCallStatus] = useState('idle'); // idle, calling, ringing, connected, ended, rejected, failed
   const cleanupRef = useRef(null);
   const ringtoneTimeoutRef = useRef(null);
+  const [remoteCallEnded, setRemoteCallEnded] = useState(false);
 
   // Initialize socket connection when user logs in
   useEffect(() => {
@@ -81,6 +82,19 @@ export const SocketProvider = ({ children }) => {
             setCallStatus('failed');
             setOutgoingCall(null);
             setTimeout(() => setCallStatus('idle'), 3000);
+          },
+          onCallEnded: (data) => {
+            console.log('📴 Call ended by remote:', data.endedByName);
+            setRemoteCallEnded(true);
+            setCallStatus('ended');
+            // Reset after a moment so VideoCallModal can react to remoteCallEnded first
+            setTimeout(() => {
+              setRemoteCallEnded(false);
+              setIncomingCall(null);
+              setOutgoingCall(null);
+              setCallStatus('idle');
+              setActiveCallRoomId(null);
+            }, 500);
           },
         });
 
@@ -175,13 +189,17 @@ export const SocketProvider = ({ children }) => {
     setActiveCallRoomId(null);
   }, [outgoingCall]);
 
-  // End an active call
+  // End an active call (local side initiated the end)
   const endCall = useCallback(() => {
+    // Signal the other party
+    if (webrtcRef.current && activeCallRoomId) {
+      webrtcRef.current.endCallSignal(activeCallRoomId);
+    }
     setIncomingCall(null);
     setOutgoingCall(null);
     setCallStatus('idle');
     setActiveCallRoomId(null);
-  }, []);
+  }, [activeCallRoomId]);
 
   // Get the WebRTC instance (for direct access when needed)
   const getWebRTC = useCallback(() => webrtcRef.current, []);
@@ -194,6 +212,7 @@ export const SocketProvider = ({ children }) => {
     outgoingCall,
     callStatus,
     activeCallRoomId,
+    remoteCallEnded,
     startCall,
     acceptIncomingCall,
     rejectIncomingCall,

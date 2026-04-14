@@ -405,10 +405,19 @@ class WebRTCVideoCall {
   }
 
   /**
+   * Signal the other party that the call has ended
+   */
+  endCallSignal(roomId) {
+    this.socket.emit('call:end', {
+      roomId,
+    });
+  }
+
+  /**
    * Setup call event listeners
    * Returns a cleanup function to remove all listeners
    */
-  setupCallListeners({ onIncomingCall, onCallAccepted, onCallRejected, onCallCancelled, onCallFailed }) {
+  setupCallListeners({ onIncomingCall, onCallAccepted, onCallRejected, onCallCancelled, onCallFailed, onCallEnded }) {
     if (!this.socket) return () => {};
 
     const handlers = {};
@@ -432,6 +441,10 @@ class WebRTCVideoCall {
     if (onCallFailed) {
       handlers['call:failed'] = onCallFailed;
       this.socket.on('call:failed', onCallFailed);
+    }
+    if (onCallEnded) {
+      handlers['call:ended'] = onCallEnded;
+      this.socket.on('call:ended', onCallEnded);
     }
 
     // Return cleanup function
