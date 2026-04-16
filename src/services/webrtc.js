@@ -21,11 +21,11 @@ class WebRTCVideoCall {
     if (!resolved && typeof window !== 'undefined') {
       const host = window.location.hostname || 'localhost';
       const protocol = window.location.protocol || 'http:';
-      resolved = `${protocol}//${host}:3001`;
+      resolved = `${protocol}//${host}:4000`;
     }
 
     // Final fallback
-    this.serverUrl = resolved || 'http://localhost:3001';
+    this.serverUrl = resolved || 'http://localhost:4000';
     this.socket = null;
     this.peerConnections = new Map();
     this.localStream = null;
