@@ -244,3 +244,18 @@ export const saveUserMood = async (userId, date, mood) => {
     timestamp: new Date().toISOString(),
   }, { merge: true });
 };
+
+// Get a user's profile data from userProfiles
+export const getUserProfile = async (userId) => {
+  if (!userId) return null;
+  const userRef = doc(db, 'userProfiles', userId);
+  const snap = await getDoc(userRef);
+  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+};
+
+// Update a user's profile fields in userProfiles (merge)
+export const updateUserProfile = async (userId, data) => {
+  if (!userId || !data) return;
+  const userRef = doc(db, 'userProfiles', userId);
+  await setDoc(userRef, { ...data, updatedAt: new Date().toISOString() }, { merge: true });
+};

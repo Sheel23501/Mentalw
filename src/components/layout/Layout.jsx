@@ -10,15 +10,11 @@ const Layout = ({ children }) => {
   const { userRole } = useAuth();
 
   const isDashboardRoute = location.pathname.startsWith('/dashboard');
-  const isDoctorRoute = location.pathname.startsWith('/dashboard/doctor');
 
   const renderNavbar = () => {
-    // Doctor dashboard has its own left sidebar — no top navbar needed
-    if (isDoctorRoute) {
-      return null;
-    }
+    // All dashboard routes (patient & doctor) have their own sidebar nav
     if (isDashboardRoute) {
-      return <DashboardNavbar />;
+      return null;
     }
     return <Navbar />;
   };
@@ -31,8 +27,8 @@ const Layout = ({ children }) => {
       <main className="flex-grow">
         {children}
       </main>
-      {/* Footer is hidden on doctor dashboard since it has its own full-screen layout */}
-      {!isDoctorRoute && <Footer />}
+      {/* Footer is hidden on all dashboard routes since they have full-screen layouts */}
+      {!isDashboardRoute && <Footer />}
     </div>
   );
 };
