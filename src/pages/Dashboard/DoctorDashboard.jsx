@@ -1,29 +1,729 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { FaComments, FaCalendarAlt, FaEnvelope, FaTimes, FaHistory, FaArrowLeft, FaBrain, FaChartLine, FaVideo } from 'react-icons/fa';
+import { FaComments, FaCalendarAlt, FaEnvelope, FaTimes, FaHistory, FaArrowLeft, FaBrain, FaChartLine, FaVideo, FaUser, FaEdit, FaSave, FaSignOutAlt, FaTh, FaUsers } from 'react-icons/fa';
 import { useEmotionMonitor } from '../../utils/useEmotionMonitor';
 import { toFriendlyLabel } from '../../utils/emotionLabels';
-import { 
-  getAllPatients, 
-  getScheduledChatsForDoctor, 
-  createOrGetChat, 
-  sendMessageToChat, 
-  listenForChatMessages, 
-  listenForChatDocChanges, 
-  resetUnreadCount, 
+import {
+  getAllPatients,
+  getScheduledChatsForDoctor,
+  createOrGetChat,
+  sendMessageToChat,
+  listenForChatMessages,
+  listenForChatDocChanges,
+  resetUnreadCount,
   saveChatReport,
-  getChatReportsForPatient 
+  getChatReportsForPatient,
+  listenForAppointmentsForDoctor,
+  updateAppointmentStatus
 } from '../../services/firestore';
 import SessionNotes from '../../components/dashboard/SessionNotes.jsx';
 import EmotionPanel from '../../components/dashboard/EmotionPanel.jsx';
 import VideoCallModal from '../../components/dashboard/VideoCallModal.jsx';
+import { useSocket } from '../../contexts/SocketContext';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../config/firebase';
 
+// ─── Left Sidebar ────────────────────────────────────────────────────────────
+const Sidebar = ({ activeTab, setActiveTab, doctorName, doctorPhoto, onLogout }) => {
+  const navItems = [
+    { id: 'overview', label: 'Overview', icon: <FaTh /> },
+    { id: 'appointments', label: 'Appointments', icon: <FaCalendarAlt /> },
+    { id: 'patients', label: 'Patients', icon: <FaUsers /> },
+    { id: 'profile', label: 'Profile', icon: <FaUser /> },
+  ];
+
+  return (
+    <aside style={{
+      width: '240px',
+      minHeight: '100vh',
+      background: 'linear-gradient(180deg, #1e3a2f 0%, #2d4a3e 50%, #1a3028 100%)',
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '0',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      bottom: 0,
+      zIndex: 100,
+      boxShadow: '4px 0 24px rgba(0,0,0,0.18)',
+    }}>
+      {/* Brand */}
+      <div style={{ padding: '28px 24px 20px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #4ade80, #22c55e)', flexShrink: 0 }} />
+          <span style={{ color: 'white', fontWeight: 800, fontSize: '17px', letterSpacing: '-0.5px', fontFamily: "'Inter', sans-serif" }}>TruCare</span>
+        </div>
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', fontWeight: 500, marginLeft: '42px', letterSpacing: '1px', textTransform: 'uppercase' }}>Doctor Portal</p>
+      </div>
+
+      {/* Doctor mini-profile */}
+      <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <img
+          src={doctorPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(doctorName || 'Doctor')}&background=4a7c65&color=fff`}
+          alt={doctorName}
+          style={{ width: '44px', height: '44px', borderRadius: '12px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.15)', flexShrink: 0 }}
+        />
+        <div style={{ overflow: 'hidden' }}>
+          <p style={{ color: 'white', fontWeight: 700, fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{doctorName || 'Doctor'}</p>
+          <p style={{ color: 'rgba(74,222,128,0.8)', fontSize: '11px', fontWeight: 500 }}>● Online</p>
+        </div>
+      </div>
+
+      {/* Nav items */}
+      <nav style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        {navItems.map(item => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '11px 14px',
+              borderRadius: '12px',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: "'Inter', sans-serif",
+              fontSize: '14px',
+              fontWeight: activeTab === item.id ? 700 : 500,
+              color: activeTab === item.id ? 'white' : 'rgba(255,255,255,0.55)',
+              background: activeTab === item.id
+                ? 'linear-gradient(135deg, rgba(74,124,101,0.7) 0%, rgba(61,102,85,0.5) 100%)'
+                : 'transparent',
+              boxShadow: activeTab === item.id ? '0 2px 12px rgba(0,0,0,0.2)' : 'none',
+              transition: 'all 0.2s ease',
+              textAlign: 'left',
+              width: '100%',
+            }}
+            onMouseEnter={e => {
+              if (activeTab !== item.id) {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                e.currentTarget.style.color = 'rgba(255,255,255,0.85)';
+              }
+            }}
+            onMouseLeave={e => {
+              if (activeTab !== item.id) {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = 'rgba(255,255,255,0.55)';
+              }
+            }}
+          >
+            <span style={{ fontSize: '15px', opacity: activeTab === item.id ? 1 : 0.7 }}>{item.icon}</span>
+            {item.label}
+          </button>
+        ))}
+      </nav>
+
+      {/* Logout */}
+      <div style={{ padding: '16px 12px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <button
+          onClick={onLogout}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '11px 14px',
+            borderRadius: '12px',
+            border: 'none',
+            cursor: 'pointer',
+            fontFamily: "'Inter', sans-serif",
+            fontSize: '14px',
+            fontWeight: 500,
+            color: 'rgba(252,165,165,0.85)',
+            background: 'transparent',
+            transition: 'all 0.2s ease',
+            width: '100%',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = 'rgba(239,68,68,0.12)';
+            e.currentTarget.style.color = '#fca5a5';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = 'transparent';
+            e.currentTarget.style.color = 'rgba(252,165,165,0.85)';
+          }}
+        >
+          <FaSignOutAlt style={{ fontSize: '15px' }} />
+          Logout
+        </button>
+      </div>
+    </aside>
+  );
+};
+
+// ─── Overview Tab ─────────────────────────────────────────────────────────────
+const OverviewTab = ({ patients, loading, scheduledChats, loadingChats, unreadCounts, patientsWithUnread, scheduledChatsWithUnread, setChatPatient, openModal }) => {
+  return (
+    <div>
+      {/* Stat cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '32px' }}>
+        {/* Active Patients */}
+        <div style={{ background: 'white', borderRadius: '20px', padding: '22px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, #4a7c65 0%, #2d4a3e 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>👥</div>
+          <div>
+            <p style={{ color: '#9ca3af', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '4px' }}>Active Patients</p>
+            <p style={{ color: '#1f2937', fontSize: '30px', fontWeight: 800, lineHeight: 1 }}>{loading ? '—' : patients.length}</p>
+            <p style={{ color: '#059669', fontSize: '11px', fontWeight: 600, marginTop: '4px' }}>Under your care</p>
+          </div>
+        </div>
+
+        {/* Pending */}
+        <div style={{ background: 'white', borderRadius: '20px', padding: '22px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>📅</div>
+          <div>
+            <p style={{ color: '#9ca3af', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '4px' }}>Pending Requests</p>
+            <p style={{ color: '#1f2937', fontSize: '30px', fontWeight: 800, lineHeight: 1 }}>{loadingChats ? '—' : scheduledChats.length}</p>
+            <p style={{ color: '#3b82f6', fontSize: '11px', fontWeight: 600, marginTop: '4px' }}>Awaiting response</p>
+          </div>
+        </div>
+
+        {/* Unread */}
+        <div style={{ background: 'white', borderRadius: '20px', padding: '22px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: `1px solid ${(patientsWithUnread.length + scheduledChatsWithUnread.length) > 0 ? '#fca5a5' : 'rgba(0,0,0,0.05)'}`, display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: (patientsWithUnread.length + scheduledChatsWithUnread.length) > 0 ? 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' : 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px', flexShrink: 0 }}>💬</div>
+          <div>
+            <p style={{ color: '#9ca3af', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '4px' }}>Unseen Messages</p>
+            <p style={{ color: (patientsWithUnread.length + scheduledChatsWithUnread.length) > 0 ? '#ef4444' : '#1f2937', fontSize: '30px', fontWeight: 800, lineHeight: 1 }}>{patientsWithUnread.length + scheduledChatsWithUnread.length}</p>
+            <p style={{ color: (patientsWithUnread.length + scheduledChatsWithUnread.length) > 0 ? '#ef4444' : '#9ca3af', fontSize: '11px', fontWeight: 600, marginTop: '4px' }}>{(patientsWithUnread.length + scheduledChatsWithUnread.length) > 0 ? 'Needs attention' : 'All caught up!'}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Unseen Messages */}
+      <div style={{ marginBottom: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <FaEnvelope style={{ color: '#ef4444', fontSize: '14px' }} />
+            </div>
+            <h2 style={{ color: '#1f2937', fontWeight: 700, fontSize: '17px' }}>Unseen Messages</h2>
+          </div>
+          {(patientsWithUnread.length + scheduledChatsWithUnread.length) > 0 && (
+            <span style={{ background: '#ef4444', color: 'white', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '999px' }}>
+              {patientsWithUnread.length + scheduledChatsWithUnread.length} new
+            </span>
+          )}
+        </div>
+        {(patientsWithUnread.length + scheduledChatsWithUnread.length) === 0 ? (
+          <div style={{ background: 'white', borderRadius: '16px', padding: '32px', textAlign: 'center', border: '1px solid rgba(0,0,0,0.05)' }}>
+            <div style={{ fontSize: '28px', marginBottom: '8px' }}>✅</div>
+            <p style={{ color: '#9ca3af', fontSize: '14px', fontWeight: 500 }}>All caught up! No unseen messages.</p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {patientsWithUnread.map(patient => (
+              <div key={patient.id} onClick={() => setChatPatient(patient)}
+                style={{ background: 'white', borderRadius: '16px', border: '1px solid #fee2e2', padding: '16px', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '14px' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(239,68,68,0.1)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}
+              >
+                <div style={{ position: 'relative', flexShrink: 0 }}>
+                  <img src={patient.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(patient.displayName || patient.email || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '48px', height: '48px', borderRadius: '12px', objectFit: 'cover' }} />
+                  <span style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: 'white', fontSize: '10px', fontWeight: 700, borderRadius: '999px', minWidth: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{unreadCounts[patient.id]}</span>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontWeight: 600, color: '#1f2937', fontSize: '14px' }}>{patient.displayName || patient.email || 'Unknown'}</p>
+                  <p style={{ color: '#ef4444', fontSize: '12px', fontWeight: 500, marginTop: '2px' }}>💬 {unreadCounts[patient.id]} unread message{unreadCounts[patient.id] > 1 ? 's' : ''}</p>
+                </div>
+                <button onClick={e => { e.stopPropagation(); setChatPatient(patient); }}
+                  style={{ background: 'linear-gradient(135deg, #4a7c65, #3d6655)', color: 'white', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <FaComments style={{ fontSize: '11px' }} /> Reply
+                </button>
+              </div>
+            ))}
+            {scheduledChatsWithUnread.map(chat => (
+              <div key={chat.id} onClick={() => openModal('view', chat)}
+                style={{ background: 'white', borderRadius: '16px', border: '1px solid #fee2e2', padding: '16px', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '14px' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(239,68,68,0.1)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}
+              >
+                <div style={{ position: 'relative', flexShrink: 0 }}>
+                  <img src={chat.patientPhotoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.patientName || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '48px', height: '48px', borderRadius: '12px', objectFit: 'cover' }} />
+                  <span style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: 'white', fontSize: '10px', fontWeight: 700, borderRadius: '999px', minWidth: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{unreadCounts[chat.id]}</span>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontWeight: 600, color: '#1f2937', fontSize: '14px' }}>{chat.patientName || 'Unknown'}</p>
+                  <p style={{ color: '#3b82f6', fontSize: '11px', fontWeight: 500 }}>📅 Scheduled session</p>
+                  <p style={{ color: '#ef4444', fontSize: '12px', fontWeight: 500, marginTop: '2px' }}>💬 {unreadCounts[chat.id]} unread</p>
+                </div>
+                <button onClick={e => { e.stopPropagation(); openModal('view', chat); }}
+                  style={{ background: 'linear-gradient(135deg, #4a7c65, #3d6655)', color: 'white', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <FaComments style={{ fontSize: '11px' }} /> Reply
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Pending Appointments */}
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <FaCalendarAlt style={{ color: '#3b82f6', fontSize: '14px' }} />
+            </div>
+            <h2 style={{ color: '#1f2937', fontWeight: 700, fontSize: '17px' }}>Pending Appointment Requests</h2>
+          </div>
+          <span style={{ background: '#f3f4f6', color: '#6b7280', fontSize: '12px', fontWeight: 600, padding: '4px 12px', borderRadius: '999px' }}>{scheduledChats.length} request{scheduledChats.length !== 1 ? 's' : ''}</span>
+        </div>
+
+        {loadingChats ? (
+          <div style={{ background: 'white', borderRadius: '16px', padding: '48px', textAlign: 'center' }}>
+            <p style={{ color: '#9ca3af' }}>Loading appointments...</p>
+          </div>
+        ) : scheduledChats.length === 0 ? (
+          <div style={{ background: 'white', borderRadius: '16px', padding: '32px', textAlign: 'center', border: '1px solid rgba(0,0,0,0.05)' }}>
+            <div style={{ fontSize: '28px', marginBottom: '8px' }}>📅</div>
+            <p style={{ color: '#9ca3af', fontSize: '14px' }}>No pending appointment requests.</p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {scheduledChats.map(chat => (
+              <div key={chat.id} style={{ background: 'white', borderRadius: '16px', border: '1px solid rgba(0,0,0,0.06)', padding: '18px', display: 'flex', alignItems: 'center', gap: '14px', transition: 'all 0.2s' }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 20px rgba(59,130,246,0.1)'; e.currentTarget.style.borderColor = '#bfdbfe'; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = 'rgba(0,0,0,0.06)'; }}
+              >
+                <img src={chat.patientPhotoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.patientName || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '48px', height: '48px', borderRadius: '12px', objectFit: 'cover', flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '6px' }}>
+                    <p style={{ fontWeight: 700, color: '#1f2937', fontSize: '14px' }}>{chat.patientName || 'Unknown Patient'}</p>
+                    <span style={{ background: '#fffbeb', color: '#d97706', fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '999px', border: '1px solid #fde68a' }}>{chat.status || 'Pending'}</span>
+                    {unreadCounts[chat.id] > 0 && (
+                      <span style={{ background: '#ef4444', color: 'white', fontSize: '10px', fontWeight: 700, borderRadius: '999px', minWidth: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px' }}>{unreadCounts[chat.id]}</span>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ background: '#eff6ff', color: '#1d4ed8', fontSize: '12px', fontWeight: 600, padding: '4px 10px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <FaCalendarAlt style={{ fontSize: '11px' }} /> {chat.date || 'No date'}
+                    </span>
+                    <span style={{ background: '#f0fdf4', color: '#15803d', fontSize: '12px', fontWeight: 600, padding: '4px 10px', borderRadius: '8px' }}>
+                      🕐 {chat.time || 'No time'}
+                    </span>
+                  </div>
+                  <p style={{ color: '#9ca3af', fontSize: '11px', marginTop: '4px' }}>📧 {chat.patientEmail || 'Unknown'}</p>
+                </div>
+                <button onClick={() => openModal('view', chat)}
+                  style={{ background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '9px 18px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s', flexShrink: 0 }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#dcfce7'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#f0fdf4'; }}
+                >
+                  <FaCalendarAlt style={{ fontSize: '11px' }} /> Open
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ─── Appointments Tab ────────────────────────────────────────────────────────
+const AppointmentsTab = ({ appointments, loading, onUpdateStatus, openModal }) => {
+  const [filter, setFilter] = useState('all');
+  const [updatingId, setUpdatingId] = useState(null);
+
+  const filtered = appointments.filter(a => {
+    if (filter === 'all') return true;
+    return a.status?.toLowerCase() === filter.toLowerCase();
+  });
+
+  // Sort: upcoming first, then by date/time
+  const sorted = [...filtered].sort((a, b) => {
+    const statusOrder = { 'Scheduled': 0, 'Confirmed': 1, 'Completed': 2, 'Cancelled': 3 };
+    const sA = statusOrder[a.status] ?? 99;
+    const sB = statusOrder[b.status] ?? 99;
+    if (sA !== sB) return sA - sB;
+    const dateA = new Date(`${a.date}T${a.time || '00:00'}`);
+    const dateB = new Date(`${b.date}T${b.time || '00:00'}`);
+    return dateA - dateB;
+  });
+
+  const handleStatusChange = async (id, status) => {
+    setUpdatingId(id);
+    try {
+      await onUpdateStatus(id, status);
+    } catch (e) {
+      console.error('Failed to update appointment:', e);
+    }
+    setUpdatingId(null);
+  };
+
+  const statusConfig = {
+    'Scheduled': { bg: '#fffbeb', color: '#d97706', border: '#fde68a', label: 'Pending', icon: '⏳' },
+    'Confirmed': { bg: '#f0fdf4', color: '#15803d', border: '#bbf7d0', label: 'Confirmed', icon: '✅' },
+    'Cancelled': { bg: '#fef2f2', color: '#dc2626', border: '#fecaca', label: 'Cancelled', icon: '❌' },
+    'Completed': { bg: '#f9fafb', color: '#6b7280', border: '#e5e7eb', label: 'Completed', icon: '✔️' },
+  };
+
+  const filterBtns = [
+    { key: 'all', label: 'All' },
+    { key: 'scheduled', label: 'Pending' },
+    { key: 'confirmed', label: 'Confirmed' },
+    { key: 'completed', label: 'Completed' },
+    { key: 'cancelled', label: 'Cancelled' },
+  ];
+
+  return (
+    <div>
+      {/* Filter bar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
+        {filterBtns.map(f => (
+          <button key={f.key} onClick={() => setFilter(f.key)}
+            style={{
+              padding: '8px 18px', borderRadius: '999px', border: 'none', cursor: 'pointer',
+              fontFamily: "'Inter', sans-serif", fontSize: '13px', fontWeight: 600,
+              background: filter === f.key ? 'linear-gradient(135deg, #4a7c65, #3d6655)' : '#f3f4f6',
+              color: filter === f.key ? 'white' : '#6b7280',
+              transition: 'all 0.2s',
+              boxShadow: filter === f.key ? '0 2px 8px rgba(74,124,101,0.3)' : 'none',
+            }}
+          >{f.label} {f.key === 'all' ? `(${appointments.length})` : `(${appointments.filter(a => a.status?.toLowerCase() === f.key).length})`}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>Loading appointments...</div>
+      ) : sorted.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px 0' }}>
+          <div style={{ fontSize: '36px', marginBottom: '12px' }}>📅</div>
+          <p style={{ color: '#9ca3af', fontSize: '15px' }}>{filter === 'all' ? 'No appointments yet.' : `No ${filter} appointments.`}</p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {sorted.map(appt => {
+            const sc = statusConfig[appt.status] || statusConfig['Scheduled'];
+            const apptDate = new Date(`${appt.date}T${appt.time || '00:00'}`);
+            const isPast = apptDate < new Date();
+            const isUpdating = updatingId === appt.id;
+
+            return (
+              <div key={appt.id}
+                style={{
+                  background: 'white', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.06)',
+                  padding: '20px 24px', boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
+                  transition: 'all 0.2s', opacity: appt.status === 'Cancelled' ? 0.6 : 1,
+                }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.10)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 10px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                  {/* Patient avatar */}
+                  <img
+                    src={appt.patientPhotoURL || appt.patientImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(appt.patientName || 'P')}&background=c7d2c4&color=374151`}
+                    alt=""
+                    style={{ width: '52px', height: '52px', borderRadius: '14px', objectFit: 'cover', border: '2px solid #f3f4f6', flexShrink: 0 }}
+                  />
+                  {/* Info */}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                      <p style={{ fontWeight: 700, color: '#1f2937', fontSize: '15px', margin: 0 }}>{appt.patientName || 'Unknown Patient'}</p>
+                      <span style={{
+                        background: sc.bg, color: sc.color, fontSize: '11px', fontWeight: 700,
+                        padding: '3px 10px', borderRadius: '999px', border: `1px solid ${sc.border}`,
+                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                      }}>{sc.icon} {sc.label}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                      <span style={{ background: '#eff6ff', color: '#1d4ed8', fontSize: '12px', fontWeight: 600, padding: '5px 12px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <FaCalendarAlt style={{ fontSize: '11px' }} />
+                        {appt.date ? new Date(appt.date + 'T00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : 'No date'}
+                      </span>
+                      <span style={{ background: '#f0fdf4', color: '#15803d', fontSize: '12px', fontWeight: 600, padding: '5px 12px', borderRadius: '10px' }}>
+                        🕐 {appt.time || 'No time'}
+                      </span>
+                      {isPast && appt.status === 'Scheduled' && (
+                        <span style={{ background: '#fef2f2', color: '#dc2626', fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '999px' }}>Overdue</span>
+                      )}
+                    </div>
+                    <p style={{ color: '#9ca3af', fontSize: '12px', margin: 0 }}>📧 {appt.patientEmail || 'Unknown'}</p>
+                    {appt.reason && (
+                      <div style={{ background: '#f9fafb', borderRadius: '10px', padding: '8px 12px', marginTop: '8px', border: '1px solid #f3f4f6' }}>
+                        <p style={{ color: '#6b7280', fontSize: '12px', margin: 0, lineHeight: '1.5' }}>📝 {appt.reason}</p>
+                      </div>
+                    )}
+                  </div>
+                  {/* Actions */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flexShrink: 0 }}>
+                    {appt.status === 'Scheduled' && (
+                      <>
+                        <button onClick={() => handleStatusChange(appt.id, 'Confirmed')} disabled={isUpdating}
+                          style={{ background: 'linear-gradient(135deg, #4a7c65, #3d6655)', color: 'white', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', opacity: isUpdating ? 0.6 : 1, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}>
+                          ✅ Confirm
+                        </button>
+                        <button onClick={() => handleStatusChange(appt.id, 'Cancelled')} disabled={isUpdating}
+                          style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '10px', padding: '8px 16px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', opacity: isUpdating ? 0.6 : 1, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}>
+                          ❌ Decline
+                        </button>
+                      </>
+                    )}
+                    {appt.status === 'Confirmed' && (
+                      <>
+                        <button onClick={() => openModal('view', appt)}
+                          style={{ background: 'linear-gradient(135deg, #4a7c65, #3d6655)', color: 'white', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
+                          <FaComments style={{ fontSize: '11px' }} /> Start Session
+                        </button>
+                        <button onClick={() => handleStatusChange(appt.id, 'Completed')} disabled={isUpdating}
+                          style={{ background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '8px 16px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', opacity: isUpdating ? 0.6 : 1, whiteSpace: 'nowrap' }}>
+                          ✔️ Complete
+                        </button>
+                      </>
+                    )}
+                    {(appt.status === 'Completed' || appt.status === 'Cancelled') && (
+                      <span style={{ color: '#9ca3af', fontSize: '11px', fontStyle: 'italic', textAlign: 'center', padding: '8px 0' }}>
+                        {appt.status === 'Completed' ? 'Session completed' : 'Declined'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Patients Tab ─────────────────────────────────────────────────────────────
+const PatientsTab = ({ patients, loading, unreadCounts, setChatPatient, handleViewHistory, handleStartVideoCall }) => {
+  const [search, setSearch] = useState('');
+  const filtered = patients.filter(p =>
+    (p.displayName || p.name || p.email || '').toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+        <div>
+          <h1 style={{ color: '#1f2937', fontWeight: 800, fontSize: '24px', letterSpacing: '-0.5px' }}>All Patients</h1>
+          <p style={{ color: '#9ca3af', fontSize: '14px', marginTop: '2px' }}>{loading ? '...' : `${patients.length} patient${patients.length !== 1 ? 's' : ''} under your care`}</p>
+        </div>
+        <input
+          type="text"
+          placeholder="🔍  Search patients..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{ border: '1.5px solid #e5e7eb', borderRadius: '12px', padding: '10px 16px', fontSize: '14px', outline: 'none', width: '220px', background: 'white', color: '#374151', fontFamily: "'Inter', sans-serif" }}
+        />
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>Loading patients...</div>
+      ) : filtered.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px 0' }}>
+          <div style={{ fontSize: '36px', marginBottom: '12px' }}>👥</div>
+          <p style={{ color: '#9ca3af', fontSize: '15px' }}>{search ? 'No patients match your search.' : 'No patients yet.'}</p>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+          {filtered.map(patient => (
+            <div key={patient.id} style={{ background: 'white', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.06)', padding: '20px', boxShadow: '0 2px 10px rgba(0,0,0,0.04)', transition: 'all 0.2s' }}
+              onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.10)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 10px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '16px' }}>
+                <div style={{ position: 'relative', flexShrink: 0 }}>
+                  <img
+                    src={patient.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(patient.displayName || patient.email || 'P')}&background=c7d2c4&color=374151`}
+                    alt=""
+                    style={{ width: '54px', height: '54px', borderRadius: '14px', objectFit: 'cover', border: '2px solid #f3f4f6' }}
+                  />
+                  {(unreadCounts[patient.id] || 0) > 0 && (
+                    <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#ef4444', color: 'white', fontSize: '10px', fontWeight: 700, borderRadius: '999px', minWidth: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', border: '2px solid white' }}>{unreadCounts[patient.id]}</span>
+                  )}
+                </div>
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                  <p style={{ fontWeight: 700, color: '#1f2937', fontSize: '15px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{patient.displayName || patient.name || 'Unknown'}</p>
+                  <p style={{ color: '#9ca3af', fontSize: '12px', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{patient.email || '—'}</p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button onClick={() => setChatPatient(patient)}
+                  style={{ flex: 1, background: 'linear-gradient(135deg, #4a7c65, #3d6655)', color: 'white', border: 'none', borderRadius: '10px', padding: '9px 0', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', transition: 'opacity 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                >
+                  <FaComments style={{ fontSize: '11px' }} /> Chat
+                </button>
+                <button onClick={() => handleStartVideoCall(patient)}
+                  style={{ flex: 1, background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '9px 0', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', transition: 'background 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#dbeafe'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#eff6ff'}
+                >
+                  <FaVideo style={{ fontSize: '11px' }} /> Call
+                </button>
+                <button onClick={() => handleViewHistory(patient)}
+                  style={{ flex: 1, background: '#f9fafb', color: '#6b7280', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '9px 0', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', transition: 'background 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#f3f4f6'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#f9fafb'}
+                >
+                  <FaHistory style={{ fontSize: '11px' }} /> History
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Profile Tab ──────────────────────────────────────────────────────────────
+const ProfileTab = ({ currentUser }) => {
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [form, setForm] = useState({
+    displayName: currentUser?.displayName || '',
+    specialization: '',
+    experience: '',
+    availability: '',
+    about: '',
+    phone: '',
+    clinic: '',
+  });
+
+  // Load profile from Firestore on mount
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!currentUser?.uid) return;
+      try {
+        const { getDoc, doc } = await import('firebase/firestore');
+        const { db } = await import('../../config/firebase');
+        const snap = await getDoc(doc(db, 'doctors', currentUser.uid));
+        if (snap.exists()) {
+          const data = snap.data();
+          setForm(prev => ({
+            ...prev,
+            displayName: data.displayName || currentUser.displayName || '',
+            specialization: data.specialization || '',
+            experience: data.experience || '',
+            availability: data.availability || '',
+            about: data.about || '',
+            phone: data.phone || '',
+            clinic: data.clinic || '',
+          }));
+        }
+      } catch (e) {
+        // silently fail
+      }
+    };
+    loadProfile();
+  }, [currentUser]);
+
+  const handleSave = async () => {
+    if (!currentUser?.uid) return;
+    setSaving(true);
+    try {
+      const { doc, updateDoc } = await import('firebase/firestore');
+      const { db } = await import('../../config/firebase');
+      await updateDoc(doc(db, 'doctors', currentUser.uid), form);
+      setSaved(true);
+      setEditing(false);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (e) {
+      console.error('Failed to save profile:', e);
+    }
+    setSaving(false);
+  };
+
+  const field = (label, key, placeholder, textarea = false) => (
+    <div style={{ marginBottom: '20px' }}>
+      <label style={{ display: 'block', color: '#374151', fontWeight: 600, fontSize: '13px', marginBottom: '6px' }}>{label}</label>
+      {editing ? (
+        textarea ? (
+          <textarea
+            value={form[key]}
+            onChange={e => setForm(prev => ({ ...prev, [key]: e.target.value }))}
+            placeholder={placeholder}
+            rows={3}
+            style={{ width: '100%', border: '1.5px solid #e5e7eb', borderRadius: '12px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Inter', sans-serif", color: '#374151', outline: 'none', resize: 'vertical', background: '#f9fafb', boxSizing: 'border-box' }}
+          />
+        ) : (
+          <input
+            value={form[key]}
+            onChange={e => setForm(prev => ({ ...prev, [key]: e.target.value }))}
+            placeholder={placeholder}
+            style={{ width: '100%', border: '1.5px solid #e5e7eb', borderRadius: '12px', padding: '10px 14px', fontSize: '14px', fontFamily: "'Inter', sans-serif", color: '#374151', outline: 'none', background: '#f9fafb', boxSizing: 'border-box' }}
+          />
+        )
+      ) : (
+        <p style={{ color: form[key] ? '#1f2937' : '#9ca3af', fontSize: '14px', padding: '10px 14px', background: '#f9fafb', borderRadius: '12px', border: '1px solid #f3f4f6' }}>
+          {form[key] || `—`}
+        </p>
+      )}
+    </div>
+  );
+
+  return (
+    <div style={{ maxWidth: '720px' }}>
+      {/* Header card */}
+      <div style={{ background: 'linear-gradient(135deg, #2d4a3e 0%, #3d6655 50%, #4a7c65 100%)', borderRadius: '24px', padding: '32px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '24px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '180px', height: '180px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
+        <div style={{ position: 'absolute', bottom: '-20px', left: '20%', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
+        <img
+          src={currentUser?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(form.displayName || 'Doctor')}&background=4a7c65&color=fff&size=128`}
+          alt="Profile"
+          style={{ width: '88px', height: '88px', borderRadius: '20px', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.25)', flexShrink: 0, position: 'relative', zIndex: 1 }}
+        />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', fontWeight: 600, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '4px' }}>Psychologist Profile</p>
+          <h1 style={{ color: 'white', fontWeight: 800, fontSize: '26px', letterSpacing: '-0.5px', marginBottom: '4px' }}>{form.displayName || 'Doctor'}</h1>
+          <p style={{ color: 'rgba(74,222,128,0.9)', fontSize: '14px', fontWeight: 600 }}>{form.specialization || 'Specialization not set'}</p>
+          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', marginTop: '4px' }}>{currentUser?.email}</p>
+        </div>
+      </div>
+
+      {/* Form card */}
+      <div style={{ background: 'white', borderRadius: '20px', padding: '28px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.05)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+          <h2 style={{ color: '#1f2937', fontWeight: 700, fontSize: '18px' }}>Professional Information</h2>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            {saved && <span style={{ color: '#059669', fontSize: '13px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>✅ Saved!</span>}
+            {editing ? (
+              <>
+                <button onClick={() => setEditing(false)}
+                  style={{ background: '#f3f4f6', color: '#6b7280', border: 'none', borderRadius: '10px', padding: '9px 18px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                  Cancel
+                </button>
+                <button onClick={handleSave} disabled={saving}
+                  style={{ background: 'linear-gradient(135deg, #4a7c65, #3d6655)', color: 'white', border: 'none', borderRadius: '10px', padding: '9px 18px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', opacity: saving ? 0.7 : 1 }}>
+                  <FaSave style={{ fontSize: '12px' }} /> {saving ? 'Saving...' : 'Save Changes'}
+                </button>
+              </>
+            ) : (
+              <button onClick={() => setEditing(true)}
+                style={{ background: 'linear-gradient(135deg, #4a7c65, #3d6655)', color: 'white', border: 'none', borderRadius: '10px', padding: '9px 18px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <FaEdit style={{ fontSize: '12px' }} /> Edit Profile
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 24px' }}>
+          <div>{field('Full Name', 'displayName', 'Dr. John Doe')}</div>
+          <div>{field('Specialization', 'specialization', 'e.g. Clinical Psychology')}</div>
+          <div>{field('Years of Experience', 'experience', 'e.g. 8')}</div>
+          <div>{field('Phone Number', 'phone', 'e.g. +91 98765 43210')}</div>
+          <div>{field('Clinic / Hospital', 'clinic', 'e.g. MindCare Clinic')}</div>
+          <div>{field('Availability', 'availability', 'e.g. Mon–Fri, 9AM–5PM')}</div>
+        </div>
+        {field('About / Bio', 'about', 'Describe your background, approach, and expertise...', true)}
+      </div>
+    </div>
+  );
+};
+
+// ─── Main DoctorDashboard ────────────────────────────────────────────────────
 const DoctorDashboard = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState('overview');
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalType, setModalType] = useState(''); // 'chat' or 'view'
+  const [modalType, setModalType] = useState('');
   const [modalData, setModalData] = useState(null);
   const [scheduledChats, setScheduledChats] = useState([]);
   const [loadingChats, setLoadingChats] = useState(true);
@@ -42,6 +742,8 @@ const DoctorDashboard = () => {
   const [chatReport, setChatReport] = useState(null);
   const [videoCallOpen, setVideoCallOpen] = useState(false);
   const [pendingRoomCode, setPendingRoomCode] = useState(null);
+  const [videoCallPatient, setVideoCallPatient] = useState(null);
+  const [isOutgoingCall, setIsOutgoingCall] = useState(false);
 
   const [viewingPatientHistory, setViewingPatientHistory] = useState(null);
   const [patientHistory, setPatientHistory] = useState([]);
@@ -51,7 +753,26 @@ const DoctorDashboard = () => {
   const [emotionHistory, setEmotionHistory] = useState([]);
   const [showEmotionPanel, setShowEmotionPanel] = useState(false);
 
-  // Helper to get emoji for emotion
+  const { startCall, callStatus, activeCallRoomId, incomingCall, outgoingCall } = useSocket();
+
+  const handleStartVideoCall = (patient) => {
+    const patientName = patient.displayName || patient.name || patient.email || 'Patient';
+    setVideoCallPatient(patient);
+    setIsOutgoingCall(true);
+    setVideoCallOpen(true);
+    startCall(patient.id, patientName);
+  };
+
+  useEffect(() => {
+    if (callStatus === 'connected' && incomingCall && !videoCallOpen) {
+      const callerPatient = patients.find(p => p.id === incomingCall.callerId);
+      setVideoCallPatient(callerPatient || { id: incomingCall.callerId, displayName: incomingCall.callerName });
+      setPendingRoomCode(incomingCall.roomId);
+      setIsOutgoingCall(false);
+      setVideoCallOpen(true);
+    }
+  }, [callStatus, incomingCall, videoCallOpen, patients]);
+
   const getEmotionEmoji = (emotion) => {
     const emojiMap = {
       happy: '😊', sad: '😢', angry: '😠', fear: '😨',
@@ -60,14 +781,12 @@ const DoctorDashboard = () => {
     return emojiMap[emotion?.toLowerCase()] || '🎭';
   };
 
-  // Emotion monitoring hook
   useEmotionMonitor({
     enabled: emotionAnalysisEnabled,
     intervalMs: 5000,
     onResult: (res) => {
       const emotion = toFriendlyLabel(res?.aggregated?.emotion || res?.faces?.[0]?.emotion || 'unknown');
       setDetectedEmotion(emotion);
-      // Add to history with timestamp
       setEmotionHistory(prev => [...prev, { emotion, timestamp: new Date(), score: res?.faces?.[0]?.score }].slice(-20));
     },
   });
@@ -77,10 +796,8 @@ const DoctorDashboard = () => {
   const chatBodyRefDirect = useRef(null);
 
   const handleSaveAndEndChat = async (chatType, messages, patientInfo) => {
-    closeChatModals(true); 
-
+    closeChatModals(true);
     if (!messages || messages.length === 0) return;
-
     const reportData = {
       doctorId: currentUser.uid,
       patientId: patientInfo.patientId,
@@ -88,19 +805,16 @@ const DoctorDashboard = () => {
       patientPhotoURL: patientInfo.patientPhotoURL,
       messages: messages.map(m => ({ ...m, timestamp: m.timestamp || new Date() })),
     };
-
     try {
       await saveChatReport(reportData);
     } catch (error) {
       console.error("Failed to save the report:", error);
     }
-
     if (chatType === 'scheduled') {
       setChatMessages([]);
     } else {
       setChatMessagesDirect([]);
     }
-
     setChatReport(reportData);
     setReportModalOpen(true);
   };
@@ -112,7 +826,6 @@ const DoctorDashboard = () => {
     setModalData(null);
     setModalType('');
     setChatPatient(null);
-    
     if (!isSaving) {
       setChatMessages([]);
       setChatMessagesDirect([]);
@@ -124,10 +837,7 @@ const DoctorDashboard = () => {
     setHistoryLoading(true);
     getChatReportsForPatient(patient.id)
       .then(setPatientHistory)
-      .catch(err => {
-        console.error("Failed to fetch history:", err);
-        setPatientHistory([]);
-      })
+      .catch(() => setPatientHistory([]))
       .finally(() => setHistoryLoading(false));
   };
 
@@ -137,151 +847,84 @@ const DoctorDashboard = () => {
   };
 
   useEffect(() => {
-    if (chatBodyRef.current) {
-      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
-    }
+    if (chatBodyRef.current) chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
   }, [chatMessages]);
 
   useEffect(() => {
-    if (chatBodyRefDirect.current) {
-      chatBodyRefDirect.current.scrollTop = chatBodyRefDirect.current.scrollHeight;
-    }
+    if (chatBodyRefDirect.current) chatBodyRefDirect.current.scrollTop = chatBodyRefDirect.current.scrollHeight;
   }, [chatMessagesDirect]);
 
   useEffect(() => {
     const fetchPatients = async () => {
       setLoading(true);
-      try {
-        const data = await getAllPatients();
-        setPatients(data);
-      } catch (err) {
-        setPatients([]);
-      }
+      try { const data = await getAllPatients(); setPatients(data); }
+      catch { setPatients([]); }
       setLoading(false);
     };
     fetchPatients();
   }, []);
 
+  // Real-time listener for scheduled appointments
   useEffect(() => {
-    const fetchScheduledChats = async () => {
-      if (!currentUser) return;
-      setLoadingChats(true);
-      try {
-        const chats = await getScheduledChatsForDoctor(currentUser.uid);
-        setScheduledChats(chats);
-      } catch (err) {
-        setScheduledChats([]);
-      }
+    if (!currentUser) return;
+    setLoadingChats(true);
+    const unsub = listenForAppointmentsForDoctor(currentUser.uid, (appointments) => {
+      setScheduledChats(appointments);
       setLoadingChats(false);
-    };
-    fetchScheduledChats();
+    });
+    return () => unsub();
   }, [currentUser]);
 
-  // Listen for unread counts for each patient
   useEffect(() => {
     if (!currentUser || (!patients.length && !scheduledChats.length)) return;
-
     const unsubscribes = [];
-
-    // Listen for direct chat unread counts
     patients.forEach(patient => {
       const chatId = `${currentUser.uid}_${patient.id}`;
       const unsub = listenForChatDocChanges(chatId, (chatDoc) => {
-        if (chatDoc) {
-          setUnreadCounts(prevCounts => ({
-            ...prevCounts,
-            [patient.id]: chatDoc.unreadCountDoctor || 0,
-          }));
-        }
+        if (chatDoc) setUnreadCounts(prev => ({ ...prev, [patient.id]: chatDoc.unreadCountDoctor || 0 }));
       });
       unsubscribes.push(unsub);
     });
-
-    // Listen for scheduled chat unread counts (using chat ID as key)
     scheduledChats.forEach(chat => {
       const unsub = listenForChatDocChanges(chat.id, (chatDoc) => {
-        if (chatDoc) {
-          setUnreadCounts(prevCounts => ({
-            ...prevCounts,
-            [chat.id]: chatDoc.unreadCountDoctor || 0,
-          }));
-        }
+        if (chatDoc) setUnreadCounts(prev => ({ ...prev, [chat.id]: chatDoc.unreadCountDoctor || 0 }));
       });
       unsubscribes.push(unsub);
     });
-
-    return () => {
-      unsubscribes.forEach(unsub => unsub());
-    };
+    return () => unsubscribes.forEach(u => u());
   }, [patients, scheduledChats, currentUser]);
 
-  // Listen for messages when scheduled chat modal opens
   useEffect(() => {
     if (modalOpen && modalType === 'view' && modalData && modalData.id) {
       const chatId = modalData.id;
-      const participants = [
-        modalData.doctorId, 
-        modalData.patientId
-      ]; // Assuming these are available in modalData
-
+      const participants = [modalData.doctorId, modalData.patientId];
       setChatMessages([]);
       setChatLoading(true);
-
       createOrGetChat(chatId, participants).then(() => {
-        const unsub = listenForChatMessages(chatId, (msgs) => {
-          setChatMessages(msgs);
-          setChatLoading(false);
-        });
-        setChatListener(() => unsub); // Save the unsubscribe function
-      }).catch(err => {
-        console.error('Error creating/getting chat:', err);
-        setChatLoading(false);
-      });
-
-      // Reset unread count when scheduled chat is opened
-      if (currentUser) {
-        resetUnreadCount(chatId, currentUser.uid, 'doctor');
-      }
-
-      // Start timer
+        const unsub = listenForChatMessages(chatId, (msgs) => { setChatMessages(msgs); setChatLoading(false); });
+        setChatListener(() => unsub);
+      }).catch(() => setChatLoading(false));
+      if (currentUser) resetUnreadCount(chatId, currentUser.uid, 'doctor');
       setTimeLeft(45 * 60);
       if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = setInterval(() => {
         setTimeLeft(prev => {
-          if (prev !== null && prev <= 1) {
-            clearInterval(timerRef.current);
-            closeChatModals(); // Just close the modal, don't save
-            return 0;
-          }
+          if (prev !== null && prev <= 1) { clearInterval(timerRef.current); closeChatModals(); return 0; }
           return prev - 1;
         });
       }, 1000);
-
     } else {
-      // Cleanup when modal closes
-      if (chatListener) {
-        chatListener();
-        setChatListener(null);
-      }
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
+      if (chatListener) { chatListener(); setChatListener(null); }
+      if (timerRef.current) clearInterval(timerRef.current);
       setTimeLeft(null);
     }
-
     return () => {
-      if (chatListener) {
-        chatListener();
-        setChatListener(null);
-      }
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    }
+      if (chatListener) { chatListener(); setChatListener(null); }
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
     // eslint-disable-next-line
   }, [modalOpen, modalType, modalData, currentUser]);
 
-  // Listen for messages when direct chat modal opens
   useEffect(() => {
     if (chatPatient && currentUser) {
       const chatId = `${currentUser.uid}_${chatPatient.id}`;
@@ -289,124 +932,54 @@ const DoctorDashboard = () => {
       setChatMessagesDirect([]);
       setChatLoadingDirect(true);
       createOrGetChat(chatId, participants).then(() => {
-        const unsub = listenForChatMessages(chatId, (msgs) => {
-          setChatMessagesDirect(msgs);
-          setChatLoadingDirect(false);
-        });
-        setChatListenerDirect(() => unsub); // Save the unsubscribe function
-      }).catch(err => {
-        console.error('Error creating/getting direct chat:', err);
-        setChatLoadingDirect(false);
-      });
-
-      // Reset unread count when direct chat is opened
-      if (currentUser) {
-        resetUnreadCount(chatId, currentUser.uid, 'doctor');
-      }
-
-      // Start timer
+        const unsub = listenForChatMessages(chatId, (msgs) => { setChatMessagesDirect(msgs); setChatLoadingDirect(false); });
+        setChatListenerDirect(() => unsub);
+      }).catch(() => setChatLoadingDirect(false));
+      if (currentUser) resetUnreadCount(chatId, currentUser.uid, 'doctor');
       setTimeLeft(45 * 60);
       if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = setInterval(() => {
         setTimeLeft(prev => {
-          if (prev !== null && prev <= 1) {
-            clearInterval(timerRef.current);
-            closeChatModals(); // Just close the modal, don't save
-            return 0;
-          }
+          if (prev !== null && prev <= 1) { clearInterval(timerRef.current); closeChatModals(); return 0; }
           return prev - 1;
         });
       }, 1000);
     } else {
-      // Cleanup when modal closes
-      if (chatListenerDirect) {
-        chatListenerDirect();
-        setChatListenerDirect(null);
-      }
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
+      if (chatListenerDirect) { chatListenerDirect(); setChatListenerDirect(null); }
+      if (timerRef.current) clearInterval(timerRef.current);
       setTimeLeft(null);
     }
-    
     return () => {
-      if (chatListenerDirect) {
-        chatListenerDirect();
-        setChatListenerDirect(null);
-      }
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
+      if (chatListenerDirect) { chatListenerDirect(); setChatListenerDirect(null); }
+      if (timerRef.current) clearInterval(timerRef.current);
     };
     // eslint-disable-next-line
   }, [chatPatient, currentUser]);
 
-  // Detect video call invitations from chat messages - use the LATEST invite
   useEffect(() => {
     const allMessages = [...chatMessages, ...chatMessagesDirect];
-    // Get the LAST (most recent) video call invitation
     const videoInvites = allMessages.filter(msg => msg.videoCall && msg.roomCode);
     const latestInvite = videoInvites.length > 0 ? videoInvites[videoInvites.length - 1] : null;
-    if (latestInvite && latestInvite.roomCode !== pendingRoomCode) {
-      setPendingRoomCode(latestInvite.roomCode);
-    }
+    if (latestInvite && latestInvite.roomCode !== pendingRoomCode) setPendingRoomCode(latestInvite.roomCode);
   }, [chatMessages, chatMessagesDirect, pendingRoomCode]);
 
-  const openModal = (type, data) => {
-    setModalType(type);
-    setModalData(data);
-    setModalOpen(true);
-  };
-  const closeModal = () => {
-    handleSaveAndEndChat('scheduled', chatMessages, {
-      patientName: modalData?.patientName,
-      patientPhotoURL: modalData?.patientPhotoURL
-    });
-  };
+  const openModal = (type, data) => { setModalType(type); setModalData(data); setModalOpen(true); };
 
   const handleSendMessage = async () => {
     if (!chatInput.trim() || !modalData || !modalData.id) return;
-
-    const messageToSend = chatInput;
-    setChatInput(''); // Clear input immediately
-    setChatLoading(true);
+    const msg = chatInput; setChatInput(''); setChatLoading(true);
     try {
-      await sendMessageToChat(modalData.id, {
-        senderId: currentUser.uid,
-        senderRole: 'doctor',
-        senderName: currentUser.displayName || currentUser.email || 'Unknown Doctor',
-        senderImage: currentUser.photoURL || '',
-        text: messageToSend,
-        timestamp: new Date(),
-      });
-    } catch (err) {
-      console.error('Error sending message to scheduled chat:', err);
-    } finally {
-      setChatLoading(false);
-    }
+      await sendMessageToChat(modalData.id, { senderId: currentUser.uid, senderRole: 'doctor', senderName: currentUser.displayName || currentUser.email || 'Doctor', senderImage: currentUser.photoURL || '', text: msg, timestamp: new Date() });
+    } catch { } finally { setChatLoading(false); }
   };
 
   const handleSendMessageDirect = async () => {
     if (!chatInputDirect.trim() || !chatPatient) return;
-
-    const messageToSend = chatInputDirect;
-    setChatInputDirect(''); // Clear input immediately
-    setChatLoadingDirect(true);
+    const msg = chatInputDirect; setChatInputDirect(''); setChatLoadingDirect(true);
     const chatId = `${currentUser.uid}_${chatPatient.id}`;
     try {
-      await sendMessageToChat(chatId, {
-        senderId: currentUser.uid,
-        senderRole: 'doctor',
-        senderName: currentUser.displayName || currentUser.email || 'Unknown Doctor',
-        senderImage: currentUser.photoURL || '',
-        text: messageToSend,
-        timestamp: new Date(),
-      });
-    } catch (err) {
-      console.error('Error sending message to direct chat:', err);
-    } finally {
-      setChatLoadingDirect(false);
-    }
+      await sendMessageToChat(chatId, { senderId: currentUser.uid, senderRole: 'doctor', senderName: currentUser.displayName || currentUser.email || 'Doctor', senderImage: currentUser.photoURL || '', text: msg, timestamp: new Date() });
+    } catch { } finally { setChatLoadingDirect(false); }
   };
 
   const formatTimestamp = (timestamp) => {
@@ -415,78 +988,83 @@ const DoctorDashboard = () => {
     return date.toLocaleString();
   };
 
+  const patientsWithUnread = patients.filter(p => (unreadCounts[p.id] || 0) > 0);
+  const scheduledChatsWithUnread = scheduledChats.filter(c => (unreadCounts[c.id] || 0) > 0);
+
+  const handleLogout = async () => { try { await logout(); } catch (e) { console.error(e); } };
+
+  // ── Patient history view ──
   if (viewingPatientHistory) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-2xl shadow-sm p-8">
-            {/* History Header */}
-            <div className="flex items-center justify-between mb-8 border-b pb-4">
-                <div className="flex items-center space-x-4">
-                    <button onClick={handleBackToDashboard} className="text-gray-600 hover:text-gray-900">
-                        <FaArrowLeft className="h-6 w-6" />
-                    </button>
-                    <img
-                        src={viewingPatientHistory.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(viewingPatientHistory.displayName || 'P')}&background=E5E7EB&color=374151`}
-                        alt={viewingPatientHistory.displayName || 'Patient'}
-                        className="w-12 h-12 rounded-full object-cover"
-                    />
-                    <div>
-                        <h3 className="text-xl font-semibold text-gray-800">{viewingPatientHistory.displayName || 'Unknown Patient'}</h3>
-                        <p className="text-sm text-gray-500">Chat History</p>
-                    </div>
-                </div>
+      <div style={{ display: 'flex', minHeight: '100vh', fontFamily: "'Inter', sans-serif" }}>
+        <Sidebar activeTab={activeTab} setActiveTab={tab => { setActiveTab(tab); setViewingPatientHistory(null); }} doctorName={currentUser?.displayName} doctorPhoto={currentUser?.photoURL} onLogout={handleLogout} />
+        <main style={{ marginLeft: '240px', flex: 1, minHeight: '100vh', background: 'linear-gradient(135deg, #f0f4f0 0%, #e8efe5 30%, #f5f0eb 70%, #faf8f5 100%)', padding: '40px 40px' }}>
+          <div style={{ maxWidth: '800px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+              <button onClick={handleBackToDashboard} style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                <FaArrowLeft style={{ color: '#6b7280' }} />
+              </button>
+              <img src={viewingPatientHistory.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(viewingPatientHistory.displayName || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '52px', height: '52px', borderRadius: '14px', objectFit: 'cover' }} />
+              <div>
+                <h2 style={{ color: '#1f2937', fontWeight: 800, fontSize: '22px' }}>{viewingPatientHistory.displayName || 'Unknown'}</h2>
+                <p style={{ color: '#9ca3af', fontSize: '13px' }}>Session History</p>
+              </div>
             </div>
-
-            {/* History Body */}
-            {historyLoading ? (
-              <div className="text-center text-gray-500 py-10">Loading history...</div>
-            ) : patientHistory.length === 0 ? (
-              <div className="text-center text-gray-500 py-10">No chat history found for this patient.</div>
-            ) : (
-              <ul className="space-y-4">
-                {patientHistory.map(report => (
-                  <li key={report.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition cursor-pointer" onClick={() => { setChatReport(report); setReportModalOpen(true); }}>
-                    <div className="flex justify-between items-center">
-                      <p className="font-semibold text-gray-800">Chat Session</p>
-                      <p className="text-sm text-gray-500">{formatTimestamp(report.createdAt)}</p>
-                    </div>
-                    <p className="text-sm text-gray-600 mt-2">{report.messages.length} messages</p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-        {/* Re-using the report modal to show history details */}
-        {reportModalOpen && chatReport && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-0 z-50 sm:p-4">
-            <div className="bg-white rounded-none w-full h-full shadow-2xl flex flex-col relative sm:rounded-3xl sm:max-w-2xl sm:max-h-[90vh] sm:min-h-[400px] overflow-hidden">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
-                  <h3 className="text-xl font-semibold text-gray-800">Chat Transcript - {formatTimestamp(chatReport.createdAt)}</h3>
-                  <button onClick={() => setReportModalOpen(false)} className="text-gray-500 hover:text-gray-800 transition-colors">
-                      <FaTimes/>
-                  </button>
-              </div>
-              <div className="flex-1 overflow-y-auto bg-white p-6 space-y-4">
-                <div className="prose prose-sm max-w-none">
-                  {chatReport.messages.map(msg => (
-                    <div key={msg.id || msg.timestamp.seconds} className="mb-2">
-                      <p className="font-bold">
-                        {msg.senderName || (msg.senderRole === 'doctor' ? 'Doctor' : 'Patient')}
-                        <span className="text-xs font-normal text-gray-500 ml-2">
-                          {formatTimestamp(msg.timestamp)}
-                        </span>
-                      </p>
-                      <p>{msg.text}</p>
-                    </div>
-                  ))}
+            <div style={{ background: 'white', borderRadius: '20px', padding: '28px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+              {historyLoading ? (
+                <p style={{ textAlign: 'center', color: '#9ca3af', padding: '40px 0' }}>Loading history...</p>
+              ) : patientHistory.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '12px' }}>📋</div>
+                  <p style={{ color: '#9ca3af' }}>No chat history found for this patient.</p>
                 </div>
+              ) : (
+                <ul style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {patientHistory.map(report => (
+                    <li key={report.id} onClick={() => { setChatReport(report); setReportModalOpen(true); }}
+                      style={{ background: '#f9fafb', borderRadius: '14px', border: '1px solid #f3f4f6', padding: '16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'all 0.2s' }}
+                      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'; e.currentTarget.style.background = 'white'; }}
+                      onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#f9fafb'; }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <FaComments style={{ color: '#059669', fontSize: '14px' }} />
+                        </div>
+                        <div>
+                          <p style={{ fontWeight: 600, color: '#1f2937', fontSize: '14px' }}>Chat Session</p>
+                          <p style={{ color: '#9ca3af', fontSize: '12px' }}>{report.messages.length} messages</p>
+                        </div>
+                      </div>
+                      <p style={{ color: '#9ca3af', fontSize: '12px' }}>{formatTimestamp(report.createdAt)}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </main>
+        {reportModalOpen && chatReport && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '16px' }}>
+            <div style={{ background: 'white', borderRadius: '24px', maxWidth: '640px', width: '100%', maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 60px rgba(0,0,0,0.25)' }}>
+              <div style={{ padding: '20px 24px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ fontWeight: 700, color: '#1f2937', fontSize: '17px' }}>Chat Transcript — {formatTimestamp(chatReport.createdAt)}</h3>
+                <button onClick={() => setReportModalOpen(false)} style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#f3f4f6', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <FaTimes style={{ color: '#6b7280', fontSize: '12px' }} />
+                </button>
               </div>
-              <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end">
-                  <button onClick={() => setReportModalOpen(false)} className="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium">
-                      Close
-                  </button>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
+                {chatReport.messages.map(msg => (
+                  <div key={msg.id || msg.timestamp?.seconds} style={{ marginBottom: '12px', padding: '12px', borderRadius: '12px', background: '#f9fafb' }}>
+                    <p style={{ fontWeight: 600, fontSize: '13px', color: '#374151' }}>
+                      {msg.senderName || (msg.senderRole === 'doctor' ? 'Doctor' : 'Patient')}
+                      <span style={{ color: '#9ca3af', fontWeight: 400, fontSize: '11px', marginLeft: '8px' }}>{formatTimestamp(msg.timestamp)}</span>
+                    </p>
+                    <p style={{ fontSize: '13px', color: '#4b5563', marginTop: '4px' }}>{msg.text}</p>
+                  </div>
+                ))}
+              </div>
+              <div style={{ padding: '16px 24px', borderTop: '1px solid #f3f4f6', display: 'flex', justifyContent: 'flex-end' }}>
+                <button onClick={() => setReportModalOpen(false)} style={{ background: '#1f2937', color: 'white', border: 'none', borderRadius: '10px', padding: '10px 24px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>Close</button>
               </div>
             </div>
           </div>
@@ -495,536 +1073,363 @@ const DoctorDashboard = () => {
     );
   }
 
+  // ── Main layout ──
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-2xl shadow-sm p-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-8">Doctor Dashboard</h1>
-          <div className="mb-8">
-            <EmotionPanel />
-          </div>
+    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: "'Inter', sans-serif" }}>
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} doctorName={currentUser?.displayName} doctorPhoto={currentUser?.photoURL} onLogout={handleLogout} />
 
-          {/* Patient Users Section */}
-          <div className="mb-10">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Patients</h2>
-            {loading ? (
-              <div className="text-gray-500 text-center py-8">Loading patients...</div>
-            ) : patients.length === 0 ? (
-              <div className="text-gray-500 text-center py-8">No patients found.</div>
-            ) : (
-              <ul className="divide-y divide-gray-100">
-                {patients.map((patient) => (
-                  <li key={patient.id} className="flex flex-col sm:flex-row items-start sm:items-center bg-gray-50 rounded-lg p-4 sm:p-5 mb-4 hover:shadow transition group">
-                    <img src={patient.photoURL || patient.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(patient.displayName || patient.name || patient.email || 'Unknown Patient')}&background=E5E7EB&color=374151`} alt={patient.displayName || patient.name || patient.email || 'Unknown Patient'} className="w-12 h-12 rounded-full object-cover mr-4 mb-2 sm:mb-0 shrink-0" />
-                    <div className="flex-1 min-w-0 w-full sm:w-auto">
-                      <div className="flex items-center justify-between flex-wrap">
-                        <div className="font-medium text-gray-900 text-base break-words min-w-0 sm:max-w-[calc(100%-60px)]">{patient.displayName || patient.name || patient.email || 'Unknown Patient'}</div>
-                        <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-700 font-semibold ml-auto sm:ml-2 mt-2 sm:mt-0 whitespace-nowrap">Patient</span>
-                      </div>
-                      <div className="flex items-center text-xs text-gray-500 mt-1 break-words"> 
-                        <FaEnvelope className="mr-1" /> {patient.email || 'Unknown' }
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end w-full sm:w-auto ml-0 sm:ml-4 mt-4 sm:mt-0 space-y-2">
-                      <button
-                        className="w-full sm:w-auto flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm relative"
-                        onClick={() => setChatPatient(patient)}
-                      >
-                        <FaComments className="mr-2" /> Chat
-                        {unreadCounts[patient.id] > 0 && (
-                          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                            {unreadCounts[patient.id]}
-                          </span>
-                        )}
-                      </button>
-                      <button
-                        className="w-full sm:w-auto flex items-center justify-center bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors shadow-sm"
-                        onClick={() => handleViewHistory(patient)}
-                      >
-                        <FaHistory className="mr-2" /> History
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          {/* Scheduled Chats */}
-          <div>
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Scheduled Chats</h2>
-            {loadingChats ? (
-              <div className="text-gray-500 text-center py-8">Loading scheduled chats...</div>
-            ) : scheduledChats.length === 0 ? (
-              <div className="text-gray-500 text-center py-8">This feature is coming soon.</div>
-            ) : (
-              <ul className="divide-y divide-gray-100">
-                {scheduledChats.map((chat) => (
-                  <li key={chat.id} className="flex flex-col sm:flex-row items-start sm:items-center bg-gray-50 rounded-lg p-4 sm:p-5 mb-4 hover:shadow transition group">
-                    <img src={chat.patientPhotoURL || chat.patientImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.patientName || chat.patientEmail || 'Unknown Patient')}&background=E5E7EB&color=374151`} alt={chat.patientName || 'Unknown Patient'} className="w-12 h-12 rounded-full object-cover mr-4 mb-2 sm:mb-0 shrink-0" />
-                    <div className="flex-1 min-w-0 w-full sm:w-auto">
-                      <div className="flex items-center justify-between flex-wrap">
-                        <div className="font-medium text-gray-900 text-base break-words min-w-0 sm:max-w-[calc(100%-60px)]">{chat.patientName || 'Unknown Patient'}</div>
-                        <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700 font-semibold ml-auto sm:ml-2 mt-2 sm:mt-0 whitespace-nowrap">{chat.status || 'Scheduled'}</span>
-                      </div>
-                      <div className="flex items-center text-xs text-gray-500 mt-1 break-words">
-                        <FaEnvelope className="mr-1" /> {chat.patientEmail || 'Unknown'}
-                      </div>
-                      <div className="text-xs text-gray-400 mt-1 break-words">{chat.date} at {chat.time}</div>
-                    </div>
-                    <div className="flex flex-col items-end w-full sm:w-auto ml-0 sm:ml-4 mt-4 sm:mt-0">
-                      <button
-                        className="w-full sm:w-auto flex items-center justify-center bg-green-50 text-green-700 border border-green-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-100 transition-colors shadow-sm relative"
-                        onClick={() => openModal('view', chat)}
-                      >
-                        <FaCalendarAlt className="mr-2" /> View
-                        {unreadCounts[chat.id] > 0 && (
-                          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                            {unreadCounts[chat.id]}
-                          </span>
-                        )}
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+      {/* Main content area */}
+      <main style={{ marginLeft: '240px', flex: 1, minHeight: '100vh', background: 'linear-gradient(135deg, #f0f4f0 0%, #e8efe5 30%, #f5f0eb 70%, #faf8f5 100%)' }}>
+        {/* Page header */}
+        <div style={{ background: 'linear-gradient(135deg, #2d4a3e 0%, #3d6655 40%, #4a7c65 100%)', padding: '32px 40px 28px', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '240px', height: '240px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
+          <div style={{ position: 'absolute', bottom: '-40px', left: '30%', width: '160px', height: '160px', borderRadius: '50%', background: 'rgba(255,255,255,0.03)' }} />
+          <p style={{ color: 'rgba(74,222,128,0.9)', fontSize: '12px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '6px', position: 'relative' }}>
+            {activeTab === 'overview' ? 'Doctor Dashboard' : activeTab === 'appointments' ? 'Appointment Management' : activeTab === 'patients' ? 'Patient Management' : 'Your Profile'}
+          </p>
+          <h1 style={{ color: 'white', fontWeight: 800, fontSize: '28px', letterSpacing: '-0.5px', position: 'relative' }}>
+            {activeTab === 'overview'
+              ? <>Welcome back, <span style={{ color: '#86efac' }}>{currentUser?.displayName?.split(' ')[0] || 'Doctor'}</span></>
+              : activeTab === 'appointments' ? 'Appointments'
+              : activeTab === 'patients' ? 'All Patients'
+              : 'Profile Settings'
+            }
+          </h1>
+          <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '14px', marginTop: '4px', position: 'relative' }}>
+            {activeTab === 'overview' ? "Here's your activity overview for today." : activeTab === 'appointments' ? 'View and manage all patient appointment requests.' : activeTab === 'patients' ? 'Manage and interact with your patients.' : 'View and update your professional information.'}
+          </p>
         </div>
-      </div>
 
-      {/* Modal for Chat/View */}
-      {modalOpen && modalData && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-0 z-50 sm:p-4">
-          <div className="bg-white rounded-none w-full h-full shadow-2xl flex flex-col relative sm:rounded-3xl sm:max-w-lg sm:max-h-[90vh] sm:min-h-[400px] overflow-hidden">
-            {/* Chat Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-green-600 text-white">
-              <div className="flex items-center space-x-3">
-                <img
-                  src={modalData.patientPhotoURL || modalData.patientImage || 'https://ui-avatars.com/api/?name=Unknown+Patient&background=E5E7EB&color=374151'}
-                  alt={modalData.patientName || 'Unknown Patient'}
-                  className="w-12 h-12 rounded-full object-cover ring-2 ring-white ring-opacity-50"
-                />
-                <div>
-                  <h3 className="text-xl font-semibold">{modalData.patientName || 'Unknown Patient'}</h3>
-                  <p className="text-sm text-green-100">Patient</p>
-                </div>
-              </div>
-              {timeLeft !== null && (
-                <div className="text-white font-semibold text-lg bg-white/20 px-3 py-1 rounded-lg">
-                  {`${String(Math.floor(timeLeft / 60)).padStart(2, '0')}:${String(timeLeft % 60).padStart(2, '0')}`}
-                </div>
-              )}
-              <div className="flex items-center gap-2">
-                {/* Emotion Display */}
-                {emotionAnalysisEnabled && detectedEmotion && (
-                  <div className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-lg">
-                    <span className="text-sm">{getEmotionEmoji(detectedEmotion)} {detectedEmotion}</span>
-                  </div>
-                )}
-                {/* Emotion Analysis Toggle */}
-                <button
-                  onClick={() => setEmotionAnalysisEnabled(!emotionAnalysisEnabled)}
-                  className={`${emotionAnalysisEnabled ? 'bg-yellow-400 text-gray-800' : 'bg-white/20 text-white'} hover:bg-white/30 p-2 rounded-full transition`}
-                  title={emotionAnalysisEnabled ? 'Disable Emotion Analysis' : 'Enable Emotion Analysis'}
-                >
-                  <FaBrain className="w-4 h-4" />
-                </button>
-                {/* Emotion History Panel Toggle */}
-                <button
-                  onClick={() => setShowEmotionPanel(!showEmotionPanel)}
-                  className={`${showEmotionPanel ? 'bg-blue-400 text-white' : 'bg-white/20 text-white'} hover:bg-white/30 p-2 rounded-full transition`}
-                  title="View Emotion History"
-                >
-                  <FaChartLine className="w-4 h-4" />
-                </button>
-                <button
-                  className="text-white hover:text-green-100 transition-colors"
-                  onClick={closeChatModals}
-                >
-                  <span className="sr-only">Close</span>
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            {/* Emotion History Panel */}
-            {showEmotionPanel && (
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue-100 px-4 py-3">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <FaChartLine className="text-blue-500" /> Patient Emotion Analysis
-                  </h4>
-                  {emotionAnalysisEnabled ? (
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">🔴 Live</span>
-                  ) : (
-                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">Paused</span>
-                  )}
-                </div>
-                {emotionHistory.length === 0 ? (
-                  <p className="text-xs text-gray-500">No emotions detected yet. Enable analysis to start monitoring.</p>
-                ) : (
-                  <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
-                    {emotionHistory.map((entry, idx) => (
-                      <span
-                        key={idx}
-                        className="text-xs bg-white border border-gray-200 rounded-full px-2 py-1 flex items-center gap-1"
-                        title={entry.timestamp.toLocaleTimeString()}
-                      >
-                        {getEmotionEmoji(entry.emotion)} {entry.emotion}
-                        <span className="text-gray-400">{entry.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-            {modalType === 'view' ? (
-              <>
-                <div className="flex-1 overflow-y-auto bg-gray-50 px-4 py-6 flex flex-col space-y-4 pb-24">
-                  {chatLoading ? (
-                    <div className="text-center text-gray-400 py-8">Loading messages...</div>
-                  ) : chatMessages.length === 0 ? (
-                    <div className="text-center text-gray-400 py-8">No messages yet. Start the conversation!</div>
-                  ) : (
-                    chatMessages.map(msg => (
-                      <div key={msg.id} className={`flex items-end ${msg.senderId === currentUser.uid ? 'justify-end space-x-2' : 'justify-start space-x-2'}`}> 
-                        {msg.senderId !== currentUser.uid && (
-                          <img
-                            src={modalData.patientPhotoURL || modalData.patientImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(modalData.patientName || modalData.patientEmail || 'Unknown Patient')}&background=E5E7EB&color=374151`}
-                            alt={modalData.patientName || 'Unknown Patient'}
-                            className="w-8 h-8 rounded-full object-cover shrink-0"
-                          />
-                        )}
-                        <div className={`max-w-[70%] px-4 py-2 rounded-2xl shadow-sm text-sm break-words ${msg.senderId === currentUser.uid ? 'bg-green-600 text-white rounded-br-none' : 'bg-white text-gray-900 border border-gray-200 rounded-bl-none'} transition-opacity duration-200 ease-out`}>
-                          <div>{msg.text}</div>
-                          <div className={`text-xs mt-1 ${msg.senderId === currentUser.uid ? 'text-green-200 text-right' : 'text-gray-500 text-left'}`}>{msg.timestamp && new Date(msg.timestamp.seconds ? msg.timestamp.seconds * 1000 : msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                        </div>
-                        {msg.senderId === currentUser.uid && (
-                          <img
-                            src={msg.senderImage || currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.displayName || currentUser?.email || 'Unknown Doctor')}&background=E5E7EB&color=374151`}
-                            alt={currentUser.displayName || currentUser.email || 'Unknown Doctor'}
-                            className="w-8 h-8 rounded-full object-cover shrink-0"
-                          />
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-                {/* Session Notes below chat history */}
-                <div className="px-4 pb-6">
-                  <SessionNotes
-                    doctorId={currentUser?.uid}
-                    patientId={modalData?.patientId}
-                    sessionId={modalData?.id}
-                    sessionDate={modalData?.date}
-                  />
-                </div>
-                {/* Footer with Input and Actions */}
-                <div className="mt-auto border-t border-gray-100 bg-white">
-                    <div className="p-4 flex items-center gap-3">
-                        <input
-                            type="text"
-                            placeholder="Type your message..."
-                            className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
-                            value={chatInput}
-                            onChange={e => setChatInput(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter' && chatInput.trim()) handleSendMessage(); }}
-                            autoFocus
-                        />
-                        <button 
-                            onClick={handleSendMessage} 
-                            className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors text-sm font-medium disabled:opacity-50" 
-                            disabled={!chatInput.trim()}>
-                            Send
-                        </button>
-                    </div>
-                    <div className="px-6 py-3 bg-gray-50 flex justify-end items-center border-t">
-                        <button
-                            onClick={() => handleSaveAndEndChat('scheduled', chatMessages, { patientId: modalData?.patientId, patientName: modalData?.patientName, patientPhotoURL: modalData?.patientPhotoURL })}
-                            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium w-full disabled:opacity-50"
-                            disabled={chatMessages.length === 0}
-                        >
-                            Save & End Session
-                        </button>
-                    </div>
-                </div>
-                <div className="flex justify-center mt-4">
-                  <button
-                    className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition shadow"
-                    onClick={() => setVideoCallOpen(true)}
-                  >
-                    Start Video Call
-                  </button>
-                </div>
-                <VideoCallModal
-                  open={videoCallOpen}
-                  onClose={() => {
-                    setVideoCallOpen(false);
-                    setPendingRoomCode(null);
-                  }}
-                  patientName={modalData?.patientName}
-                  doctorName={currentUser?.displayName}
-                  doctorId={currentUser?.uid}
-                  initialRoomCode={pendingRoomCode}
-                />
-              </>
-            ) : null}
-          </div>
+        {/* Tab content */}
+        <div style={{ padding: '32px 40px' }}>
+          {activeTab === 'overview' && (
+            <OverviewTab
+              patients={patients} loading={loading}
+              scheduledChats={scheduledChats} loadingChats={loadingChats}
+              unreadCounts={unreadCounts}
+              patientsWithUnread={patientsWithUnread}
+              scheduledChatsWithUnread={scheduledChatsWithUnread}
+              setChatPatient={setChatPatient}
+              openModal={openModal}
+            />
+          )}
+          {activeTab === 'appointments' && (
+            <AppointmentsTab
+              appointments={scheduledChats}
+              loading={loadingChats}
+              onUpdateStatus={updateAppointmentStatus}
+              openModal={openModal}
+            />
+          )}
+          {activeTab === 'patients' && (
+            <PatientsTab
+              patients={patients} loading={loading}
+              unreadCounts={unreadCounts}
+              setChatPatient={setChatPatient}
+              handleViewHistory={handleViewHistory}
+              handleStartVideoCall={handleStartVideoCall}
+            />
+          )}
+          {activeTab === 'profile' && (
+            <ProfileTab currentUser={currentUser} />
+          )}
         </div>
+      </main>
+
+      {/* ── Video Call (standalone) ── */}
+      {videoCallOpen && !chatPatient && !modalOpen && (
+        <VideoCallModal
+          open={videoCallOpen}
+          onClose={() => { setVideoCallOpen(false); setPendingRoomCode(null); setVideoCallPatient(null); setIsOutgoingCall(false); }}
+          patientName={videoCallPatient?.displayName || videoCallPatient?.name || 'Patient'}
+          doctorName={currentUser?.displayName || 'Doctor'}
+          patientId={videoCallPatient?.id}
+          doctorId={currentUser?.uid}
+          initialRoomCode={pendingRoomCode}
+          isDirectCall={isOutgoingCall && !!activeCallRoomId}
+          directCallRoomId={activeCallRoomId}
+        />
       )}
 
-      {/* Direct Chat Modal */}
-      {chatPatient && currentUser && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-0 z-50 sm:p-4">
-          <div className="bg-white rounded-none w-full h-full shadow-2xl flex flex-col relative sm:rounded-3xl sm:max-w-lg sm:max-h-[90vh] sm:min-h-[400px] overflow-hidden">
-            {/* Chat Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-green-600 text-white">
-              <div className="flex items-center space-x-3">
-                <img
-                  src={chatPatient.photoURL || chatPatient.image || 'https://ui-avatars.com/api/?name=Unknown+Patient&background=E5E7EB&color=374151'}
-                  alt={chatPatient.displayName || chatPatient.name || chatPatient.email || 'Unknown Patient'}
-                  className="w-12 h-12 rounded-full object-cover ring-2 ring-white ring-opacity-50"
-                />
+      {/* ── Scheduled Chat Modal ── */}
+      {modalOpen && modalData && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', zIndex: 50 }}>
+          <div style={{ background: 'white', borderRadius: '24px', width: '100%', maxWidth: '520px', maxHeight: '90vh', minHeight: '400px', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 60px rgba(0,0,0,0.25)' }}>
+            {/* Header */}
+            <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'linear-gradient(135deg, #2d4a3e 0%, #3d6655 40%, #4a7c65 100%)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <img src={modalData.patientPhotoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(modalData.patientName || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '42px', height: '42px', borderRadius: '10px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.2)' }} />
                 <div>
-                  <h3 className="text-xl font-semibold">
-                    {chatPatient.displayName || chatPatient.name || chatPatient.email || 'Unknown Patient'}
-                  </h3>
-                  <p className="text-sm text-green-100">Patient</p>
+                  <h3 style={{ color: 'white', fontWeight: 700, fontSize: '15px' }}>{modalData.patientName || 'Unknown'}</h3>
+                  <p style={{ color: 'rgba(167,243,208,0.9)', fontSize: '11px' }}>Scheduled Session</p>
                 </div>
               </div>
-              {timeLeft !== null && (
-                <div className="text-white font-semibold text-lg bg-white/20 px-3 py-1 rounded-lg">
-                  {`${String(Math.floor(timeLeft / 60)).padStart(2, '0')}:${String(timeLeft % 60).padStart(2, '0')}`}
-                </div>
-              )}
-              <div className="flex items-center gap-2">
-                {/* Emotion Display */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {timeLeft !== null && (
+                  <span style={{ color: 'white', fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', background: 'rgba(255,255,255,0.15)', padding: '5px 10px', borderRadius: '8px' }}>
+                    {`${String(Math.floor(timeLeft / 60)).padStart(2, '0')}:${String(timeLeft % 60).padStart(2, '0')}`}
+                  </span>
+                )}
                 {emotionAnalysisEnabled && detectedEmotion && (
-                  <div className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-lg">
-                    <span className="text-sm">{getEmotionEmoji(detectedEmotion)} {detectedEmotion}</span>
+                  <div style={{ background: 'rgba(255,255,255,0.15)', padding: '4px 10px', borderRadius: '8px' }}>
+                    <span style={{ color: 'white', fontSize: '12px' }}>{getEmotionEmoji(detectedEmotion)} {detectedEmotion}</span>
                   </div>
                 )}
-                {/* Video Call Button */}
-                <button
-                  onClick={() => setVideoCallOpen(true)}
-                  className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition"
-                  title="Start Video Call"
-                >
-                  <FaVideo className="w-4 h-4" />
+                <button onClick={() => setEmotionAnalysisEnabled(!emotionAnalysisEnabled)} style={{ width: '32px', height: '32px', borderRadius: '8px', background: emotionAnalysisEnabled ? 'rgba(251,191,36,0.8)' : 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                  <FaBrain style={{ fontSize: '13px' }} />
                 </button>
-                {/* Emotion Analysis Toggle */}
-                <button
-                  onClick={() => setEmotionAnalysisEnabled(!emotionAnalysisEnabled)}
-                  className={`${emotionAnalysisEnabled ? 'bg-yellow-400 text-gray-800' : 'bg-white/20 text-white'} hover:bg-white/30 p-2 rounded-full transition`}
-                  title={emotionAnalysisEnabled ? 'Disable Emotion Analysis' : 'Enable Emotion Analysis'}
-                >
-                  <FaBrain className="w-4 h-4" />
+                <button onClick={() => setShowEmotionPanel(!showEmotionPanel)} style={{ width: '32px', height: '32px', borderRadius: '8px', background: showEmotionPanel ? 'rgba(96,165,250,0.8)' : 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                  <FaChartLine style={{ fontSize: '13px' }} />
                 </button>
-                {/* Emotion History Panel Toggle */}
-                <button
-                  onClick={() => setShowEmotionPanel(!showEmotionPanel)}
-                  className={`${showEmotionPanel ? 'bg-blue-400 text-white' : 'bg-white/20 text-white'} hover:bg-white/30 p-2 rounded-full transition`}
-                  title="View Emotion History"
-                >
-                  <FaChartLine className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={closeChatModals}
-                  className="text-white hover:text-green-100 transition-colors"
-                >
-                  <span className="sr-only">Close</span>
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                <button onClick={closeChatModals} style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                  <FaTimes style={{ fontSize: '13px' }} />
                 </button>
               </div>
             </div>
-            {/* Emotion History Panel for Direct Chat */}
+            {/* Emotion panel */}
             {showEmotionPanel && (
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue-100 px-4 py-3">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <FaChartLine className="text-blue-500" /> Patient Emotion Analysis
-                  </h4>
-                  {emotionAnalysisEnabled ? (
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">🔴 Live</span>
-                  ) : (
-                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">Paused</span>
-                  )}
+              <div style={{ background: '#eff6ff', borderBottom: '1px solid #bfdbfe', padding: '12px 16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <p style={{ fontSize: '11px', fontWeight: 700, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.7px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <FaChartLine style={{ color: '#3b82f6' }} /> Emotion Analysis
+                  </p>
+                  <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '999px', background: emotionAnalysisEnabled ? '#dcfce7' : '#f3f4f6', color: emotionAnalysisEnabled ? '#15803d' : '#6b7280', fontWeight: 600 }}>
+                    {emotionAnalysisEnabled ? '🔴 Live' : 'Paused'}
+                  </span>
                 </div>
                 {emotionHistory.length === 0 ? (
-                  <p className="text-xs text-gray-500">No emotions detected yet. Enable analysis to start monitoring.</p>
+                  <p style={{ fontSize: '11px', color: '#9ca3af' }}>No emotions detected yet.</p>
                 ) : (
-                  <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxHeight: '80px', overflowY: 'auto' }}>
                     {emotionHistory.map((entry, idx) => (
-                      <span
-                        key={idx}
-                        className="text-xs bg-white border border-gray-200 rounded-full px-2 py-1 flex items-center gap-1"
-                        title={entry.timestamp.toLocaleTimeString()}
-                      >
+                      <span key={idx} style={{ fontSize: '10px', background: 'white', border: '1px solid #e5e7eb', borderRadius: '999px', padding: '3px 8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         {getEmotionEmoji(entry.emotion)} {entry.emotion}
-                        <span className="text-gray-400">{entry.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span style={{ color: '#d1d5db' }}>{entry.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       </span>
                     ))}
                   </div>
                 )}
               </div>
             )}
-            {/* Chat Body */}
-            <div className="flex-1 overflow-y-auto bg-gray-50 px-4 py-6 flex flex-col space-y-4 pb-24">
-              {chatLoadingDirect ? (
-                <div className="text-center text-gray-400 py-8">Loading messages...</div>
-              ) : chatMessagesDirect.length === 0 ? (
-                <div className="text-center text-gray-400 py-8">No messages yet. Start the conversation!</div>
+            {/* Chat body */}
+            <div ref={chatBodyRef} style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px', background: 'linear-gradient(180deg, #f8faf8 0%, #ffffff 100%)' }}>
+              {chatLoading ? (
+                <p style={{ textAlign: 'center', color: '#9ca3af', padding: '32px 0', fontSize: '13px' }}>Loading messages...</p>
+              ) : chatMessages.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>💬</div>
+                  <p style={{ color: '#9ca3af', fontSize: '13px' }}>No messages yet. Start the conversation!</p>
+                </div>
               ) : (
-                chatMessagesDirect.map(msg => (
-                  msg.videoCall ? (
-                    // Video call invitation with Join button
-                    <div key={msg.id} className="flex justify-center my-2">
-                      <div className="bg-blue-100 border border-blue-200 text-blue-800 px-4 py-3 rounded-xl flex items-center gap-3 shadow-sm">
-                        <span className="text-2xl">📹</span>
-                        <div>
-                          <div className="font-medium">Video Call Invitation</div>
-                          <div className="text-xs text-blue-600">Room: {msg.roomCode}</div>
-                        </div>
-                        <button
-                          onClick={() => {
-                            setPendingRoomCode(msg.roomCode);
-                            setVideoCallOpen(true);
-                          }}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
-                        >
-                          Join Call
-                        </button>
+                chatMessages.map(msg => (
+                  <div key={msg.id} style={{ display: 'flex', justifyContent: msg.senderId === currentUser.uid ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: '8px' }}>
+                    {msg.senderId !== currentUser.uid && (
+                      <img src={modalData.patientPhotoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(modalData.patientName || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '28px', height: '28px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0 }} />
+                    )}
+                    <div style={{ maxWidth: '70%', padding: '10px 14px', borderRadius: '16px', fontSize: '13px', wordBreak: 'break-word', background: msg.senderId === currentUser.uid ? 'linear-gradient(135deg, #3d6655, #4a7c65)' : 'white', color: msg.senderId === currentUser.uid ? 'white' : '#1f2937', border: msg.senderId === currentUser.uid ? 'none' : '1px solid #e5e7eb', borderBottomRightRadius: msg.senderId === currentUser.uid ? '4px' : '16px', borderBottomLeftRadius: msg.senderId !== currentUser.uid ? '4px' : '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                      {msg.text}
+                      <div style={{ fontSize: '10px', marginTop: '4px', color: msg.senderId === currentUser.uid ? 'rgba(167,243,208,0.8)' : '#9ca3af', textAlign: 'right' }}>
+                        {msg.timestamp && new Date(msg.timestamp.seconds ? msg.timestamp.seconds * 1000 : msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </div>
                     </div>
-                  ) : (
-                  <div key={msg.id} className={`flex items-end ${msg.senderId === currentUser.uid ? 'justify-end space-x-2' : 'justify-start space-x-2'}`}> 
-                    {msg.senderId !== currentUser.uid && (
-                      <img
-                        src={chatPatient.photoURL || chatPatient.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(chatPatient.displayName || chatPatient.name || chatPatient.email || 'Unknown Patient')}&background=E5E7EB&color=374151`}
-                        alt={chatPatient.displayName || chatPatient.name || chatPatient.email || 'Unknown Patient'}
-                        className="w-8 h-8 rounded-full object-cover shrink-0"
-                      />
-                    )}
-                    <div className={`max-w-[70%] px-4 py-2 rounded-2xl shadow-sm text-sm break-words ${msg.senderId === currentUser.uid ? 'bg-green-600 text-white rounded-br-none' : 'bg-white text-gray-900 border border-gray-200 rounded-bl-none'} transition-opacity duration-200 ease-out`}>
-                      <div>{msg.text}</div>
-                      <div className={`text-xs mt-1 ${msg.senderId === currentUser.uid ? 'text-green-200 text-right' : 'text-gray-500 text-left'}`}>{msg.timestamp && new Date(msg.timestamp.seconds ? msg.timestamp.seconds * 1000 : msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                    </div>
-                    {msg.senderId === currentUser.uid && (
-                      <img
-                        src={msg.senderImage || currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.displayName || currentUser?.email || 'Unknown Doctor')}&background=E5E7EB&color=374151`}
-                        alt={currentUser.displayName || currentUser.email || 'Unknown Doctor'}
-                        className="w-8 h-8 rounded-full object-cover shrink-0"
-                      />
-                    )}
                   </div>
-                  )
                 ))
               )}
             </div>
-            {/* Footer with Input and Actions */}
-            <div className="mt-auto border-t border-gray-100 bg-white">
-                <div className="p-4 flex items-center gap-3">
-                    <input
-                        type="text"
-                        placeholder="Type your message..."
-                        className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
-                        value={chatInputDirect}
-                        onChange={e => setChatInputDirect(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter' && chatInputDirect.trim()) handleSendMessageDirect(); }}
-                        autoFocus
-                    />
-                    <button 
-                        onClick={handleSendMessageDirect} 
-                        className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors text-sm font-medium disabled:opacity-50" 
-                        disabled={!chatInputDirect.trim()}>
-                        Send
-                    </button>
-                </div>
-                <div className="px-6 py-3 bg-gray-50 flex justify-end items-center border-t">
-                    <button
-                        onClick={() => handleSaveAndEndChat('direct', chatMessagesDirect, { patientId: chatPatient?.id, patientName: chatPatient?.displayName || chatPatient?.name, patientPhotoURL: chatPatient?.photoURL })}
-                        className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium w-full disabled:opacity-50"
-                        disabled={chatMessagesDirect.length === 0}
-                    >
-                        Save & End Session
-                    </button>
-                </div>
+            {/* Session notes */}
+            <div style={{ padding: '8px 16px' }}>
+              <SessionNotes doctorId={currentUser?.uid} patientId={modalData?.patientId} sessionId={modalData?.id} sessionDate={modalData?.date} />
             </div>
-            {/* Video Call Modal for Direct Chat */}
-            <VideoCallModal
-              open={videoCallOpen}
-              onClose={() => {
-                setVideoCallOpen(false);
-                setPendingRoomCode(null);
-              }}
-              patientName={chatPatient?.displayName || chatPatient?.name || 'Patient'}
-              doctorName={currentUser?.displayName || 'Doctor'}
-              patientId={chatPatient?.id}
-              doctorId={currentUser?.uid}
-              initialRoomCode={pendingRoomCode}
-            />
+            {/* Footer */}
+            <div style={{ borderTop: '1px solid #f3f4f6', background: 'white' }}>
+              <div style={{ padding: '10px 12px', display: 'flex', gap: '8px' }}>
+                <input type="text" placeholder="Type your message..." value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && chatInput.trim()) handleSendMessage(); }} autoFocus
+                  style={{ flex: 1, border: '1.5px solid #e5e7eb', borderRadius: '12px', padding: '10px 14px', fontSize: '13px', fontFamily: "'Inter', sans-serif", outline: 'none', background: '#f9fafb', color: '#374151' }} />
+                <button onClick={handleSendMessage} disabled={!chatInput.trim()} style={{ background: 'linear-gradient(135deg, #3d6655, #4a7c65)', color: 'white', border: 'none', borderRadius: '12px', padding: '10px 20px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', opacity: !chatInput.trim() ? 0.5 : 1 }}>Send</button>
+              </div>
+              <div style={{ padding: '8px 12px 12px', display: 'flex', gap: '8px' }}>
+                <button onClick={() => {
+                  const patientName = modalData?.patientName || 'Patient';
+                  const patientId = modalData?.patientId;
+                  setVideoCallPatient({ id: patientId, displayName: patientName, photoURL: modalData?.patientPhotoURL });
+                  setIsOutgoingCall(true);
+                  setVideoCallOpen(true);
+                  if (patientId) startCall(patientId, patientName);
+                }} style={{ flex: 1, background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '8px 0', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+                  <FaVideo style={{ fontSize: '11px' }} /> Video Call
+                </button>
+                <button onClick={() => handleSaveAndEndChat('scheduled', chatMessages, { patientId: modalData?.patientId, patientName: modalData?.patientName, patientPhotoURL: modalData?.patientPhotoURL })} disabled={chatMessages.length === 0} style={{ flex: 1, background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '10px', padding: '8px 0', fontSize: '12px', fontWeight: 600, cursor: 'pointer', opacity: chatMessages.length === 0 ? 0.5 : 1 }}>
+                  Save & End Session
+                </button>
+              </div>
+            </div>
+            <VideoCallModal open={videoCallOpen} onClose={() => { setVideoCallOpen(false); setPendingRoomCode(null); setIsOutgoingCall(false); setVideoCallPatient(null); }} patientName={modalData?.patientName} doctorName={currentUser?.displayName} patientId={modalData?.patientId} doctorId={currentUser?.uid} initialRoomCode={pendingRoomCode} isDirectCall={isOutgoingCall && !!activeCallRoomId} directCallRoomId={activeCallRoomId} />
           </div>
         </div>
       )}
 
-      {/* Chat Report Modal */}
-      {reportModalOpen && chatReport && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-0 z-[100] sm:p-4">
-          <div className="bg-white rounded-none w-full h-full shadow-2xl flex flex-col relative sm:rounded-3xl sm:max-w-2xl sm:max-h-[90vh] sm:min-h-[400px] overflow-hidden">
-            {/* Report Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
-                <h3 className="text-xl font-semibold text-gray-800">Chat Report</h3>
-                <button
-                    onClick={() => setReportModalOpen(false)}
-                    className="text-gray-500 hover:text-gray-800 transition-colors"
-                >
-                    <span className="sr-only">Close</span>
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
-            </div>
-
-            {/* Report Body */}
-            <div className="flex-1 overflow-y-auto bg-white p-6 space-y-4">
-              <div className="flex items-center space-x-4 pb-4 border-b border-gray-200">
-                <img
-                    src={chatReport.patientPhotoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(chatReport.patientName || 'P')}&background=E5E7EB&color=374151`}
-                    alt={chatReport.patientName || 'Patient'}
-                    className="w-16 h-16 rounded-full object-cover"
-                />
+      {/* ── Direct Chat Modal ── */}
+      {chatPatient && currentUser && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', zIndex: 50 }}>
+          <div style={{ background: 'white', borderRadius: '24px', width: '100%', maxWidth: '520px', maxHeight: '90vh', minHeight: '400px', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 60px rgba(0,0,0,0.25)' }}>
+            {/* Header */}
+            <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'linear-gradient(135deg, #2d4a3e 0%, #3d6655 40%, #4a7c65 100%)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <img src={chatPatient.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(chatPatient.displayName || chatPatient.email || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '42px', height: '42px', borderRadius: '10px', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.2)' }} />
                 <div>
-                    <h4 className="text-lg font-bold text-gray-900">{chatReport.patientName}</h4>
-                    <p className="text-sm text-gray-500">Chat Session Summary</p>
+                  <h3 style={{ color: 'white', fontWeight: 700, fontSize: '15px' }}>{chatPatient.displayName || chatPatient.email || 'Unknown'}</h3>
+                  <p style={{ color: 'rgba(167,243,208,0.9)', fontSize: '11px' }}>Direct Chat</p>
                 </div>
               </div>
-
-              <h5 className="text-md font-semibold text-gray-700 pt-4">Conversation Transcript:</h5>
-              <div className="prose prose-sm max-w-none border border-gray-200 rounded-lg p-4 bg-gray-50 max-h-96 overflow-y-auto">
-                {chatReport.messages.map(msg => (
-                  <div key={msg.id} className="mb-2">
-                    <p className="font-bold">
-                      {msg.senderRole === 'doctor' ? (currentUser.displayName || 'Doctor') : (chatReport.patientName || 'Patient')}
-                      <span className="text-xs font-normal text-gray-500 ml-2">
-                        {new Date(msg.timestamp?.seconds * 1000 || msg.timestamp).toLocaleString()}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {timeLeft !== null && (
+                  <span style={{ color: 'white', fontFamily: 'monospace', fontWeight: 700, fontSize: '13px', background: 'rgba(255,255,255,0.15)', padding: '5px 10px', borderRadius: '8px' }}>
+                    {`${String(Math.floor(timeLeft / 60)).padStart(2, '0')}:${String(timeLeft % 60).padStart(2, '0')}`}
+                  </span>
+                )}
+                {emotionAnalysisEnabled && detectedEmotion && (
+                  <div style={{ background: 'rgba(255,255,255,0.15)', padding: '4px 10px', borderRadius: '8px' }}>
+                    <span style={{ color: 'white', fontSize: '12px' }}>{getEmotionEmoji(detectedEmotion)} {detectedEmotion}</span>
+                  </div>
+                )}
+                <button onClick={() => {
+                  const patientName = chatPatient.displayName || chatPatient.name || chatPatient.email || 'Patient';
+                  setVideoCallPatient(chatPatient);
+                  setIsOutgoingCall(true);
+                  setVideoCallOpen(true);
+                  startCall(chatPatient.id, patientName);
+                }} style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(96,165,250,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                  <FaVideo style={{ fontSize: '13px' }} />
+                </button>
+                <button onClick={() => setEmotionAnalysisEnabled(!emotionAnalysisEnabled)} style={{ width: '32px', height: '32px', borderRadius: '8px', background: emotionAnalysisEnabled ? 'rgba(251,191,36,0.8)' : 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                  <FaBrain style={{ fontSize: '13px' }} />
+                </button>
+                <button onClick={() => setShowEmotionPanel(!showEmotionPanel)} style={{ width: '32px', height: '32px', borderRadius: '8px', background: showEmotionPanel ? 'rgba(96,165,250,0.8)' : 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                  <FaChartLine style={{ fontSize: '13px' }} />
+                </button>
+                <button onClick={closeChatModals} style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                  <FaTimes style={{ fontSize: '13px' }} />
+                </button>
+              </div>
+            </div>
+            {/* Emotion panel */}
+            {showEmotionPanel && (
+              <div style={{ background: '#eff6ff', borderBottom: '1px solid #bfdbfe', padding: '12px 16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <p style={{ fontSize: '11px', fontWeight: 700, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.7px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <FaChartLine style={{ color: '#3b82f6' }} /> Emotion Analysis
+                  </p>
+                  <span style={{ fontSize: '10px', padding: '2px 8px', borderRadius: '999px', background: emotionAnalysisEnabled ? '#dcfce7' : '#f3f4f6', color: emotionAnalysisEnabled ? '#15803d' : '#6b7280', fontWeight: 600 }}>
+                    {emotionAnalysisEnabled ? '🔴 Live' : 'Paused'}
+                  </span>
+                </div>
+                {emotionHistory.length === 0 ? (
+                  <p style={{ fontSize: '11px', color: '#9ca3af' }}>No emotions detected yet.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxHeight: '80px', overflowY: 'auto' }}>
+                    {emotionHistory.map((entry, idx) => (
+                      <span key={idx} style={{ fontSize: '10px', background: 'white', border: '1px solid #e5e7eb', borderRadius: '999px', padding: '3px 8px' }}>
+                        {getEmotionEmoji(entry.emotion)} {entry.emotion}
                       </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Chat body */}
+            <div ref={chatBodyRefDirect} style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px', background: 'linear-gradient(180deg, #f8faf8 0%, #ffffff 100%)' }}>
+              {chatLoadingDirect ? (
+                <p style={{ textAlign: 'center', color: '#9ca3af', padding: '32px 0', fontSize: '13px' }}>Loading messages...</p>
+              ) : chatMessagesDirect.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>💬</div>
+                  <p style={{ color: '#9ca3af', fontSize: '13px' }}>No messages yet. Start the conversation!</p>
+                </div>
+              ) : (
+                chatMessagesDirect.map(msg =>
+                  msg.videoCall ? (
+                    <div key={msg.id} style={{ display: 'flex', justifyContent: 'center', margin: '8px 0' }}>
+                      <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '16px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <FaVideo style={{ color: '#2563eb', fontSize: '14px' }} />
+                        </div>
+                        <div>
+                          <p style={{ fontWeight: 600, fontSize: '13px', color: '#1d4ed8' }}>Video Call Invitation</p>
+                          <p style={{ fontSize: '10px', color: '#93c5fd', fontFamily: 'monospace' }}>Room: {msg.roomCode}</p>
+                        </div>
+                        <button onClick={() => { setPendingRoomCode(msg.roomCode); setVideoCallOpen(true); }}
+                          style={{ background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: 'white', border: 'none', borderRadius: '8px', padding: '8px 14px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                          Join
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div key={msg.id} style={{ display: 'flex', justifyContent: msg.senderId === currentUser.uid ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: '8px' }}>
+                      {msg.senderId !== currentUser.uid && (
+                        <img src={chatPatient.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(chatPatient.displayName || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '28px', height: '28px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0 }} />
+                      )}
+                      <div style={{ maxWidth: '70%', padding: '10px 14px', borderRadius: '16px', fontSize: '13px', wordBreak: 'break-word', background: msg.senderId === currentUser.uid ? 'linear-gradient(135deg, #3d6655, #4a7c65)' : 'white', color: msg.senderId === currentUser.uid ? 'white' : '#1f2937', border: msg.senderId === currentUser.uid ? 'none' : '1px solid #e5e7eb', borderBottomRightRadius: msg.senderId === currentUser.uid ? '4px' : '16px', borderBottomLeftRadius: msg.senderId !== currentUser.uid ? '4px' : '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                        {msg.text}
+                        <div style={{ fontSize: '10px', marginTop: '4px', color: msg.senderId === currentUser.uid ? 'rgba(167,243,208,0.8)' : '#9ca3af', textAlign: 'right' }}>
+                          {msg.timestamp && new Date(msg.timestamp.seconds ? msg.timestamp.seconds * 1000 : msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                )
+              )}
+            </div>
+            {/* Footer */}
+            <div style={{ borderTop: '1px solid #f3f4f6', background: 'white' }}>
+              <div style={{ padding: '10px 12px', display: 'flex', gap: '8px' }}>
+                <input type="text" placeholder="Type your message..." value={chatInputDirect} onChange={e => setChatInputDirect(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && chatInputDirect.trim()) handleSendMessageDirect(); }} autoFocus
+                  style={{ flex: 1, border: '1.5px solid #e5e7eb', borderRadius: '12px', padding: '10px 14px', fontSize: '13px', fontFamily: "'Inter', sans-serif", outline: 'none', background: '#f9fafb', color: '#374151' }} />
+                <button onClick={handleSendMessageDirect} disabled={!chatInputDirect.trim()} style={{ background: 'linear-gradient(135deg, #3d6655, #4a7c65)', color: 'white', border: 'none', borderRadius: '12px', padding: '10px 20px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', opacity: !chatInputDirect.trim() ? 0.5 : 1 }}>Send</button>
+              </div>
+              <div style={{ padding: '8px 12px 12px' }}>
+                <button onClick={() => handleSaveAndEndChat('direct', chatMessagesDirect, { patientId: chatPatient?.id, patientName: chatPatient?.displayName || chatPatient?.name, patientPhotoURL: chatPatient?.photoURL })} disabled={chatMessagesDirect.length === 0}
+                  style={{ width: '100%', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '10px', padding: '9px 0', fontSize: '12px', fontWeight: 600, cursor: 'pointer', opacity: chatMessagesDirect.length === 0 ? 0.5 : 1 }}>
+                  Save & End Session
+                </button>
+              </div>
+            </div>
+            <VideoCallModal open={videoCallOpen} onClose={() => { setVideoCallOpen(false); setPendingRoomCode(null); setIsOutgoingCall(false); }} patientName={chatPatient?.displayName || chatPatient?.name || 'Patient'} doctorName={currentUser?.displayName || 'Doctor'} patientId={chatPatient?.id} doctorId={currentUser?.uid} initialRoomCode={pendingRoomCode} isDirectCall={isOutgoingCall && !!activeCallRoomId} directCallRoomId={activeCallRoomId} />
+          </div>
+        </div>
+      )}
+
+      {/* ── Chat Report Modal ── */}
+      {reportModalOpen && chatReport && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '16px' }}>
+          <div style={{ background: 'white', borderRadius: '24px', maxWidth: '640px', width: '100%', maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 60px rgba(0,0,0,0.25)' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontWeight: 700, color: '#1f2937', fontSize: '17px' }}>Chat Report</h3>
+              <button onClick={() => setReportModalOpen(false)} style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#f3f4f6', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <FaTimes style={{ color: '#6b7280', fontSize: '12px' }} />
+              </button>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #f3f4f6' }}>
+                <img src={chatReport.patientPhotoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(chatReport.patientName || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '52px', height: '52px', borderRadius: '12px', objectFit: 'cover' }} />
+                <div>
+                  <p style={{ fontWeight: 700, color: '#1f2937', fontSize: '15px' }}>{chatReport.patientName}</p>
+                  <p style={{ color: '#9ca3af', fontSize: '12px' }}>Session Summary</p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {chatReport.messages.map(msg => (
+                  <div key={msg.id} style={{ padding: '12px', borderRadius: '10px', background: '#f9fafb', border: '1px solid #f3f4f6' }}>
+                    <p style={{ fontWeight: 600, fontSize: '13px', color: '#374151' }}>
+                      {msg.senderRole === 'doctor' ? (currentUser.displayName || 'Doctor') : (chatReport.patientName || 'Patient')}
+                      <span style={{ color: '#9ca3af', fontWeight: 400, fontSize: '11px', marginLeft: '8px' }}>{new Date(msg.timestamp?.seconds * 1000 || msg.timestamp).toLocaleString()}</span>
                     </p>
-                    <p>{msg.text}</p>
+                    <p style={{ fontSize: '13px', color: '#4b5563', marginTop: '4px' }}>{msg.text}</p>
                   </div>
                 ))}
               </div>
             </div>
-
-            {/* Report Footer */}
-            <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end">
-                <button
-                    onClick={() => setReportModalOpen(false)}
-                    className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-                >
-                    Close
-                </button>
+            <div style={{ padding: '16px 24px', borderTop: '1px solid #f3f4f6', display: 'flex', justifyContent: 'flex-end' }}>
+              <button onClick={() => setReportModalOpen(false)} style={{ background: '#1f2937', color: 'white', border: 'none', borderRadius: '10px', padding: '10px 24px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>Close</button>
             </div>
           </div>
         </div>
@@ -1033,4 +1438,4 @@ const DoctorDashboard = () => {
   );
 };
 
-export default DoctorDashboard; 
+export default DoctorDashboard;

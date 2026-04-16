@@ -2,7 +2,6 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import DashboardNavbar from '../dashboard/DashboardNavbar';
-import DoctorNavbar from '../dashboard/DoctorNavbar';
 import Footer from './Footer';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -14,8 +13,9 @@ const Layout = ({ children }) => {
   const isDoctorRoute = location.pathname.startsWith('/dashboard/doctor');
 
   const renderNavbar = () => {
+    // Doctor dashboard has its own left sidebar — no top navbar needed
     if (isDoctorRoute) {
-      return <DoctorNavbar />;
+      return null;
     }
     if (isDashboardRoute) {
       return <DashboardNavbar />;
@@ -31,10 +31,10 @@ const Layout = ({ children }) => {
       <main className="flex-grow">
         {children}
       </main>
-      {/* Add a basic footer here later if needed */}
-      <Footer />
+      {/* Footer is hidden on doctor dashboard since it has its own full-screen layout */}
+      {!isDoctorRoute && <Footer />}
     </div>
   );
 };
 
-export default Layout; 
+export default Layout;
