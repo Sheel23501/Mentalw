@@ -444,74 +444,82 @@ const DoctorDashboard = () => {
 
   if (viewingPatientHistory) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-2xl shadow-sm p-8">
-            {/* History Header */}
-            <div className="flex items-center justify-between mb-8 border-b pb-4">
+      <div className="min-h-screen pb-16" style={{ background: 'linear-gradient(135deg, #f0f4f0 0%, #e8efe5 30%, #f5f0eb 70%, #faf8f5 100%)' }}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 pt-28">
+          {/* Breadcrumb-style header */}
+          <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-white/60 p-8" style={{ fontFamily: "'Inter', sans-serif" }}>
+            <div className="flex items-center justify-between mb-8 border-b border-gray-100 pb-6">
                 <div className="flex items-center space-x-4">
-                    <button onClick={handleBackToDashboard} className="text-gray-600 hover:text-gray-900">
-                        <FaArrowLeft className="h-6 w-6" />
+                    <button onClick={handleBackToDashboard} className="w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-all hover:scale-105">
+                        <FaArrowLeft className="h-4 w-4 text-gray-600" />
                     </button>
                     <img
-                        src={viewingPatientHistory.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(viewingPatientHistory.displayName || 'P')}&background=E5E7EB&color=374151`}
+                        src={viewingPatientHistory.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(viewingPatientHistory.displayName || 'P')}&background=c7d2c4&color=374151`}
                         alt={viewingPatientHistory.displayName || 'Patient'}
-                        className="w-12 h-12 rounded-full object-cover"
+                        className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-sm"
                     />
                     <div>
-                        <h3 className="text-xl font-semibold text-gray-800">{viewingPatientHistory.displayName || 'Unknown Patient'}</h3>
-                        <p className="text-sm text-gray-500">Chat History</p>
+                        <h3 className="text-xl font-bold text-gray-800 tracking-tight">{viewingPatientHistory.displayName || 'Unknown Patient'}</h3>
+                        <p className="text-sm text-gray-400 font-medium">Session History</p>
                     </div>
                 </div>
             </div>
 
-            {/* History Body */}
             {historyLoading ? (
-              <div className="text-center text-gray-500 py-10">Loading history...</div>
+              <div className="text-center text-gray-400 py-16 text-sm">Loading history...</div>
             ) : patientHistory.length === 0 ? (
-              <div className="text-center text-gray-500 py-10">No chat history found for this patient.</div>
+              <div className="text-center py-16">
+                <div className="text-4xl mb-3">📋</div>
+                <p className="text-gray-400 text-sm">No chat history found for this patient.</p>
+              </div>
             ) : (
-              <ul className="space-y-4">
+              <ul className="space-y-3">
                 {patientHistory.map(report => (
-                  <li key={report.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition cursor-pointer" onClick={() => { setChatReport(report); setReportModalOpen(true); }}>
+                  <li key={report.id} className="bg-gradient-to-r from-gray-50 to-white p-5 rounded-xl border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all cursor-pointer group" onClick={() => { setChatReport(report); setReportModalOpen(true); }}>
                     <div className="flex justify-between items-center">
-                      <p className="font-semibold text-gray-800">Chat Session</p>
-                      <p className="text-sm text-gray-500">{formatTimestamp(report.createdAt)}</p>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                          <FaComments className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-800 text-sm">Chat Session</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{report.messages.length} messages</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-400 font-medium">{formatTimestamp(report.createdAt)}</p>
                     </div>
-                    <p className="text-sm text-gray-600 mt-2">{report.messages.length} messages</p>
                   </li>
                 ))}
               </ul>
             )}
           </div>
         </div>
-        {/* Re-using the report modal to show history details */}
         {reportModalOpen && chatReport && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-0 z-50 sm:p-4">
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-0 z-50 sm:p-4">
             <div className="bg-white rounded-none w-full h-full shadow-2xl flex flex-col relative sm:rounded-3xl sm:max-w-2xl sm:max-h-[90vh] sm:min-h-[400px] overflow-hidden">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
-                  <h3 className="text-xl font-semibold text-gray-800">Chat Transcript - {formatTimestamp(chatReport.createdAt)}</h3>
-                  <button onClick={() => setReportModalOpen(false)} className="text-gray-500 hover:text-gray-800 transition-colors">
-                      <FaTimes/>
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                  <h3 className="text-lg font-bold text-gray-800">Chat Transcript — {formatTimestamp(chatReport.createdAt)}</h3>
+                  <button onClick={() => setReportModalOpen(false)} className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition">
+                      <FaTimes className="w-3 h-3 text-gray-500"/>
                   </button>
               </div>
               <div className="flex-1 overflow-y-auto bg-white p-6 space-y-4">
                 <div className="prose prose-sm max-w-none">
                   {chatReport.messages.map(msg => (
-                    <div key={msg.id || msg.timestamp.seconds} className="mb-2">
-                      <p className="font-bold">
+                    <div key={msg.id || msg.timestamp.seconds} className="mb-3 p-3 rounded-lg bg-gray-50">
+                      <p className="font-semibold text-sm text-gray-700">
                         {msg.senderName || (msg.senderRole === 'doctor' ? 'Doctor' : 'Patient')}
-                        <span className="text-xs font-normal text-gray-500 ml-2">
+                        <span className="text-xs font-normal text-gray-400 ml-2">
                           {formatTimestamp(msg.timestamp)}
                         </span>
                       </p>
-                      <p>{msg.text}</p>
+                      <p className="text-sm text-gray-600 mt-1">{msg.text}</p>
                     </div>
                   ))}
                 </div>
               </div>
               <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end">
-                  <button onClick={() => setReportModalOpen(false)} className="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium">
+                  <button onClick={() => setReportModalOpen(false)} className="bg-gray-800 text-white px-6 py-2.5 rounded-xl hover:bg-gray-900 transition text-sm font-medium">
                       Close
                   </button>
               </div>
@@ -523,106 +531,170 @@ const DoctorDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-2xl shadow-sm p-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-8">Doctor Dashboard</h1>
-          <div className="mb-8">
-            <EmotionPanel />
+    <div className="min-h-screen pb-16" style={{ background: 'linear-gradient(135deg, #f0f4f0 0%, #e8efe5 30%, #f5f0eb 70%, #faf8f5 100%)', fontFamily: "'Inter', sans-serif" }}>
+      {/* Hero / Welcome Section */}
+      <div className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #2d4a3e 0%, #3d6655 40%, #4a7c65 100%)' }}>
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-96 h-96 rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%)', transform: 'translate(30%, -30%)' }}></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)', transform: 'translate(-20%, 30%)' }}></div>
+        </div>
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-28 pb-12">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-emerald-200 text-sm font-medium tracking-widest uppercase mb-2">Doctor Dashboard</p>
+              <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">
+                Welcome back, <span className="text-emerald-300">{currentUser?.displayName?.split(' ')[0] || 'Doctor'}</span>
+              </h1>
+              <p className="text-emerald-100/70 text-base max-w-lg">Manage your patients, review sessions, and provide the best care possible.</p>
+            </div>
+            <div className="hidden sm:flex items-center gap-3">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10">
+                <p className="text-emerald-200 text-xs font-medium">Patients</p>
+                <p className="text-white text-2xl font-bold">{patients.length}</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10">
+                <p className="text-emerald-200 text-xs font-medium">Scheduled</p>
+                <p className="text-white text-2xl font-bold">{scheduledChats.length}</p>
+              </div>
+            </div>
           </div>
+        </div>
+        {/* Curved bottom edge */}
+        <div className="absolute bottom-0 left-0 right-0 h-8 bg-transparent" style={{ borderRadius: '100% 100% 0 0', background: 'linear-gradient(135deg, #f0f4f0 0%, #e8efe5 30%, #f5f0eb 70%, #faf8f5 100%)' }}></div>
+      </div>
 
-          {/* Patient Users Section */}
-          <div className="mb-10">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Patients</h2>
-            {loading ? (
-              <div className="text-gray-500 text-center py-8">Loading patients...</div>
-            ) : patients.length === 0 ? (
-              <div className="text-gray-500 text-center py-8">No patients found.</div>
-            ) : (
-              <ul className="divide-y divide-gray-100">
-                {patients.map((patient) => (
-                  <li key={patient.id} className="flex flex-col sm:flex-row items-start sm:items-center bg-gray-50 rounded-lg p-4 sm:p-5 mb-4 hover:shadow transition group">
-                    <img src={patient.photoURL || patient.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(patient.displayName || patient.name || patient.email || 'Unknown Patient')}&background=E5E7EB&color=374151`} alt={patient.displayName || patient.name || patient.email || 'Unknown Patient'} className="w-12 h-12 rounded-full object-cover mr-4 mb-2 sm:mb-0 shrink-0" />
-                    <div className="flex-1 min-w-0 w-full sm:w-auto">
-                      <div className="flex items-center justify-between flex-wrap">
-                        <div className="font-medium text-gray-900 text-base break-words min-w-0 sm:max-w-[calc(100%-60px)]">{patient.displayName || patient.name || patient.email || 'Unknown Patient'}</div>
-                        <span className="text-xs px-2 py-1 rounded bg-green-100 text-green-700 font-semibold ml-auto sm:ml-2 mt-2 sm:mt-0 whitespace-nowrap">Patient</span>
-                      </div>
-                      <div className="flex items-center text-xs text-gray-500 mt-1 break-words"> 
-                        <FaEnvelope className="mr-1" /> {patient.email || 'Unknown' }
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end w-full sm:w-auto ml-0 sm:ml-4 mt-4 sm:mt-0 space-y-2">
-                      <button
-                        className="w-full sm:w-auto flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm relative"
-                        onClick={() => setChatPatient(patient)}
-                      >
-                        <FaComments className="mr-2" /> Chat
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 -mt-2">
+        {/* Emotion Panel */}
+        <div className="mb-8 mt-4">
+          <EmotionPanel />
+        </div>
+
+        {/* Patients Section */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #4a7c65 0%, #3d6655 100%)' }}>
+                <FaComments className="w-4 h-4 text-white" />
+              </div>
+              <h2 className="text-lg font-bold text-gray-800 tracking-tight">Your Patients</h2>
+            </div>
+            <span className="text-xs font-medium text-gray-400 bg-gray-100 px-3 py-1.5 rounded-full">{patients.length} total</span>
+          </div>
+          {loading ? (
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-12 text-center">
+              <div className="animate-pulse flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-gray-200 mb-4"></div>
+                <div className="w-32 h-4 bg-gray-200 rounded-full"></div>
+              </div>
+            </div>
+          ) : patients.length === 0 ? (
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-12 text-center">
+              <div className="text-4xl mb-3">👥</div>
+              <p className="text-gray-400 text-sm">No patients found.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {patients.map((patient) => (
+                <div key={patient.id} className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-5 hover:shadow-lg hover:border-emerald-100 transition-all group">
+                  <div className="flex items-start gap-4">
+                    <img src={patient.photoURL || patient.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(patient.displayName || patient.name || patient.email || 'Unknown Patient')}&background=c7d2c4&color=374151`} alt={patient.displayName || patient.name || patient.email || 'Unknown Patient'} className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-sm shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="font-semibold text-gray-800 text-sm truncate">{patient.displayName || patient.name || patient.email || 'Unknown Patient'}</h3>
                         {unreadCounts[patient.id] > 0 && (
-                          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                          <span className="bg-red-500 text-white text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1.5 shrink-0">
                             {unreadCounts[patient.id]}
                           </span>
                         )}
-                      </button>
-                      <button
-                        className="w-full sm:w-auto flex items-center justify-center bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-600 transition-colors shadow-sm"
-                        onClick={() => handleStartVideoCall(patient)}
-                      >
-                        <FaVideo className="mr-2" /> Video Call
-                      </button>
-                      <button
-                        className="w-full sm:w-auto flex items-center justify-center bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors shadow-sm"
-                        onClick={() => handleViewHistory(patient)}
-                      >
-                        <FaHistory className="mr-2" /> History
-                      </button>
+                      </div>
+                      <div className="flex items-center text-xs text-gray-400 mt-1">
+                        <FaEnvelope className="mr-1.5 shrink-0" /> <span className="truncate">{patient.email || 'Unknown'}</span>
+                      </div>
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-2 mt-3">
+                        <button
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:scale-105"
+                          style={{ background: 'linear-gradient(135deg, #4a7c65 0%, #3d6655 100%)', color: 'white' }}
+                          onClick={() => setChatPatient(patient)}
+                        >
+                          <FaComments className="w-3 h-3" /> Chat
+                        </button>
+                        <button
+                          className="flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-100 transition-all hover:scale-105"
+                          onClick={() => handleStartVideoCall(patient)}
+                        >
+                          <FaVideo className="w-3 h-3" /> Video
+                        </button>
+                        <button
+                          className="flex items-center gap-1.5 bg-gray-50 text-gray-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-100 transition-all hover:scale-105"
+                          onClick={() => handleViewHistory(patient)}
+                        >
+                          <FaHistory className="w-3 h-3" /> History
+                        </button>
+                      </div>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-          {/* Scheduled Chats */}
-          <div>
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Scheduled Chats</h2>
-            {loadingChats ? (
-              <div className="text-gray-500 text-center py-8">Loading scheduled chats...</div>
-            ) : scheduledChats.length === 0 ? (
-              <div className="text-gray-500 text-center py-8">This feature is coming soon.</div>
-            ) : (
-              <ul className="divide-y divide-gray-100">
-                {scheduledChats.map((chat) => (
-                  <li key={chat.id} className="flex flex-col sm:flex-row items-start sm:items-center bg-gray-50 rounded-lg p-4 sm:p-5 mb-4 hover:shadow transition group">
-                    <img src={chat.patientPhotoURL || chat.patientImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.patientName || chat.patientEmail || 'Unknown Patient')}&background=E5E7EB&color=374151`} alt={chat.patientName || 'Unknown Patient'} className="w-12 h-12 rounded-full object-cover mr-4 mb-2 sm:mb-0 shrink-0" />
-                    <div className="flex-1 min-w-0 w-full sm:w-auto">
-                      <div className="flex items-center justify-between flex-wrap">
-                        <div className="font-medium text-gray-900 text-base break-words min-w-0 sm:max-w-[calc(100%-60px)]">{chat.patientName || 'Unknown Patient'}</div>
-                        <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700 font-semibold ml-auto sm:ml-2 mt-2 sm:mt-0 whitespace-nowrap">{chat.status || 'Scheduled'}</span>
-                      </div>
-                      <div className="flex items-center text-xs text-gray-500 mt-1 break-words">
-                        <FaEnvelope className="mr-1" /> {chat.patientEmail || 'Unknown'}
-                      </div>
-                      <div className="text-xs text-gray-400 mt-1 break-words">{chat.date} at {chat.time}</div>
-                    </div>
-                    <div className="flex flex-col items-end w-full sm:w-auto ml-0 sm:ml-4 mt-4 sm:mt-0">
-                      <button
-                        className="w-full sm:w-auto flex items-center justify-center bg-green-50 text-green-700 border border-green-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-100 transition-colors shadow-sm relative"
-                        onClick={() => openModal('view', chat)}
-                      >
-                        <FaCalendarAlt className="mr-2" /> View
+        {/* Scheduled Chats */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
+                <FaCalendarAlt className="w-4 h-4 text-blue-600" />
+              </div>
+              <h2 className="text-lg font-bold text-gray-800 tracking-tight">Scheduled Sessions</h2>
+            </div>
+            <span className="text-xs font-medium text-gray-400 bg-gray-100 px-3 py-1.5 rounded-full">{scheduledChats.length} sessions</span>
+          </div>
+          {loadingChats ? (
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-12 text-center">
+              <div className="animate-pulse flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-gray-200 mb-4"></div>
+                <div className="w-32 h-4 bg-gray-200 rounded-full"></div>
+              </div>
+            </div>
+          ) : scheduledChats.length === 0 ? (
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-12 text-center">
+              <div className="text-4xl mb-3">📅</div>
+              <p className="text-gray-400 text-sm">No scheduled sessions yet. This feature is coming soon.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {scheduledChats.map((chat) => (
+                <div key={chat.id} className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-5 hover:shadow-lg hover:border-blue-100 transition-all group">
+                  <div className="flex items-center gap-4">
+                    <img src={chat.patientPhotoURL || chat.patientImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.patientName || chat.patientEmail || 'Unknown Patient')}&background=c7d2c4&color=374151`} alt={chat.patientName || 'Unknown Patient'} className="w-12 h-12 rounded-2xl object-cover border-2 border-white shadow-sm shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-gray-800 text-sm truncate">{chat.patientName || 'Unknown Patient'}</h3>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium shrink-0">{chat.status || 'Scheduled'}</span>
                         {unreadCounts[chat.id] > 0 && (
-                          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                          <span className="bg-red-500 text-white text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1.5 shrink-0">
                             {unreadCounts[chat.id]}
                           </span>
                         )}
-                      </button>
+                      </div>
+                      <div className="flex items-center gap-3 text-xs text-gray-400 mt-1">
+                        <span className="flex items-center gap-1"><FaEnvelope className="w-3 h-3" /> {chat.patientEmail || 'Unknown'}</span>
+                        <span className="flex items-center gap-1"><FaCalendarAlt className="w-3 h-3" /> {chat.date} at {chat.time}</span>
+                      </div>
                     </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+                    <button
+                      className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium transition-all hover:scale-105 border border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
+                      onClick={() => openModal('view', chat)}
+                    >
+                      <FaCalendarAlt className="w-3 h-3" /> View
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -646,87 +718,81 @@ const DoctorDashboard = () => {
         />
       )}
 
-      {/* Modal for Chat/View */}
+      {/* Modal for Scheduled Chat/View */}
       {modalOpen && modalData && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-0 z-50 sm:p-4">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-0 z-50 sm:p-4">
           <div className="bg-white rounded-none w-full h-full shadow-2xl flex flex-col relative sm:rounded-3xl sm:max-w-lg sm:max-h-[90vh] sm:min-h-[400px] overflow-hidden">
             {/* Chat Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-green-600 text-white">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: 'linear-gradient(135deg, #2d4a3e 0%, #3d6655 40%, #4a7c65 100%)' }}>
               <div className="flex items-center space-x-3">
                 <img
-                  src={modalData.patientPhotoURL || modalData.patientImage || 'https://ui-avatars.com/api/?name=Unknown+Patient&background=E5E7EB&color=374151'}
+                  src={modalData.patientPhotoURL || modalData.patientImage || 'https://ui-avatars.com/api/?name=Unknown+Patient&background=c7d2c4&color=374151'}
                   alt={modalData.patientName || 'Unknown Patient'}
-                  className="w-12 h-12 rounded-full object-cover ring-2 ring-white ring-opacity-50"
+                  className="w-11 h-11 rounded-xl object-cover border-2 border-white/30"
                 />
                 <div>
-                  <h3 className="text-xl font-semibold">{modalData.patientName || 'Unknown Patient'}</h3>
-                  <p className="text-sm text-green-100">Patient</p>
+                  <h3 className="text-base font-bold text-white">{modalData.patientName || 'Unknown Patient'}</h3>
+                  <p className="text-xs text-emerald-200 font-medium">Patient • Scheduled Session</p>
                 </div>
               </div>
               {timeLeft !== null && (
-                <div className="text-white font-semibold text-lg bg-white/20 px-3 py-1 rounded-lg">
+                <div className="text-white font-mono font-bold text-sm bg-white/15 px-3 py-1.5 rounded-xl backdrop-blur-sm">
                   {`${String(Math.floor(timeLeft / 60)).padStart(2, '0')}:${String(timeLeft % 60).padStart(2, '0')}`}
                 </div>
               )}
-              <div className="flex items-center gap-2">
-                {/* Emotion Display */}
+              <div className="flex items-center gap-1.5">
                 {emotionAnalysisEnabled && detectedEmotion && (
-                  <div className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-lg">
-                    <span className="text-sm">{getEmotionEmoji(detectedEmotion)} {detectedEmotion}</span>
+                  <div className="flex items-center gap-1 bg-white/15 px-2 py-1 rounded-lg backdrop-blur-sm">
+                    <span className="text-xs text-white">{getEmotionEmoji(detectedEmotion)} {detectedEmotion}</span>
                   </div>
                 )}
-                {/* Emotion Analysis Toggle */}
                 <button
                   onClick={() => setEmotionAnalysisEnabled(!emotionAnalysisEnabled)}
-                  className={`${emotionAnalysisEnabled ? 'bg-yellow-400 text-gray-800' : 'bg-white/20 text-white'} hover:bg-white/30 p-2 rounded-full transition`}
+                  className={`${emotionAnalysisEnabled ? 'bg-amber-400 text-gray-800' : 'bg-white/15 text-white'} hover:bg-white/25 p-2 rounded-xl transition backdrop-blur-sm`}
                   title={emotionAnalysisEnabled ? 'Disable Emotion Analysis' : 'Enable Emotion Analysis'}
                 >
-                  <FaBrain className="w-4 h-4" />
+                  <FaBrain className="w-3.5 h-3.5" />
                 </button>
-                {/* Emotion History Panel Toggle */}
                 <button
                   onClick={() => setShowEmotionPanel(!showEmotionPanel)}
-                  className={`${showEmotionPanel ? 'bg-blue-400 text-white' : 'bg-white/20 text-white'} hover:bg-white/30 p-2 rounded-full transition`}
+                  className={`${showEmotionPanel ? 'bg-blue-400 text-white' : 'bg-white/15 text-white'} hover:bg-white/25 p-2 rounded-xl transition backdrop-blur-sm`}
                   title="View Emotion History"
                 >
-                  <FaChartLine className="w-4 h-4" />
+                  <FaChartLine className="w-3.5 h-3.5" />
                 </button>
                 <button
-                  className="text-white hover:text-green-100 transition-colors"
+                  className="bg-white/15 hover:bg-white/25 text-white p-2 rounded-xl transition backdrop-blur-sm"
                   onClick={closeChatModals}
                 >
-                  <span className="sr-only">Close</span>
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <FaTimes className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
             {/* Emotion History Panel */}
             {showEmotionPanel && (
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue-100 px-4 py-3">
+              <div className="bg-gradient-to-r from-blue-50/80 to-purple-50/80 border-b border-blue-100 px-4 py-3">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <FaChartLine className="text-blue-500" /> Patient Emotion Analysis
+                  <h4 className="text-xs font-bold text-gray-600 flex items-center gap-2 uppercase tracking-wider">
+                    <FaChartLine className="text-blue-500" /> Emotion Analysis
                   </h4>
                   {emotionAnalysisEnabled ? (
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">🔴 Live</span>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">🔴 Live</span>
                   ) : (
-                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">Paused</span>
+                    <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium">Paused</span>
                   )}
                 </div>
                 {emotionHistory.length === 0 ? (
-                  <p className="text-xs text-gray-500">No emotions detected yet. Enable analysis to start monitoring.</p>
+                  <p className="text-xs text-gray-400">No emotions detected yet. Enable analysis to start monitoring.</p>
                 ) : (
                   <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
                     {emotionHistory.map((entry, idx) => (
                       <span
                         key={idx}
-                        className="text-xs bg-white border border-gray-200 rounded-full px-2 py-1 flex items-center gap-1"
+                        className="text-[10px] bg-white border border-gray-100 rounded-full px-2 py-1 flex items-center gap-1 shadow-sm"
                         title={entry.timestamp.toLocaleTimeString()}
                       >
                         {getEmotionEmoji(entry.emotion)} {entry.emotion}
-                        <span className="text-gray-400">{entry.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span className="text-gray-300">{entry.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       </span>
                     ))}
                   </div>
@@ -735,38 +801,41 @@ const DoctorDashboard = () => {
             )}
             {modalType === 'view' ? (
               <>
-                <div className="flex-1 overflow-y-auto bg-gray-50 px-4 py-6 flex flex-col space-y-4 pb-24">
+                <div className="flex-1 overflow-y-auto px-4 py-6 flex flex-col space-y-3 pb-24" style={{ background: 'linear-gradient(180deg, #f8faf8 0%, #ffffff 100%)' }}>
                   {chatLoading ? (
-                    <div className="text-center text-gray-400 py-8">Loading messages...</div>
+                    <div className="text-center text-gray-400 py-8 text-sm">Loading messages...</div>
                   ) : chatMessages.length === 0 ? (
-                    <div className="text-center text-gray-400 py-8">No messages yet. Start the conversation!</div>
+                    <div className="text-center py-12">
+                      <div className="text-4xl mb-3">💬</div>
+                      <p className="text-gray-400 text-sm">No messages yet. Start the conversation!</p>
+                    </div>
                   ) : (
                     chatMessages.map(msg => (
-                      <div key={msg.id} className={`flex items-end ${msg.senderId === currentUser.uid ? 'justify-end space-x-2' : 'justify-start space-x-2'}`}> 
+                      <div key={msg.id} className={`flex items-end ${msg.senderId === currentUser.uid ? 'justify-end space-x-2' : 'justify-start space-x-2'}`}>
                         {msg.senderId !== currentUser.uid && (
                           <img
-                            src={modalData.patientPhotoURL || modalData.patientImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(modalData.patientName || modalData.patientEmail || 'Unknown Patient')}&background=E5E7EB&color=374151`}
+                            src={modalData.patientPhotoURL || modalData.patientImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(modalData.patientName || modalData.patientEmail || 'Unknown Patient')}&background=c7d2c4&color=374151`}
                             alt={modalData.patientName || 'Unknown Patient'}
-                            className="w-8 h-8 rounded-full object-cover shrink-0"
+                            className="w-7 h-7 rounded-lg object-cover shrink-0"
                           />
                         )}
-                        <div className={`max-w-[70%] px-4 py-2 rounded-2xl shadow-sm text-sm break-words ${msg.senderId === currentUser.uid ? 'bg-green-600 text-white rounded-br-none' : 'bg-white text-gray-900 border border-gray-200 rounded-bl-none'} transition-opacity duration-200 ease-out`}>
+                        <div className={`max-w-[70%] px-4 py-2.5 rounded-2xl text-sm break-words shadow-sm ${msg.senderId === currentUser.uid ? 'rounded-br-md text-white' : 'bg-white text-gray-800 border border-gray-100 rounded-bl-md'}`} style={msg.senderId === currentUser.uid ? { background: 'linear-gradient(135deg, #3d6655 0%, #4a7c65 100%)' } : {}}>
                           <div>{msg.text}</div>
-                          <div className={`text-xs mt-1 ${msg.senderId === currentUser.uid ? 'text-green-200 text-right' : 'text-gray-500 text-left'}`}>{msg.timestamp && new Date(msg.timestamp.seconds ? msg.timestamp.seconds * 1000 : msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                          <div className={`text-[10px] mt-1 ${msg.senderId === currentUser.uid ? 'text-emerald-200 text-right' : 'text-gray-400 text-left'}`}>{msg.timestamp && new Date(msg.timestamp.seconds ? msg.timestamp.seconds * 1000 : msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                         </div>
                         {msg.senderId === currentUser.uid && (
                           <img
-                            src={msg.senderImage || currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.displayName || currentUser?.email || 'Unknown Doctor')}&background=E5E7EB&color=374151`}
+                            src={msg.senderImage || currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.displayName || currentUser?.email || 'Unknown Doctor')}&background=c7d2c4&color=374151`}
                             alt={currentUser.displayName || currentUser.email || 'Unknown Doctor'}
-                            className="w-8 h-8 rounded-full object-cover shrink-0"
+                            className="w-7 h-7 rounded-lg object-cover shrink-0"
                           />
                         )}
                       </div>
                     ))
                   )}
                 </div>
-                {/* Session Notes below chat history */}
-                <div className="px-4 pb-6">
+                {/* Session Notes below chat */}
+                <div className="px-4 pb-4">
                   <SessionNotes
                     doctorId={currentUser?.uid}
                     patientId={modalData?.patientId}
@@ -774,42 +843,41 @@ const DoctorDashboard = () => {
                     sessionDate={modalData?.date}
                   />
                 </div>
-                {/* Footer with Input and Actions */}
+                {/* Footer */}
                 <div className="mt-auto border-t border-gray-100 bg-white">
-                    <div className="p-4 flex items-center gap-3">
+                    <div className="p-3 flex items-center gap-2">
                         <input
                             type="text"
                             placeholder="Type your message..."
-                            className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                            className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent text-sm bg-gray-50"
                             value={chatInput}
                             onChange={e => setChatInput(e.target.value)}
                             onKeyDown={e => { if (e.key === 'Enter' && chatInput.trim()) handleSendMessage(); }}
                             autoFocus
                         />
-                        <button 
-                            onClick={handleSendMessage} 
-                            className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors text-sm font-medium disabled:opacity-50" 
+                        <button
+                            onClick={handleSendMessage}
+                            className="text-white px-5 py-2.5 rounded-xl text-sm font-medium disabled:opacity-50 transition hover:scale-105"
+                            style={{ background: 'linear-gradient(135deg, #3d6655 0%, #4a7c65 100%)' }}
                             disabled={!chatInput.trim()}>
                             Send
                         </button>
                     </div>
-                    <div className="px-6 py-3 bg-gray-50 flex justify-end items-center border-t">
+                    <div className="px-4 py-2.5 bg-gray-50/80 flex justify-between items-center border-t border-gray-100 gap-2">
+                        <button
+                            className="flex-1 flex items-center justify-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-xs font-medium hover:bg-blue-100 transition"
+                            onClick={() => setVideoCallOpen(true)}
+                        >
+                            <FaVideo className="w-3 h-3" /> Video Call
+                        </button>
                         <button
                             onClick={() => handleSaveAndEndChat('scheduled', chatMessages, { patientId: modalData?.patientId, patientName: modalData?.patientName, patientPhotoURL: modalData?.patientPhotoURL })}
-                            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium w-full disabled:opacity-50"
+                            className="flex-1 bg-red-50 text-red-600 px-4 py-2 rounded-xl text-xs font-medium hover:bg-red-100 transition disabled:opacity-50"
                             disabled={chatMessages.length === 0}
                         >
                             Save & End Session
                         </button>
                     </div>
-                </div>
-                <div className="flex justify-center mt-4">
-                  <button
-                    className="bg-primary-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-700 transition shadow"
-                    onClick={() => setVideoCallOpen(true)}
-                  >
-                    Start Video Call
-                  </button>
                 </div>
                 <VideoCallModal
                   open={videoCallOpen}
@@ -833,98 +901,91 @@ const DoctorDashboard = () => {
 
       {/* Direct Chat Modal */}
       {chatPatient && currentUser && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-0 z-50 sm:p-4">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-0 z-50 sm:p-4">
           <div className="bg-white rounded-none w-full h-full shadow-2xl flex flex-col relative sm:rounded-3xl sm:max-w-lg sm:max-h-[90vh] sm:min-h-[400px] overflow-hidden">
             {/* Chat Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-green-600 text-white">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100" style={{ background: 'linear-gradient(135deg, #2d4a3e 0%, #3d6655 40%, #4a7c65 100%)' }}>
               <div className="flex items-center space-x-3">
                 <img
-                  src={chatPatient.photoURL || chatPatient.image || 'https://ui-avatars.com/api/?name=Unknown+Patient&background=E5E7EB&color=374151'}
+                  src={chatPatient.photoURL || chatPatient.image || 'https://ui-avatars.com/api/?name=Unknown+Patient&background=c7d2c4&color=374151'}
                   alt={chatPatient.displayName || chatPatient.name || chatPatient.email || 'Unknown Patient'}
-                  className="w-12 h-12 rounded-full object-cover ring-2 ring-white ring-opacity-50"
+                  className="w-11 h-11 rounded-xl object-cover border-2 border-white/30"
                 />
                 <div>
-                  <h3 className="text-xl font-semibold">
+                  <h3 className="text-base font-bold text-white">
                     {chatPatient.displayName || chatPatient.name || chatPatient.email || 'Unknown Patient'}
                   </h3>
-                  <p className="text-sm text-green-100">Patient</p>
+                  <p className="text-xs text-emerald-200 font-medium">Patient • Direct Chat</p>
                 </div>
               </div>
               {timeLeft !== null && (
-                <div className="text-white font-semibold text-lg bg-white/20 px-3 py-1 rounded-lg">
+                <div className="text-white font-mono font-bold text-sm bg-white/15 px-3 py-1.5 rounded-xl backdrop-blur-sm">
                   {`${String(Math.floor(timeLeft / 60)).padStart(2, '0')}:${String(timeLeft % 60).padStart(2, '0')}`}
                 </div>
               )}
-              <div className="flex items-center gap-2">
-                {/* Emotion Display */}
+              <div className="flex items-center gap-1.5">
                 {emotionAnalysisEnabled && detectedEmotion && (
-                  <div className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-lg">
-                    <span className="text-sm">{getEmotionEmoji(detectedEmotion)} {detectedEmotion}</span>
+                  <div className="flex items-center gap-1 bg-white/15 px-2 py-1 rounded-lg backdrop-blur-sm">
+                    <span className="text-xs text-white">{getEmotionEmoji(detectedEmotion)} {detectedEmotion}</span>
                   </div>
                 )}
-                {/* Video Call Button */}
                 <button
                   onClick={() => {
                     setIsOutgoingCall(false);
                     setVideoCallOpen(true);
                   }}
-                  className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition"
+                  className="bg-blue-400/80 hover:bg-blue-500 text-white p-2 rounded-xl transition backdrop-blur-sm"
                   title="Start Video Call"
                 >
-                  <FaVideo className="w-4 h-4" />
+                  <FaVideo className="w-3.5 h-3.5" />
                 </button>
-                {/* Emotion Analysis Toggle */}
                 <button
                   onClick={() => setEmotionAnalysisEnabled(!emotionAnalysisEnabled)}
-                  className={`${emotionAnalysisEnabled ? 'bg-yellow-400 text-gray-800' : 'bg-white/20 text-white'} hover:bg-white/30 p-2 rounded-full transition`}
+                  className={`${emotionAnalysisEnabled ? 'bg-amber-400 text-gray-800' : 'bg-white/15 text-white'} hover:bg-white/25 p-2 rounded-xl transition backdrop-blur-sm`}
                   title={emotionAnalysisEnabled ? 'Disable Emotion Analysis' : 'Enable Emotion Analysis'}
                 >
-                  <FaBrain className="w-4 h-4" />
+                  <FaBrain className="w-3.5 h-3.5" />
                 </button>
-                {/* Emotion History Panel Toggle */}
                 <button
                   onClick={() => setShowEmotionPanel(!showEmotionPanel)}
-                  className={`${showEmotionPanel ? 'bg-blue-400 text-white' : 'bg-white/20 text-white'} hover:bg-white/30 p-2 rounded-full transition`}
+                  className={`${showEmotionPanel ? 'bg-blue-400 text-white' : 'bg-white/15 text-white'} hover:bg-white/25 p-2 rounded-xl transition backdrop-blur-sm`}
                   title="View Emotion History"
                 >
-                  <FaChartLine className="w-4 h-4" />
+                  <FaChartLine className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={closeChatModals}
-                  className="text-white hover:text-green-100 transition-colors"
+                  className="bg-white/15 hover:bg-white/25 text-white p-2 rounded-xl transition backdrop-blur-sm"
                 >
-                  <span className="sr-only">Close</span>
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  <FaTimes className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
             {/* Emotion History Panel for Direct Chat */}
             {showEmotionPanel && (
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue-100 px-4 py-3">
+              <div className="bg-gradient-to-r from-blue-50/80 to-purple-50/80 border-b border-blue-100 px-4 py-3">
                 <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <FaChartLine className="text-blue-500" /> Patient Emotion Analysis
+                  <h4 className="text-xs font-bold text-gray-600 flex items-center gap-2 uppercase tracking-wider">
+                    <FaChartLine className="text-blue-500" /> Emotion Analysis
                   </h4>
                   {emotionAnalysisEnabled ? (
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">🔴 Live</span>
+                    <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium">🔴 Live</span>
                   ) : (
-                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">Paused</span>
+                    <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full font-medium">Paused</span>
                   )}
                 </div>
                 {emotionHistory.length === 0 ? (
-                  <p className="text-xs text-gray-500">No emotions detected yet. Enable analysis to start monitoring.</p>
+                  <p className="text-xs text-gray-400">No emotions detected yet. Enable analysis to start monitoring.</p>
                 ) : (
                   <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
                     {emotionHistory.map((entry, idx) => (
                       <span
                         key={idx}
-                        className="text-xs bg-white border border-gray-200 rounded-full px-2 py-1 flex items-center gap-1"
+                        className="text-[10px] bg-white border border-gray-100 rounded-full px-2 py-1 flex items-center gap-1 shadow-sm"
                         title={entry.timestamp.toLocaleTimeString()}
                       >
                         {getEmotionEmoji(entry.emotion)} {entry.emotion}
-                        <span className="text-gray-400">{entry.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span className="text-gray-300">{entry.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       </span>
                     ))}
                   </div>
@@ -932,51 +993,56 @@ const DoctorDashboard = () => {
               </div>
             )}
             {/* Chat Body */}
-            <div className="flex-1 overflow-y-auto bg-gray-50 px-4 py-6 flex flex-col space-y-4 pb-24">
+            <div className="flex-1 overflow-y-auto px-4 py-6 flex flex-col space-y-3 pb-24" style={{ background: 'linear-gradient(180deg, #f8faf8 0%, #ffffff 100%)' }}>
               {chatLoadingDirect ? (
-                <div className="text-center text-gray-400 py-8">Loading messages...</div>
+                <div className="text-center text-gray-400 py-8 text-sm">Loading messages...</div>
               ) : chatMessagesDirect.length === 0 ? (
-                <div className="text-center text-gray-400 py-8">No messages yet. Start the conversation!</div>
+                <div className="text-center py-12">
+                  <div className="text-4xl mb-3">💬</div>
+                  <p className="text-gray-400 text-sm">No messages yet. Start the conversation!</p>
+                </div>
               ) : (
                 chatMessagesDirect.map(msg => (
                   msg.videoCall ? (
-                    // Video call invitation with Join button
                     <div key={msg.id} className="flex justify-center my-2">
-                      <div className="bg-blue-100 border border-blue-200 text-blue-800 px-4 py-3 rounded-xl flex items-center gap-3 shadow-sm">
-                        <span className="text-2xl">📹</span>
+                      <div className="bg-blue-50 border border-blue-100 text-blue-700 px-4 py-3 rounded-2xl flex items-center gap-3 shadow-sm">
+                        <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                          <FaVideo className="w-4 h-4 text-blue-600" />
+                        </div>
                         <div>
-                          <div className="font-medium">Video Call Invitation</div>
-                          <div className="text-xs text-blue-600">Room: {msg.roomCode}</div>
+                          <div className="font-semibold text-sm">Video Call Invitation</div>
+                          <div className="text-[10px] text-blue-400 font-mono">Room: {msg.roomCode}</div>
                         </div>
                         <button
                           onClick={() => {
                             setPendingRoomCode(msg.roomCode);
                             setVideoCallOpen(true);
                           }}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+                          className="text-white px-4 py-2 rounded-xl text-xs font-medium transition hover:scale-105"
+                          style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' }}
                         >
                           Join Call
                         </button>
                       </div>
                     </div>
                   ) : (
-                  <div key={msg.id} className={`flex items-end ${msg.senderId === currentUser.uid ? 'justify-end space-x-2' : 'justify-start space-x-2'}`}> 
+                  <div key={msg.id} className={`flex items-end ${msg.senderId === currentUser.uid ? 'justify-end space-x-2' : 'justify-start space-x-2'}`}>
                     {msg.senderId !== currentUser.uid && (
                       <img
-                        src={chatPatient.photoURL || chatPatient.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(chatPatient.displayName || chatPatient.name || chatPatient.email || 'Unknown Patient')}&background=E5E7EB&color=374151`}
+                        src={chatPatient.photoURL || chatPatient.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(chatPatient.displayName || chatPatient.name || chatPatient.email || 'Unknown Patient')}&background=c7d2c4&color=374151`}
                         alt={chatPatient.displayName || chatPatient.name || chatPatient.email || 'Unknown Patient'}
-                        className="w-8 h-8 rounded-full object-cover shrink-0"
+                        className="w-7 h-7 rounded-lg object-cover shrink-0"
                       />
                     )}
-                    <div className={`max-w-[70%] px-4 py-2 rounded-2xl shadow-sm text-sm break-words ${msg.senderId === currentUser.uid ? 'bg-green-600 text-white rounded-br-none' : 'bg-white text-gray-900 border border-gray-200 rounded-bl-none'} transition-opacity duration-200 ease-out`}>
+                    <div className={`max-w-[70%] px-4 py-2.5 rounded-2xl text-sm break-words shadow-sm ${msg.senderId === currentUser.uid ? 'rounded-br-md text-white' : 'bg-white text-gray-800 border border-gray-100 rounded-bl-md'}`} style={msg.senderId === currentUser.uid ? { background: 'linear-gradient(135deg, #3d6655 0%, #4a7c65 100%)' } : {}}>
                       <div>{msg.text}</div>
-                      <div className={`text-xs mt-1 ${msg.senderId === currentUser.uid ? 'text-green-200 text-right' : 'text-gray-500 text-left'}`}>{msg.timestamp && new Date(msg.timestamp.seconds ? msg.timestamp.seconds * 1000 : msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                      <div className={`text-[10px] mt-1 ${msg.senderId === currentUser.uid ? 'text-emerald-200 text-right' : 'text-gray-400 text-left'}`}>{msg.timestamp && new Date(msg.timestamp.seconds ? msg.timestamp.seconds * 1000 : msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
                     {msg.senderId === currentUser.uid && (
                       <img
-                        src={msg.senderImage || currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.displayName || currentUser?.email || 'Unknown Doctor')}&background=E5E7EB&color=374151`}
+                        src={msg.senderImage || currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser?.displayName || currentUser?.email || 'Unknown Doctor')}&background=c7d2c4&color=374151`}
                         alt={currentUser.displayName || currentUser.email || 'Unknown Doctor'}
-                        className="w-8 h-8 rounded-full object-cover shrink-0"
+                        className="w-7 h-7 rounded-lg object-cover shrink-0"
                       />
                     )}
                   </div>
@@ -984,29 +1050,30 @@ const DoctorDashboard = () => {
                 ))
               )}
             </div>
-            {/* Footer with Input and Actions */}
+            {/* Footer */}
             <div className="mt-auto border-t border-gray-100 bg-white">
-                <div className="p-4 flex items-center gap-3">
+                <div className="p-3 flex items-center gap-2">
                     <input
                         type="text"
                         placeholder="Type your message..."
-                        className="flex-1 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                        className="flex-1 border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent text-sm bg-gray-50"
                         value={chatInputDirect}
                         onChange={e => setChatInputDirect(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter' && chatInputDirect.trim()) handleSendMessageDirect(); }}
                         autoFocus
                     />
-                    <button 
-                        onClick={handleSendMessageDirect} 
-                        className="bg-green-600 text-white px-6 py-3 rounded-xl hover:bg-green-700 transition-colors text-sm font-medium disabled:opacity-50" 
+                    <button
+                        onClick={handleSendMessageDirect}
+                        className="text-white px-5 py-2.5 rounded-xl text-sm font-medium disabled:opacity-50 transition hover:scale-105"
+                        style={{ background: 'linear-gradient(135deg, #3d6655 0%, #4a7c65 100%)' }}
                         disabled={!chatInputDirect.trim()}>
                         Send
                     </button>
                 </div>
-                <div className="px-6 py-3 bg-gray-50 flex justify-end items-center border-t">
+                <div className="px-4 py-2.5 bg-gray-50/80 flex justify-end items-center border-t border-gray-100">
                     <button
                         onClick={() => handleSaveAndEndChat('direct', chatMessagesDirect, { patientId: chatPatient?.id, patientName: chatPatient?.displayName || chatPatient?.name, patientPhotoURL: chatPatient?.photoURL })}
-                        className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium w-full disabled:opacity-50"
+                        className="bg-red-50 text-red-600 px-6 py-2 rounded-xl text-xs font-medium hover:bg-red-100 transition w-full disabled:opacity-50"
                         disabled={chatMessagesDirect.length === 0}
                     >
                         Save & End Session
@@ -1035,45 +1102,44 @@ const DoctorDashboard = () => {
 
       {/* Chat Report Modal */}
       {reportModalOpen && chatReport && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-0 z-[100] sm:p-4">
+        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-0 z-[100] sm:p-4">
           <div className="bg-white rounded-none w-full h-full shadow-2xl flex flex-col relative sm:rounded-3xl sm:max-w-2xl sm:max-h-[90vh] sm:min-h-[400px] overflow-hidden">
             {/* Report Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
-                <h3 className="text-xl font-semibold text-gray-800">Chat Report</h3>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                <h3 className="text-lg font-bold text-gray-800">Chat Report</h3>
                 <button
                     onClick={() => setReportModalOpen(false)}
-                    className="text-gray-500 hover:text-gray-800 transition-colors"
+                    className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition"
                 >
-                    <span className="sr-only">Close</span>
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    <FaTimes className="w-3 h-3 text-gray-500" />
                 </button>
             </div>
 
             {/* Report Body */}
             <div className="flex-1 overflow-y-auto bg-white p-6 space-y-4">
-              <div className="flex items-center space-x-4 pb-4 border-b border-gray-200">
+              <div className="flex items-center space-x-4 pb-4 border-b border-gray-100">
                 <img
-                    src={chatReport.patientPhotoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(chatReport.patientName || 'P')}&background=E5E7EB&color=374151`}
+                    src={chatReport.patientPhotoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(chatReport.patientName || 'P')}&background=c7d2c4&color=374151`}
                     alt={chatReport.patientName || 'Patient'}
-                    className="w-16 h-16 rounded-full object-cover"
+                    className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-sm"
                 />
                 <div>
-                    <h4 className="text-lg font-bold text-gray-900">{chatReport.patientName}</h4>
-                    <p className="text-sm text-gray-500">Chat Session Summary</p>
+                    <h4 className="text-base font-bold text-gray-800">{chatReport.patientName}</h4>
+                    <p className="text-xs text-gray-400 font-medium">Session Summary</p>
                 </div>
               </div>
 
-              <h5 className="text-md font-semibold text-gray-700 pt-4">Conversation Transcript:</h5>
-              <div className="prose prose-sm max-w-none border border-gray-200 rounded-lg p-4 bg-gray-50 max-h-96 overflow-y-auto">
+              <h5 className="text-xs font-bold text-gray-500 uppercase tracking-wider pt-2">Conversation Transcript</h5>
+              <div className="border border-gray-100 rounded-2xl p-4 bg-gray-50/50 max-h-96 overflow-y-auto space-y-2">
                 {chatReport.messages.map(msg => (
-                  <div key={msg.id} className="mb-2">
-                    <p className="font-bold">
+                  <div key={msg.id} className="p-3 rounded-xl bg-white border border-gray-50">
+                    <p className="font-semibold text-sm text-gray-700">
                       {msg.senderRole === 'doctor' ? (currentUser.displayName || 'Doctor') : (chatReport.patientName || 'Patient')}
-                      <span className="text-xs font-normal text-gray-500 ml-2">
+                      <span className="text-[10px] font-normal text-gray-400 ml-2">
                         {new Date(msg.timestamp?.seconds * 1000 || msg.timestamp).toLocaleString()}
                       </span>
                     </p>
-                    <p>{msg.text}</p>
+                    <p className="text-sm text-gray-600 mt-1">{msg.text}</p>
                   </div>
                 ))}
               </div>
@@ -1083,7 +1149,7 @@ const DoctorDashboard = () => {
             <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end">
                 <button
                     onClick={() => setReportModalOpen(false)}
-                    className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                    className="bg-gray-800 text-white px-6 py-2.5 rounded-xl hover:bg-gray-900 transition text-sm font-medium"
                 >
                     Close
                 </button>
@@ -1095,4 +1161,4 @@ const DoctorDashboard = () => {
   );
 };
 
-export default DoctorDashboard; 
+export default DoctorDashboard;
