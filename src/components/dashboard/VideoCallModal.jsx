@@ -53,8 +53,6 @@ const VideoCallModal = ({
   const [joinCode, setJoinCode] = useState('');
   const [copied, setCopied] = useState(false);
   const [hasRemoteStream, setHasRemoteStream] = useState(false);
-  // Track local stream separately so we can stop it on close
-  const localStreamRef = useRef(null);
 
   // Helper: get the shared WebRTC instance (may be null briefly during init)
   const getSharedWebRTC = useCallback(() => {
@@ -114,8 +112,7 @@ const VideoCallModal = ({
 
 
   // Handle local stream display — store in ref so useEffect can apply it after video mounts
-  const displayLocalStream = (stream) => {
-
+  const displayLocalStream = useCallback((stream) => {
     localStreamRef.current = stream;
     if (localVideoRef.current) {
       localVideoRef.current.srcObject = stream;
@@ -135,8 +132,7 @@ const VideoCallModal = ({
   }, [callState]);
 
   // Handle remote stream display
-  const displayRemoteStream = (stream) => {
-
+  const displayRemoteStream = useCallback((stream) => {
     console.log('🎥 Displaying remote stream');
     if (remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = stream;
