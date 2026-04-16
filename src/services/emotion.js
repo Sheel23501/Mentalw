@@ -1,9 +1,13 @@
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+
+const buildApiUrl = (path) => `${API_BASE_URL}${path}`;
+
 // Sends a canvas/frame to the backend CV endpoint and returns emotions
 export async function analyzeEmotionFromBlob(blob) {
   const form = new FormData();
   form.append('image', blob, 'frame.jpg');
 
-  const res = await fetch('http://localhost:3001/api/cv/emotion', {
+  const res = await fetch(buildApiUrl('/api/cv/emotion'), {
     method: 'POST',
     body: form,
   });
@@ -17,7 +21,7 @@ export async function analyzeEmotionFromBlob(blob) {
 export async function analyzeEmotionFrame(blob) {
   const form = new FormData();
   form.append('image', blob, 'frame.jpg');
-  const resp = await fetch('http://localhost:3001/api/cv/emotion', {
+  const resp = await fetch(buildApiUrl('/api/cv/emotion'), {
     method: 'POST',
     body: form,
   });
@@ -27,7 +31,7 @@ export async function analyzeEmotionFrame(blob) {
 export async function analyzeEmotionBatch(blobs) {
   const form = new FormData();
   blobs.forEach((b, i) => form.append('images', b, `frame_${i}.jpg`));
-  const resp = await fetch('http://localhost:3001/api/cv/emotion/batch', {
+  const resp = await fetch(buildApiUrl('/api/cv/emotion/batch'), {
     method: 'POST',
     body: form,
   });

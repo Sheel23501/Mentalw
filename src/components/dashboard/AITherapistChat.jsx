@@ -24,7 +24,7 @@ const AITherapistChat = ({ autoOpen = false }) => {
     {
       id: 1,
       role: 'assistant',
-      content: "Hello! I'm your AI therapist. I'm here to listen and support you. How are you feeling today?",
+      content: "Hey! I'm so glad you're here 💛 Whatever's on your mind — big or small — I want to hear it. How are you doing today? Like, how are you REALLY doing?",
       timestamp: new Date()
     }
   ]);
@@ -39,6 +39,8 @@ const AITherapistChat = ({ autoOpen = false }) => {
   
   // New: Track AI-detected emotion from text
   const [textEmotion, setTextEmotion] = useState(null);
+  const [stressScore, setStressScore] = useState(0);
+  const [riskLevel, setRiskLevel] = useState('LOW');
   const [currentTip, setCurrentTip] = useState(null);
 
   // Voice assistant hook
@@ -135,10 +137,18 @@ const AITherapistChat = ({ autoOpen = false }) => {
       const emotion = typeof result === 'object' ? result.emotion : null;
       const tip = typeof result === 'object' ? result.tip : null;
       const escalated = typeof result === 'object' ? result.escalated : false;
+      const score = typeof result === 'object' ? result.stress_score : 0;
+      const risk = typeof result === 'object' ? result.risk_level : 'LOW';
       
       // Update text-based emotion detection
       if (emotion && emotion !== 'Unknown') {
         setTextEmotion(emotion);
+      }
+      if (score !== undefined) {
+        setStressScore(score);
+      }
+      if (risk) {
+        setRiskLevel(risk);
       }
       if (tip) {
         setCurrentTip(tip);
@@ -254,6 +264,18 @@ const AITherapistChat = ({ autoOpen = false }) => {
             <div className="flex items-center gap-1 bg-purple-400/30 px-2 py-1 rounded-lg" title="Detected from your messages">
               <FaHeart className="w-3 h-3" />
               <span className="text-xs">{getEmotionEmoji(textEmotion)} {textEmotion}</span>
+            </div>
+          )}
+          {/* Stress Score Indicator */}
+          {stressScore > 0 && (
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium ${
+              stressScore >= 8 ? 'bg-red-400/40 animate-pulse' :
+              stressScore >= 6 ? 'bg-orange-400/30' :
+              stressScore >= 4 ? 'bg-yellow-400/30' :
+              'bg-green-400/20'
+            }`} title={`Stress Level: ${stressScore}/10 | Risk: ${riskLevel}`}>
+              <span>{stressScore >= 8 ? '🔴' : stressScore >= 6 ? '🟠' : stressScore >= 4 ? '🟡' : '🟢'}</span>
+              <span>Stress: {stressScore}/10</span>
             </div>
           )}
           {/* Camera-based Emotion Display */}

@@ -6,6 +6,7 @@ const VideoCallModal = ({ open, onClose, patientName, doctorName, doctorId = nul
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const webrtcRef = useRef(null);
+  const localStreamRef = useRef(null); // persist stream so it can be applied after video mounts
   const autoJoinTriggeredRef = useRef(false);
   
   const [cameraOn, setCameraOn] = useState(false);
@@ -72,20 +73,31 @@ const VideoCallModal = ({ open, onClose, patientName, doctorName, doctorId = nul
     }
   }, [open]);
 
-  // Handle local stream display
+  // Handle local stream display — store in ref so useEffect can apply it after video mounts
   const displayLocalStream = (stream) => {
+    localStreamRef.current = stream;
     if (localVideoRef.current) {
       localVideoRef.current.srcObject = stream;
-      localVideoRef.current.play().catch(err => console.error('Play error:', err));
+      localVideoRef.current.play().catch(err => console.error('Local play error:', err));
     }
   };
+
+  // Once the video element is in the DOM (callState changed), attach the stored stream
+  useEffect(() => {
+    if ((callState === 'waiting' || callState === 'connected') && localStreamRef.current && localVideoRef.current) {
+      if (localVideoRef.current.srcObject !== localStreamRef.current) {
+        localVideoRef.current.srcObject = localStreamRef.current;
+        localVideoRef.current.play().catch(err => console.error('Local play error (effect):', err));
+      }
+    }
+  }, [callState]);
 
   // Handle remote stream display
   const displayRemoteStream = (stream) => {
     console.log('🎥 Displaying remote stream');
     if (remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = stream;
-      remoteVideoRef.current.play().catch(err => console.error('Play error:', err));
+      remoteVideoRef.current.play().catch(err => console.error('Remote play error:', err));
       setHasRemoteStream(true);
     }
   };
