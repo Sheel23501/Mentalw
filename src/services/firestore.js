@@ -213,6 +213,28 @@ export const getMentalHealthTestResultsForUser = async (userId) => {
   }
 };
 
+// Get scheduled appointments for a specific patient
+export const getScheduledAppointmentsForPatient = async (patientId) => {
+  const q = query(collection(db, 'scheduledChats'), where('patientId', '==', patientId));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};
+
+// Listen for real-time appointment updates for a doctor
+export const listenForAppointmentsForDoctor = (doctorId, callback) => {
+  const q = query(collection(db, 'scheduledChats'), where('doctorId', '==', doctorId));
+  return onSnapshot(q, (snapshot) => {
+    const appointments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    callback(appointments);
+  });
+};
+
+// Update appointment status (e.g., Confirmed, Cancelled, Completed)
+export const updateAppointmentStatus = async (appointmentId, status) => {
+  const appointmentRef = doc(db, 'scheduledChats', appointmentId);
+  await updateDoc(appointmentRef, { status, updatedAt: new Date().toISOString() });
+};
+
 // Save or update today's mood for a user
 export const saveUserMood = async (userId, date, mood) => {
   if (!userId || !date || !mood) return;
