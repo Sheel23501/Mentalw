@@ -592,7 +592,7 @@ const ProfileTab = ({ currentUser }) => {
       try {
         const { getDoc, doc } = await import('firebase/firestore');
         const { db } = await import('../../config/firebase');
-        const snap = await getDoc(doc(db, 'doctors', currentUser.uid));
+        const snap = await getDoc(doc(db, 'userProfiles', currentUser.uid));
         if (snap.exists()) {
           const data = snap.data();
           setForm(prev => ({
@@ -619,7 +619,7 @@ const ProfileTab = ({ currentUser }) => {
     try {
       const { doc, updateDoc } = await import('firebase/firestore');
       const { db } = await import('../../config/firebase');
-      await updateDoc(doc(db, 'doctors', currentUser.uid), form);
+      await updateDoc(doc(db, 'userProfiles', currentUser.uid), form);
       setSaved(true);
       setEditing(false);
       setTimeout(() => setSaved(false), 3000);
