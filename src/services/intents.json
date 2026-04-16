@@ -1,0 +1,210 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": ["Hi", "Hey", "Is anyone there?", "Hi there", "Hello", "Hey there", "Howdy", "Hola", "Bonjour", "Good day"],
+      "responses": ["Hello there. Tell me how are you feeling today.", "Hi there. What brings you here today?", "Hi there. How are you feeling today?", "Great to see you. How do you feel currently?", "Hello! How can I help you today?"]
+    },
+    {
+      "tag": "goodbye",
+      "patterns": ["Bye", "See you later", "Goodbye", "I'm leaving", "Have a good day", "See ya", "Talk to you later", "Catch you later"],
+      "responses": ["Sad to see you go. Take care of yourself!", "Talk to you later. Stay safe!", "Goodbye! Remember, I'm always here if you need to talk.", "Take care! Don't hesitate to reach out anytime."]
+    },
+    {
+      "tag": "thanks",
+      "patterns": ["Thanks", "Thank you", "That's helpful", "Thanks for the help", "Much appreciated", "Thank you so much"],
+      "responses": ["Happy to help!", "Any time!", "You're welcome! I'm glad I could help.", "My pleasure! Remember, I'm always here for you."]
+    },
+    {
+      "tag": "about",
+      "patterns": ["What are you?", "Who are you?", "Tell me about yourself", "What do you do?"],
+      "responses": ["I'm a mental health support companion. I'm here to listen and support you through whatever you're going through. How can I help you today?"]
+    },
+    {
+      "tag": "name",
+      "patterns": ["What is your name?", "What should I call you?", "Do you have a name?", "Who am I talking to?"],
+      "responses": ["I'm TruCare, your mental health support companion. I'm here to listen and help you feel better.", "You can call me TruCare! I'm here to support you."]
+    },
+    {
+      "tag": "sad",
+      "patterns": ["I'm sad", "I am sad", "I feel sad", "I'm feeling sad", "I feel down", "I'm feeling down", "I feel unhappy", "I am unhappy", "I don't feel good", "I feel empty", "I feel numb", "I'm not okay", "I feel broken", "I'm hurting", "Today is a bad day", "I'm having a rough day", "Things aren't going well"],
+      "responses": [
+        "I'm sorry to hear that you're feeling sad. It takes courage to share that. Would you like to talk about what's been weighing on you?",
+        "That sounds really tough. Sometimes just naming the feeling helps. What do you think is making you feel this way?",
+        "I hear you, and it's completely okay to feel sad sometimes. You don't have to go through this alone. What happened?",
+        "I'm here for you. Feeling sad is a natural emotion, and there's no shame in it. Would you like to share more about what's going on?",
+        "Thank you for telling me. It sounds like you're carrying something heavy right now. Would you like to talk about it?"
+      ]
+    },
+    {
+      "tag": "stressed",
+      "patterns": ["I'm stressed", "I am stressed", "I feel stressed", "I feel overwhelmed", "I'm overwhelmed", "I have too much going on", "Everything is too much", "I can't handle this", "I'm under pressure", "I'm so stressed out", "I feel like I'm drowning", "There's so much pressure", "I can't cope", "I'm burned out", "I'm burning out"],
+      "responses": [
+        "Stress can feel really overwhelming. I'm here to help you work through it. What's been causing you the most stress?",
+        "That sounds like a lot to carry. Sometimes talking about it can help lighten the load. What's been weighing on you?",
+        "I can hear how overwhelmed you are. Let's take a breath together. Now, what feels like the biggest thing on your plate right now?",
+        "It takes strength to acknowledge when you're feeling stressed. Would you like to explore some ways to manage what you're going through?",
+        "I'm sorry you're feeling so stressed. Remember, it's okay to take a step back and breathe. What's been the hardest part?"
+      ]
+    },
+    {
+      "tag": "anxious",
+      "patterns": ["I'm anxious", "I feel anxious", "I have anxiety", "I'm feeling anxious", "I'm worried", "I can't stop worrying", "I feel nervous", "I'm nervous about everything", "I feel panicky", "I'm having panic attacks", "My heart is racing", "I can't calm down", "I'm overthinking everything", "My mind won't stop racing", "I feel on edge", "I feel uneasy"],
+      "responses": [
+        "Anxiety can be really difficult to deal with. I'm here to help you through it. Would you like to talk about what's making you anxious?",
+        "I hear you. That constant worrying can be exhausting. Let's try to figure out what's at the root of it. What's been on your mind the most?",
+        "It sounds like your mind has been working overtime. That must be really tiring. Would you like to try a quick grounding exercise together?",
+        "You're not alone in feeling this way. Many people experience anxiety, and there are ways to manage it. What's been triggering your anxiety lately?",
+        "I can sense how overwhelmed you're feeling right now. Let's take it one step at a time. What's the biggest worry on your mind?"
+      ]
+    },
+    {
+      "tag": "depressed",
+      "patterns": ["I'm depressed", "I feel depressed", "I have depression", "I feel hopeless", "Nothing makes me happy", "I don't enjoy anything", "I feel worthless", "Everything feels pointless", "I don't see the point", "Life feels meaningless", "I feel like giving up", "I don't care about anything anymore", "I've lost interest in everything", "Nothing matters anymore"],
+      "responses": [
+        "Depression is really tough, and I'm sorry you're going through this. It's brave of you to open up about it. Would you like to talk about what you've been experiencing?",
+        "I hear you, and I want you to know that what you're feeling is valid. You don't have to face this alone. What's been the hardest part for you lately?",
+        "It sounds like things have been really difficult for you. I'm here to listen without judgment. When did you start feeling this way?",
+        "That must feel incredibly heavy. I want you to know that reaching out takes real courage. Have you been able to talk to anyone else about how you're feeling?",
+        "I'm really glad you reached out. Even in the darkest moments, there's hope — even if it doesn't feel like it right now. Would you like to tell me more about what you're going through?"
+      ]
+    },
+    {
+      "tag": "worthless",
+      "patterns": ["I feel worthless", "I'm worthless", "I feel useless", "I'm useless", "I feel like a failure", "I'm a failure", "I'm not good enough", "I'll never be good enough", "I hate myself", "I'm disgusted with myself", "I can't do anything right", "Everyone is better than me", "I don't matter"],
+      "responses": [
+        "Hearing you say that breaks my heart. You are worthy and you matter — even when it doesn't feel that way. What's been making you feel like this?",
+        "Those feelings sound really painful, but they don't define who you are. You have value that goes beyond what you can see right now. Would you like to talk about what's behind these feelings?",
+        "I hear you, and I'm sorry you're feeling this way. That harsh inner voice can be so convincing, but it's not telling you the truth. What happened that's making you feel this way?",
+        "You are so much more than what you give yourself credit for. It takes real courage to share these feelings. Can you tell me more about when you started feeling like this?"
+      ]
+    },
+    {
+      "tag": "happy",
+      "patterns": ["I'm happy", "I feel happy", "I feel great", "I'm doing well", "I'm good", "I feel good", "Things are going well", "I feel amazing", "I'm in a good mood", "Today is a great day", "I'm feeling positive"],
+      "responses": [
+        "That's wonderful to hear! I'm really glad you're feeling good. What's been contributing to your happiness?",
+        "It makes me so happy to hear that! Hold onto that feeling. What's been the best part of your day?",
+        "That's amazing! You deserve to feel good. What's been going right for you?",
+        "Wonderful! It's important to celebrate these moments. What made today special?"
+      ]
+    },
+    {
+      "tag": "sleep",
+      "patterns": ["I can't sleep", "I have insomnia", "I'm having trouble sleeping", "I keep waking up at night", "I can't fall asleep", "I haven't been sleeping well", "I sleep too much", "I'm always tired", "I feel exhausted", "I'm having nightmares"],
+      "responses": [
+        "Sleep problems can really affect how you feel during the day. What do you think is keeping you up at night?",
+        "I'm sorry to hear that. Not sleeping well can make everything else feel so much harder. Have you noticed any patterns with your sleep issues?",
+        "That sounds really frustrating. Good sleep is so important for mental health. Would you like to explore some strategies that might help?",
+        "Not being able to sleep can feel isolating, especially when the world is quiet and your mind is loud. What usually runs through your mind at night?"
+      ]
+    },
+    {
+      "tag": "scared",
+      "patterns": ["I'm scared", "I feel afraid", "I'm terrified", "I feel fear", "I'm frightened", "Something scares me", "I can't stop being scared", "I feel unsafe", "I don't feel safe"],
+      "responses": [
+        "It's okay to feel scared. Fear is a natural response. I'm here with you. Would you like to talk about what's frightening you?",
+        "I hear you, and your fear is valid. Sometimes talking about what scares us can take away some of its power. What's on your mind?",
+        "That must be a really unsettling feeling. You don't have to face it alone. Can you tell me more about what's making you feel scared?"
+      ]
+    },
+    {
+      "tag": "suicide",
+      "patterns": ["I want to kill myself", "I want to die", "I'm thinking about suicide", "I don't want to live", "I want to end my life", "I have suicidal thoughts", "I'm thinking about ending it all", "There's no point in living", "I wish I was dead", "I want it all to end"],
+      "responses": [
+        "I'm really glad you felt safe enough to share this with me. What you're feeling is serious, and you deserve support right now. Please reach out to the 988 Suicide and Crisis Lifeline by calling or texting 988 — someone is available 24/7 who can help.",
+        "Thank you for telling me. That took real courage. I want you to know that there are people who care about you and want to help. Please call 988 or text HOME to 741741 to reach the Crisis Text Line. You don't have to go through this alone.",
+        "I hear you, and I'm so sorry you're in this much pain. Please know that this moment is temporary, even though it doesn't feel like it. Please reach out to a crisis helpline: call/text 988, or text HOME to 741741. You matter, and people want to help."
+      ]
+    },
+    {
+      "tag": "death",
+      "patterns": ["I want to die", "I wish I were dead", "I don't want to be alive", "Is there any reason to live?", "What's the point of living", "I want everything to end", "Death seems like relief"],
+      "responses": [
+        "I'm hearing a lot of pain in what you're saying, and I take it very seriously. You're not alone in this. Please talk to someone who can help: call or text 988 for the Suicide & Crisis Lifeline, available 24/7.",
+        "Thank you for sharing something so difficult with me. The pain you're feeling is real, but so is the possibility of things getting better. Please reach out to 988 or text HOME to 741741. There are people who truly want to help.",
+        "What you're going through sounds incredibly painful. I'm really glad you're talking about it. Please consider reaching out to a crisis line — 988 is available 24/7 by call or text."
+      ]
+    },
+    {
+      "tag": "friends",
+      "patterns": ["I have no friends", "I feel lonely", "Nobody likes me", "I don't have anyone", "I'm all alone", "No one understands me", "I feel isolated", "I feel left out", "Everyone leaves me"],
+      "responses": [
+        "Feeling alone and disconnected is one of the most painful experiences. But reaching out right now shows real courage. You're taking a step toward connection. Would you like to talk about what's been happening?",
+        "That loneliness sounds really heavy. I want you to know that you're not as alone as it feels right now. What do you think makes it hard to connect with people?",
+        "I hear you. Feeling like no one understands can be incredibly isolating. Sometimes the right connection is just around the corner. What kind of people do you wish you had around you?"
+      ]
+    },
+    {
+      "tag": "problem",
+      "patterns": ["I have a problem", "Something is bothering me", "I need to talk about something", "There's something on my mind", "Can I tell you something?", "I need help with something"],
+      "responses": [
+        "Of course, I'm all ears. Take your time — there's no rush. What's been on your mind?",
+        "I'm here for you. Whatever it is, we can work through it together. What's going on?",
+        "Absolutely, you can tell me anything. This is a safe space. What would you like to share?"
+      ]
+    },
+    {
+      "tag": "meditation",
+      "patterns": ["Can you help me meditate?", "I want to try meditation", "How do I meditate?", "I need to calm down", "Help me relax", "I want to feel calm", "Teach me breathing exercises"],
+      "responses": [
+        "I'd love to help you with that. Let's start with a simple breathing exercise. Close your eyes, breathe in slowly for 4 counts, hold for 4 counts, then breathe out for 4 counts. Do this 4 times. How do you feel?",
+        "Great idea! Try this: sit comfortably, close your eyes, and focus on your breathing. Breathe in through your nose for 4 seconds, hold for 7 seconds, then exhale through your mouth for 8 seconds. This is called 4-7-8 breathing. Would you like to try it?",
+        "Let's try a quick grounding exercise. Take a deep breath. Now name 5 things you can see, 4 things you can touch, 3 things you can hear, 2 things you can smell, and 1 thing you can taste. This helps bring you back to the present moment."
+      ]
+    },
+    {
+      "tag": "learn-mental-health",
+      "patterns": ["Tell me about mental health", "What is mental health?", "How to improve mental health?", "Mental health tips", "How can I take care of my mental health?", "What are signs of poor mental health?"],
+      "responses": [
+        "Mental health includes your emotional, psychological, and social well-being. It affects how you think, feel, and act. Taking care of it is just as important as physical health. Some key things that help: regular exercise, good sleep, social connections, and not being afraid to ask for help. Would you like to know more about any specific area?",
+        "Mental health is about overall psychological well-being. Good mental health isn't about never having problems — it's about having the tools and support to deal with them. Some things that help: staying connected with people, being physically active, learning new skills, and being kind to yourself. What area would you like to explore?"
+      ]
+    },
+    {
+      "tag": "done",
+      "patterns": ["I'm done", "I've had enough", "I can't do this anymore", "I give up", "I'm finished", "I quit", "What's the use", "I surrender"],
+      "responses": [
+        "I can hear how exhausted you are. It sounds like you've been fighting really hard for a long time. It's okay to rest — giving up on today doesn't mean giving up forever. What's been pushing you to this point?",
+        "Those words carry a lot of weight, and I take them seriously. You don't have to keep pushing right now. Sometimes the bravest thing is to pause and ask for help. Would you like to talk about what's brought you here?",
+        "I hear you. That feeling of hitting a wall is real and it's heavy. But you reached out, and that tells me there's still a part of you that's looking for a way through. I'm here to help with that."
+      ]
+    },
+    {
+      "tag": "hate-me",
+      "patterns": ["I hate myself", "I despise myself", "I'm disgusted with who I am", "I can't stand myself", "I wish I were someone else", "I'm the worst person"],
+      "responses": [
+        "Hearing you say that makes me want to wrap you in a warm blanket. Self-hate is one of the most painful things a person can experience. But that voice criticizing you — it's not the truth about who you are. What happened that's making you feel this way?",
+        "I'm so sorry you're feeling that way about yourself. Those feelings are real, but they don't define you. You deserve compassion — especially from yourself. Can we talk about where these feelings are coming from?",
+        "That takes a lot of courage to say. Self-hatred is often rooted in experiences that taught us we weren't enough — but those lessons were wrong. You are enough. Would you like to explore why you feel this way?"
+      ]
+    },
+    {
+      "tag": "casual",
+      "patterns": ["Let's chat", "I want to talk", "Can we chat?", "I'm bored", "What can you do?", "Tell me something interesting", "I just want to have a conversation"],
+      "responses": [
+        "Of course! I'm always happy to chat. How has your day been so far?",
+        "I'd love to! Sometimes a good conversation is exactly what we need. What's on your mind?",
+        "Sure thing! Is there anything specific you'd like to talk about, or should we just see where the conversation goes?"
+      ]
+    },
+    {
+      "tag": "understand",
+      "patterns": ["You don't understand", "Nobody understands", "You can't help me", "No one gets it", "You don't know what it's like", "You can't possibly understand"],
+      "responses": [
+        "You're right — I may not fully understand exactly what you're going through. But I genuinely want to try. Would you help me understand by telling me more?",
+        "I hear that frustration, and it's valid. Feeling misunderstood is really isolating. I may not have all the answers, but I'm here to listen. What would you like me to understand?",
+        "That feeling of not being understood is so painful. I don't want to pretend I know exactly how you feel, but I do want to be here for you. Can you share more about what you're experiencing?"
+      ]
+    },
+    {
+      "tag": "help",
+      "patterns": ["I need help", "Can you help me?", "Help me", "I don't know what to do", "I need someone to talk to", "I need support", "Please help me"],
+      "responses": [
+        "I'm here for you, and I'm glad you reached out. That's already an important step. What's going on?",
+        "Of course, I'm here to help in any way I can. What's been troubling you?",
+        "You've come to the right place. Opening up takes courage, and I'm here to listen. What would you like to talk about?"
+      ]
+    }
+  ]
+}
