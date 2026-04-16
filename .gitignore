@@ -54,6 +54,7 @@ __pycache__/
 *.pth
 *.h5
 *.pkl
+
 *.dylib
 
 # datasets / models

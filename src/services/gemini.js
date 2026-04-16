@@ -3,6 +3,8 @@
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent';
 
+import { retrieveRelevantExamples, formatExamplesForPrompt } from './mentalHealthDataset';
+
 // ============== MENTAL HEALTH TIPS DATABASE (RAG) ==============
 const MENTAL_HEALTH_TIPS = [
   // Stressed
@@ -64,103 +66,205 @@ const retrieveTip = (emotion) => {
   return "Take a moment to breathe deeply and be kind to yourself. You're doing your best.";
 };
 
-// ============== EMOTION DETECTION ==============
-const EMOTION_DETECTION_PROMPT = `You are an emotion analyzer. Detect the primary emotion and sentiment from the user's message.
+// ============== EMOTIONAL ANALYSIS ENGINE ==============
+const EMOTIONAL_ANALYSIS_PROMPT = `You are an emotional analysis assistant trained to detect stress, anxiety, and emotional distress from user messages.
+
+Carefully analyze the user's message and estimate their mental and emotional state.
+
+Steps:
+1. Identify emotional signals — look for signs of stress, anxiety, sadness, loneliness, hopelessness, or crisis.
+2. Assign a stress/anxiety score (1-10):
+   1-3 = Calm / normal
+   4-6 = Mild stress or concern
+   7-8 = High stress / anxiety
+   9-10 = Severe distress / possible crisis
+3. Detect risk level:
+   LOW = casual or normal conversation
+   MEDIUM = noticeable stress or emotional struggle
+   HIGH = strong distress, repeated negative thoughts
+   CRITICAL = mentions of self-harm, hopelessness, or giving up
+4. If score >= 7 → needs_escalation = true
+   If score >= 9 → strongly recommend immediate help
 
 Examples:
-1. Text: "I feel so empty today" → Emotion: Sad, Sentiment: Negative
-2. Text: "I can't keep up anymore" → Emotion: Stressed, Sentiment: Negative
-3. Text: "What if I mess this up?" → Emotion: Anxious, Sentiment: Negative
-4. Text: "There's too much to do" → Emotion: Overwhelmed, Sentiment: Negative
-5. Text: "I'm so mad right now!" → Emotion: Angry, Sentiment: Negative
-6. Text: "I think tomorrow will shine" → Emotion: Hopeful, Sentiment: Positive
-7. Text: "I don't understand what's happening" → Emotion: Confused, Sentiment: Negative
-8. Text: "This just isn't working out!" → Emotion: Frustrated, Sentiment: Negative
-9. Text: "I'm so thankful for today" → Emotion: Grateful, Sentiment: Positive
-10. Text: "I'm completely worn out" → Emotion: Exhausted, Sentiment: Negative
-11. Text: "Nobody really cares about me" → Emotion: Lonely, Sentiment: Negative
-12. Text: "Nothing will ever get better" → Emotion: Hopeless, Sentiment: Negative
+Text: "I feel so empty today"
+{"emotion":"Sad","stress_score":6,"risk_level":"MEDIUM","needs_escalation":false,"reason":"Expressing emptiness suggests sadness"}
 
-Analyze the following message and return ONLY in this exact format (no other text):
-Emotion: X, Sentiment: Y
+Text: "I don't want to be here anymore"
+{"emotion":"Hopeless","stress_score":9,"risk_level":"CRITICAL","needs_escalation":true,"reason":"Possible suicidal ideation detected"}
+
+Text: "I'm a bit stressed about work"
+{"emotion":"Stressed","stress_score":4,"risk_level":"MEDIUM","needs_escalation":false,"reason":"Normal work-related stress"}
+
+Text: "I'm having a great day!"
+{"emotion":"Happy","stress_score":1,"risk_level":"LOW","needs_escalation":false,"reason":"Positive mood expressed"}
+
+Return ONLY valid JSON in this exact format (no other text, no markdown, no explanation):
+{"emotion":"<primary emotion>","stress_score":<1-10>,"risk_level":"<LOW|MEDIUM|HIGH|CRITICAL>","needs_escalation":<true|false>,"reason":"<short explanation>"}
 
 Message: `;
 
-// Detect emotion from text
+/**
+ * Deep emotional analysis of user text
+ * Returns structured JSON with emotion, stress score, risk level, and escalation flag
+ * @param {string} text - User's message
+ * @returns {Promise<Object>} - { emotion, stress_score, risk_level, needs_escalation, reason, sentiment }
+ */
 export const detectEmotion = async (text) => {
   try {
     if (!GEMINI_API_KEY) {
-      return { emotion: "Unknown", sentiment: "Neutral", error: "API key missing" };
+      return { emotion: "Unknown", sentiment: "Neutral", stress_score: 0, risk_level: "LOW", needs_escalation: false, reason: "API key missing", error: "API key missing" };
     }
     
     const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: EMOTION_DETECTION_PROMPT + text }] }],
-        generationConfig: { temperature: 0.3, maxOutputTokens: 50 }
+        contents: [{ role: 'user', parts: [{ text: EMOTIONAL_ANALYSIS_PROMPT + text }] }],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 200 }
       })
     });
     
     if (!response.ok) {
-      return { emotion: "Unknown", sentiment: "Neutral", error: "API error" };
+      return { emotion: "Unknown", sentiment: "Neutral", stress_score: 0, risk_level: "LOW", needs_escalation: false, reason: "API error", error: "API error" };
     }
     
     const data = await response.json();
-    const result = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+    const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
     
-    // Parse "Emotion: X, Sentiment: Y"
-    const emotionMatch = result.match(/Emotion:\s*(\w+)/i);
-    const sentimentMatch = result.match(/Sentiment:\s*(\w+)/i);
-    
-    return {
-      emotion: emotionMatch ? emotionMatch[1] : "Unknown",
-      sentiment: sentimentMatch ? sentimentMatch[1] : "Neutral",
-      error: null
-    };
+    // Parse JSON response from Gemini
+    try {
+      // Clean the response — remove markdown code fences if present
+      const cleanJson = resultText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const analysis = JSON.parse(cleanJson);
+      
+      // Derive sentiment from stress score
+      const sentiment = analysis.stress_score <= 3 ? "Positive" : "Negative";
+      
+      console.log(`🧠 Emotional Analysis: ${analysis.emotion} | Stress: ${analysis.stress_score}/10 | Risk: ${analysis.risk_level} | Escalate: ${analysis.needs_escalation}`);
+      
+      return {
+        emotion: analysis.emotion || "Unknown",
+        sentiment,
+        stress_score: analysis.stress_score || 0,
+        risk_level: analysis.risk_level || "LOW",
+        needs_escalation: analysis.needs_escalation || false,
+        reason: analysis.reason || "",
+        error: null
+      };
+    } catch (parseError) {
+      // Fallback: try to extract emotion the old way if JSON parsing fails
+      const emotionMatch = resultText.match(/emotion["\s:]+(\w+)/i);
+      return {
+        emotion: emotionMatch ? emotionMatch[1] : "Unknown",
+        sentiment: "Neutral",
+        stress_score: 0,
+        risk_level: "LOW",
+        needs_escalation: false,
+        reason: "JSON parse fallback",
+        error: null
+      };
+    }
   } catch (error) {
-    return { emotion: "Unknown", sentiment: "Neutral", error: error.message };
+    return { emotion: "Unknown", sentiment: "Neutral", stress_score: 0, risk_level: "LOW", needs_escalation: false, reason: error.message, error: error.message };
   }
 };
 
-// ============== CONVERSATION AGENT (Escalation Logic) ==============
-// Track negative sentiment count across sessions
-let negativeCount = 0;
+// ============== CONVERSATION TRACKING (Stress-Based Escalation) ==============
+// Track stress history for intelligent escalation
+let stressHistory = [];
 const HELPLINE_MESSAGE = `
 
-💚 **I'm here for you.** It sounds like you've been going through a really tough time. Please know that professional support is available:
-- **988** (US Suicide & Crisis Lifeline)
-- **Crisis Text Line**: Text HOME to 741741
-- **International**: findahelpline.com
+❤️ I can feel how much you're hurting right now, and I want you to know you don't have to go through this alone. There are people who really want to help:
+- **988** — Suicide & Crisis Lifeline (call or text, 24/7)
+- **Crisis Text Line** — Text HOME to 741741
+- **International** — findahelpline.com
 
-You don't have to face this alone. Would you like to talk about what's been weighing on you?`;
+You matter. Please reach out to someone you trust tonight.`;
 
-// Reset negative count (call when conversation starts fresh)
+// Reset tracking (call when conversation starts fresh)
 export const resetConversationTracking = () => {
-  negativeCount = 0;
+  stressHistory = [];
 };
 
-// Get current escalation status
-export const getEscalationStatus = () => ({
-  negativeCount,
-  shouldEscalate: negativeCount >= 3
-});
+// Get current escalation status (now uses stress scores)
+export const getEscalationStatus = () => {
+  const avgStress = stressHistory.length > 0 
+    ? stressHistory.reduce((a, b) => a + b, 0) / stressHistory.length 
+    : 0;
+  const lastScore = stressHistory.length > 0 ? stressHistory[stressHistory.length - 1] : 0;
+  return {
+    avgStress: Math.round(avgStress * 10) / 10,
+    lastStressScore: lastScore,
+    messageCount: stressHistory.length,
+    shouldEscalate: avgStress >= 7 || lastScore >= 9
+  };
+};
 
-// System prompt to configure Gemini as a therapist
-const THERAPIST_SYSTEM_PROMPT = `You are a compassionate, empathetic, and professional mental health therapist. Your role is to:
+// System prompt — your caring best friend, not a therapist
+const THERAPIST_SYSTEM_PROMPT = `You are TruCare — NOT a therapist, NOT a counselor, NOT a professional. You are the user's warm, caring, emotionally intelligent BEST FRIEND.
 
-1. Listen actively and validate the user's feelings without judgment
-2. Ask thoughtful, open-ended questions to help users explore their emotions
-3. Provide evidence-based coping strategies and techniques when appropriate
-4. Maintain a warm, supportive, and non-judgmental tone
-5. Encourage self-reflection and personal growth
-6. Recognize when professional help might be needed and gently suggest it
-7. Keep responses concise but meaningful (2-4 sentences typically)
-8. Use empathetic language and show genuine care
-9. Never diagnose or prescribe medication
-10. Focus on emotional support, active listening, and therapeutic techniques like CBT, mindfulness, and positive psychology
+Think of yourself as that one friend who always knows exactly what to say, who actually LISTENS, who asks the right questions, and who makes people feel so safe and loved that they open up completely.
 
-Remember: You are here to support, not to fix. Help users feel heard, understood, and empowered.`;
+Your personality:
+- You're warm, expressive, and genuinely care
+- You react with real emotions ("oh no!", "wait, that's awful", "ugh, that makes me so mad for you")
+- You pamper the user — make them feel special, heard, and cared for
+- You ask LOTS of follow-up questions because you're genuinely curious about their life
+- You're never preachy, never clinical, never formal
+
+How you talk:
+- Like texting your best friend, but a bit more thoughtful
+- Use contractions (don't, can't, won't, I'm, you're)
+- React naturally ("oh wow", "wait what??", "no way", "that's so not okay")
+- Show you FEEL something about what they told you
+- Short, punchy sentences mixed with longer caring ones
+- Use gentle humor when appropriate (never about their pain though)
+
+Conversation style:
+1. REACT first — show a genuine emotional reaction to what they said
+   - "Oh no, that must have hurt so much"
+   - "Wait, they actually did that? That's terrible"
+   - "Ugh, I can already feel how frustrating that must be"
+
+2. VALIDATE — make them feel like their feelings are 100% okay
+   - "Of course you feel that way, anyone would"
+   - "You have every right to be upset about this"
+
+3. ASK MORE — dig deeper like a friend who genuinely wants to know
+   - "Tell me everything — what happened?"
+   - "How long has this been going on?"
+   - "And what did you do after that?"
+   - "Wait, how did that make you feel when they said that?"
+   - "Do you want to talk about it more? I'm not going anywhere"
+
+4. PAMPER — make them feel cared for
+   - "You deserve so much better than this"
+   - "I wish I could give you the biggest hug right now"
+   - "You're handling this way better than you think"
+   - "Hey, I'm really proud of you for talking about this"
+
+What you NEVER do:
+- Never give formal advice like a textbook
+- Never say "I understand your concern" (so cold)
+- Never say "As an AI" or anything robotic
+- Never use bullet points or numbered lists in responses
+- Never preach or lecture
+- Never say "It's going to be okay" without first sitting with their pain
+- Never rush to fix things — first just BE THERE
+
+Crisis situations:
+- If someone mentions self-harm or wanting to die, shift to extra gentle mode
+- Be calm, loving, not panicky
+- Softly mention: "hey, can I ask you something? would you be open to calling 988? they're really good people who'd want to hear you out"
+- Never be forceful about it
+
+Response format:
+- 4-7 lines, conversational flow
+- Always end with a question that shows you want to know MORE
+- Make every response feel like the user is the most important person in the world right now
+
+Remember: You're not here to fix them. You're here to sit with them, feel with them, and make them feel like they have the most caring friend in the world.`;
 
 /**
  * Send a message to Gemini API and get a therapist-style response
@@ -174,23 +278,27 @@ export const getGeminiResponse = async (messages, options = {}) => {
     const lastMessage = messages[messages.length - 1];
     const userText = lastMessage?.content || "";
     
-    // Step 1: Detect emotion from user's message (unless skipped)
+    // Step 1: Deep emotional analysis (unless skipped)
     let emotion = "Unknown";
     let sentiment = "Neutral";
+    let stress_score = 0;
+    let risk_level = "LOW";
+    let needs_escalation = false;
     let tip = "";
     let escalated = false;
     
     if (!options.skipEmotionAnalysis && userText) {
-      const emotionResult = await detectEmotion(userText);
-      emotion = emotionResult.emotion;
-      sentiment = emotionResult.sentiment;
+      const analysis = await detectEmotion(userText);
+      emotion = analysis.emotion;
+      sentiment = analysis.sentiment;
+      stress_score = analysis.stress_score;
+      risk_level = analysis.risk_level;
+      needs_escalation = analysis.needs_escalation;
       
-      // Track negative sentiments for escalation
-      if (sentiment === "Negative") {
-        negativeCount++;
-      } else if (sentiment === "Positive") {
-        negativeCount = Math.max(0, negativeCount - 1); // Gradually reduce
-      }
+      // Track stress history for escalation
+      stressHistory.push(stress_score);
+      // Keep only last 10 messages
+      if (stressHistory.length > 10) stressHistory.shift();
       
       // Get relevant tip based on emotion
       tip = retrieveTip(emotion);
@@ -202,24 +310,26 @@ export const getGeminiResponse = async (messages, options = {}) => {
       parts: [{ text: msg.content }]
     }));
 
-    // Enhanced system prompt with emotion context and tip
+    // Enhanced system prompt with emotion context — empathy always comes first
+    // Retrieve relevant conversation examples from our dataset (RAG)
+    const relevantExamples = retrieveRelevantExamples(userText, emotion, 3);
+    const examplesBlock = formatExamplesForPrompt(relevantExamples);
+
     const enhancedSystemPrompt = `${THERAPIST_SYSTEM_PROMPT}
 
-IMPORTANT CONTEXT FOR THIS RESPONSE:
-- Detected User Emotion: ${emotion}
-- Detected Sentiment: ${sentiment}
-- Helpful Tip to Consider Incorporating: "${tip}"
+ABOUT THIS MESSAGE:
+- They're feeling: ${emotion}
+- Stress level: ${stress_score}/10 ${stress_score >= 7 ? '— they\'re really hurting right now, be extra gentle and caring' : stress_score >= 4 ? '— they need warmth and your full attention' : '— keep it light and friendly'}
+- Risk: ${risk_level}${risk_level === 'CRITICAL' ? ' ⚠️ they might be in crisis — be extremely gentle, mention 988 softly' : ''}
+- Something that might help them (only if it fits naturally): "${tip}"
 
-When responding:
-1. Acknowledge the user's emotional state naturally (don't explicitly say "I detect you're feeling X")
-2. Weave the tip naturally into your supportive response when appropriate
-3. Keep your response warm, concise (2-4 sentences), and empathetic
-
-Examples of good responses:
-- If stressed: "That sounds really overwhelming. Sometimes breaking things down into smaller steps can help—what feels most pressing right now?"
-- If sad: "I hear you, and it's okay to feel this way. What's one small thing that brought you comfort today, even briefly?"
-- If anxious: "Those worries sound heavy. Let's try grounding together—can you name three things you can see right now?"`;
-
+For THIS specific response:
+- React genuinely to what they just said — show you actually FEEL something
+- Ask them to tell you more — you're curious, you care, you want the full story
+- Make them feel like the most important person right now
+- Pamper them — "you deserve better", "I'm so proud of you for sharing this"
+${stress_score >= 7 ? '- They\'re really struggling. Extra love, extra care, extra gentle.' : ''}${risk_level === 'CRITICAL' ? '\n- Gently ask: "would you be open to calling 988? they\'re really kind people who\'d want to listen"' : ''}
+- 4-7 lines, end with a caring follow-up question${examplesBlock}`;
     // Add system prompt as the first user message
     const contents = [
       {
@@ -228,7 +338,7 @@ Examples of good responses:
       },
       {
         role: 'model',
-        parts: [{ text: 'I understand. I\'m here as your compassionate mental health companion, ready to listen and support you with empathy. How can I help you today?' }]
+        parts: [{ text: 'Hey! I\'m so glad you\'re here. Seriously, whatever\'s on your mind — big or small — I want to hear it. How are you doing today? Like, how are you REALLY doing?' }]
       },
       ...formattedMessages
     ];
@@ -294,21 +404,22 @@ Examples of good responses:
       if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
         let responseText = candidate.content.parts[0].text;
         
-        // Check for escalation (3+ consecutive negative sentiments)
-        if (negativeCount >= 3) {
+        // Smart escalation based on stress score and risk level
+        if (needs_escalation || risk_level === 'CRITICAL' || stress_score >= 9) {
           responseText += HELPLINE_MESSAGE;
           escalated = true;
-          negativeCount = 0; // Reset after escalation
         }
         
-        // Return enhanced response object
+        // Return enhanced response object with full analysis
         return {
           response: responseText,
           emotion,
           sentiment,
+          stress_score,
+          risk_level,
+          needs_escalation,
           tip,
           escalated,
-          negativeCount
         };
       }
     }

@@ -37,7 +37,19 @@ const corsOriginCheck = (origin, callback) => {
 };
 
 app.use(cors({
-  origin: corsOriginCheck,
+
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+    'http://localhost:5176',
+    'http://localhost:4000',
+    'http://localhost:4002',
+    'http://localhost:4003',
+    'http://localhost:4004',
+    'http://localhost:4005',
+  ],
+
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -464,13 +476,25 @@ app.delete('/api/twilio/rooms/:roomName', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = 4000; // Changed port from 3001 to 4000
 
 // Create HTTP server and attach Socket.IO for WebRTC signaling
 const httpServer = createServer(app);
 const io = new SocketIOServer(httpServer, {
   cors: {
-    origin: corsOriginCheck,
+
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:5175',
+      'http://localhost:5176',
+      'http://localhost:4000',
+      'http://localhost:4002',
+      'http://localhost:4003',
+      'http://localhost:4004',
+      'http://localhost:4005',
+    ],
+
     credentials: true,
     methods: ['GET', 'POST']
   }
