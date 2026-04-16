@@ -12,7 +12,9 @@ import {
   listenForChatDocChanges,
   resetUnreadCount,
   saveChatReport,
-  getChatReportsForPatient
+  getChatReportsForPatient,
+  listenForAppointmentsForDoctor,
+  updateAppointmentStatus
 } from '../../services/firestore';
 import SessionNotes from '../../components/dashboard/SessionNotes.jsx';
 import EmotionPanel from '../../components/dashboard/EmotionPanel.jsx';
@@ -25,6 +27,7 @@ import { db } from '../../config/firebase';
 const Sidebar = ({ activeTab, setActiveTab, doctorName, doctorPhoto, onLogout }) => {
   const navItems = [
     { id: 'overview', label: 'Overview', icon: <FaTh /> },
+    { id: 'appointments', label: 'Appointments', icon: <FaCalendarAlt /> },
     { id: 'patients', label: 'Patients', icon: <FaUsers /> },
     { id: 'profile', label: 'Profile', icon: <FaUser /> },
   ];
@@ -311,6 +314,174 @@ const OverviewTab = ({ patients, loading, scheduledChats, loadingChats, unreadCo
           </div>
         )}
       </div>
+    </div>
+  );
+};
+
+// ─── Appointments Tab ────────────────────────────────────────────────────────
+const AppointmentsTab = ({ appointments, loading, onUpdateStatus, openModal }) => {
+  const [filter, setFilter] = useState('all');
+  const [updatingId, setUpdatingId] = useState(null);
+
+  const filtered = appointments.filter(a => {
+    if (filter === 'all') return true;
+    return a.status?.toLowerCase() === filter.toLowerCase();
+  });
+
+  // Sort: upcoming first, then by date/time
+  const sorted = [...filtered].sort((a, b) => {
+    const statusOrder = { 'Scheduled': 0, 'Confirmed': 1, 'Completed': 2, 'Cancelled': 3 };
+    const sA = statusOrder[a.status] ?? 99;
+    const sB = statusOrder[b.status] ?? 99;
+    if (sA !== sB) return sA - sB;
+    const dateA = new Date(`${a.date}T${a.time || '00:00'}`);
+    const dateB = new Date(`${b.date}T${b.time || '00:00'}`);
+    return dateA - dateB;
+  });
+
+  const handleStatusChange = async (id, status) => {
+    setUpdatingId(id);
+    try {
+      await onUpdateStatus(id, status);
+    } catch (e) {
+      console.error('Failed to update appointment:', e);
+    }
+    setUpdatingId(null);
+  };
+
+  const statusConfig = {
+    'Scheduled': { bg: '#fffbeb', color: '#d97706', border: '#fde68a', label: 'Pending', icon: '⏳' },
+    'Confirmed': { bg: '#f0fdf4', color: '#15803d', border: '#bbf7d0', label: 'Confirmed', icon: '✅' },
+    'Cancelled': { bg: '#fef2f2', color: '#dc2626', border: '#fecaca', label: 'Cancelled', icon: '❌' },
+    'Completed': { bg: '#f9fafb', color: '#6b7280', border: '#e5e7eb', label: 'Completed', icon: '✔️' },
+  };
+
+  const filterBtns = [
+    { key: 'all', label: 'All' },
+    { key: 'scheduled', label: 'Pending' },
+    { key: 'confirmed', label: 'Confirmed' },
+    { key: 'completed', label: 'Completed' },
+    { key: 'cancelled', label: 'Cancelled' },
+  ];
+
+  return (
+    <div>
+      {/* Filter bar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
+        {filterBtns.map(f => (
+          <button key={f.key} onClick={() => setFilter(f.key)}
+            style={{
+              padding: '8px 18px', borderRadius: '999px', border: 'none', cursor: 'pointer',
+              fontFamily: "'Inter', sans-serif", fontSize: '13px', fontWeight: 600,
+              background: filter === f.key ? 'linear-gradient(135deg, #4a7c65, #3d6655)' : '#f3f4f6',
+              color: filter === f.key ? 'white' : '#6b7280',
+              transition: 'all 0.2s',
+              boxShadow: filter === f.key ? '0 2px 8px rgba(74,124,101,0.3)' : 'none',
+            }}
+          >{f.label} {f.key === 'all' ? `(${appointments.length})` : `(${appointments.filter(a => a.status?.toLowerCase() === f.key).length})`}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>Loading appointments...</div>
+      ) : sorted.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px 0' }}>
+          <div style={{ fontSize: '36px', marginBottom: '12px' }}>📅</div>
+          <p style={{ color: '#9ca3af', fontSize: '15px' }}>{filter === 'all' ? 'No appointments yet.' : `No ${filter} appointments.`}</p>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {sorted.map(appt => {
+            const sc = statusConfig[appt.status] || statusConfig['Scheduled'];
+            const apptDate = new Date(`${appt.date}T${appt.time || '00:00'}`);
+            const isPast = apptDate < new Date();
+            const isUpdating = updatingId === appt.id;
+
+            return (
+              <div key={appt.id}
+                style={{
+                  background: 'white', borderRadius: '20px', border: '1px solid rgba(0,0,0,0.06)',
+                  padding: '20px 24px', boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
+                  transition: 'all 0.2s', opacity: appt.status === 'Cancelled' ? 0.6 : 1,
+                }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.10)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 10px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'none'; }}
+              >
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                  {/* Patient avatar */}
+                  <img
+                    src={appt.patientPhotoURL || appt.patientImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(appt.patientName || 'P')}&background=c7d2c4&color=374151`}
+                    alt=""
+                    style={{ width: '52px', height: '52px', borderRadius: '14px', objectFit: 'cover', border: '2px solid #f3f4f6', flexShrink: 0 }}
+                  />
+                  {/* Info */}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                      <p style={{ fontWeight: 700, color: '#1f2937', fontSize: '15px', margin: 0 }}>{appt.patientName || 'Unknown Patient'}</p>
+                      <span style={{
+                        background: sc.bg, color: sc.color, fontSize: '11px', fontWeight: 700,
+                        padding: '3px 10px', borderRadius: '999px', border: `1px solid ${sc.border}`,
+                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                      }}>{sc.icon} {sc.label}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px', flexWrap: 'wrap' }}>
+                      <span style={{ background: '#eff6ff', color: '#1d4ed8', fontSize: '12px', fontWeight: 600, padding: '5px 12px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <FaCalendarAlt style={{ fontSize: '11px' }} />
+                        {appt.date ? new Date(appt.date + 'T00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : 'No date'}
+                      </span>
+                      <span style={{ background: '#f0fdf4', color: '#15803d', fontSize: '12px', fontWeight: 600, padding: '5px 12px', borderRadius: '10px' }}>
+                        🕐 {appt.time || 'No time'}
+                      </span>
+                      {isPast && appt.status === 'Scheduled' && (
+                        <span style={{ background: '#fef2f2', color: '#dc2626', fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '999px' }}>Overdue</span>
+                      )}
+                    </div>
+                    <p style={{ color: '#9ca3af', fontSize: '12px', margin: 0 }}>📧 {appt.patientEmail || 'Unknown'}</p>
+                    {appt.reason && (
+                      <div style={{ background: '#f9fafb', borderRadius: '10px', padding: '8px 12px', marginTop: '8px', border: '1px solid #f3f4f6' }}>
+                        <p style={{ color: '#6b7280', fontSize: '12px', margin: 0, lineHeight: '1.5' }}>📝 {appt.reason}</p>
+                      </div>
+                    )}
+                  </div>
+                  {/* Actions */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flexShrink: 0 }}>
+                    {appt.status === 'Scheduled' && (
+                      <>
+                        <button onClick={() => handleStatusChange(appt.id, 'Confirmed')} disabled={isUpdating}
+                          style={{ background: 'linear-gradient(135deg, #4a7c65, #3d6655)', color: 'white', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', opacity: isUpdating ? 0.6 : 1, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}>
+                          ✅ Confirm
+                        </button>
+                        <button onClick={() => handleStatusChange(appt.id, 'Cancelled')} disabled={isUpdating}
+                          style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '10px', padding: '8px 16px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', opacity: isUpdating ? 0.6 : 1, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}>
+                          ❌ Decline
+                        </button>
+                      </>
+                    )}
+                    {appt.status === 'Confirmed' && (
+                      <>
+                        <button onClick={() => openModal('view', appt)}
+                          style={{ background: 'linear-gradient(135deg, #4a7c65, #3d6655)', color: 'white', border: 'none', borderRadius: '10px', padding: '8px 16px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', whiteSpace: 'nowrap' }}>
+                          <FaComments style={{ fontSize: '11px' }} /> Start Session
+                        </button>
+                        <button onClick={() => handleStatusChange(appt.id, 'Completed')} disabled={isUpdating}
+                          style={{ background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '8px 16px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', opacity: isUpdating ? 0.6 : 1, whiteSpace: 'nowrap' }}>
+                          ✔️ Complete
+                        </button>
+                      </>
+                    )}
+                    {(appt.status === 'Completed' || appt.status === 'Cancelled') && (
+                      <span style={{ color: '#9ca3af', fontSize: '11px', fontStyle: 'italic', textAlign: 'center', padding: '8px 0' }}>
+                        {appt.status === 'Completed' ? 'Session completed' : 'Declined'}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
@@ -693,15 +864,15 @@ const DoctorDashboard = () => {
     fetchPatients();
   }, []);
 
+  // Real-time listener for scheduled appointments
   useEffect(() => {
-    const fetchScheduledChats = async () => {
-      if (!currentUser) return;
-      setLoadingChats(true);
-      try { const chats = await getScheduledChatsForDoctor(currentUser.uid); setScheduledChats(chats); }
-      catch { setScheduledChats([]); }
+    if (!currentUser) return;
+    setLoadingChats(true);
+    const unsub = listenForAppointmentsForDoctor(currentUser.uid, (appointments) => {
+      setScheduledChats(appointments);
       setLoadingChats(false);
-    };
-    fetchScheduledChats();
+    });
+    return () => unsub();
   }, [currentUser]);
 
   useEffect(() => {
@@ -914,17 +1085,18 @@ const DoctorDashboard = () => {
           <div style={{ position: 'absolute', top: '-60px', right: '-60px', width: '240px', height: '240px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
           <div style={{ position: 'absolute', bottom: '-40px', left: '30%', width: '160px', height: '160px', borderRadius: '50%', background: 'rgba(255,255,255,0.03)' }} />
           <p style={{ color: 'rgba(74,222,128,0.9)', fontSize: '12px', fontWeight: 600, letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '6px', position: 'relative' }}>
-            {activeTab === 'overview' ? 'Doctor Dashboard' : activeTab === 'patients' ? 'Patient Management' : 'Your Profile'}
+            {activeTab === 'overview' ? 'Doctor Dashboard' : activeTab === 'appointments' ? 'Appointment Management' : activeTab === 'patients' ? 'Patient Management' : 'Your Profile'}
           </p>
           <h1 style={{ color: 'white', fontWeight: 800, fontSize: '28px', letterSpacing: '-0.5px', position: 'relative' }}>
             {activeTab === 'overview'
               ? <>Welcome back, <span style={{ color: '#86efac' }}>{currentUser?.displayName?.split(' ')[0] || 'Doctor'}</span></>
+              : activeTab === 'appointments' ? 'Appointments'
               : activeTab === 'patients' ? 'All Patients'
               : 'Profile Settings'
             }
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '14px', marginTop: '4px', position: 'relative' }}>
-            {activeTab === 'overview' ? "Here's your activity overview for today." : activeTab === 'patients' ? 'Manage and interact with your patients.' : 'View and update your professional information.'}
+            {activeTab === 'overview' ? "Here's your activity overview for today." : activeTab === 'appointments' ? 'View and manage all patient appointment requests.' : activeTab === 'patients' ? 'Manage and interact with your patients.' : 'View and update your professional information.'}
           </p>
         </div>
 
@@ -938,6 +1110,14 @@ const DoctorDashboard = () => {
               patientsWithUnread={patientsWithUnread}
               scheduledChatsWithUnread={scheduledChatsWithUnread}
               setChatPatient={setChatPatient}
+              openModal={openModal}
+            />
+          )}
+          {activeTab === 'appointments' && (
+            <AppointmentsTab
+              appointments={scheduledChats}
+              loading={loadingChats}
+              onUpdateStatus={updateAppointmentStatus}
               openModal={openModal}
             />
           )}
@@ -1068,7 +1248,14 @@ const DoctorDashboard = () => {
                 <button onClick={handleSendMessage} disabled={!chatInput.trim()} style={{ background: 'linear-gradient(135deg, #3d6655, #4a7c65)', color: 'white', border: 'none', borderRadius: '12px', padding: '10px 20px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', opacity: !chatInput.trim() ? 0.5 : 1 }}>Send</button>
               </div>
               <div style={{ padding: '8px 12px 12px', display: 'flex', gap: '8px' }}>
-                <button onClick={() => setVideoCallOpen(true)} style={{ flex: 1, background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '8px 0', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+                <button onClick={() => {
+                  const patientName = modalData?.patientName || 'Patient';
+                  const patientId = modalData?.patientId;
+                  setVideoCallPatient({ id: patientId, displayName: patientName, photoURL: modalData?.patientPhotoURL });
+                  setIsOutgoingCall(true);
+                  setVideoCallOpen(true);
+                  if (patientId) startCall(patientId, patientName);
+                }} style={{ flex: 1, background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '8px 0', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
                   <FaVideo style={{ fontSize: '11px' }} /> Video Call
                 </button>
                 <button onClick={() => handleSaveAndEndChat('scheduled', chatMessages, { patientId: modalData?.patientId, patientName: modalData?.patientName, patientPhotoURL: modalData?.patientPhotoURL })} disabled={chatMessages.length === 0} style={{ flex: 1, background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '10px', padding: '8px 0', fontSize: '12px', fontWeight: 600, cursor: 'pointer', opacity: chatMessages.length === 0 ? 0.5 : 1 }}>
@@ -1076,7 +1263,7 @@ const DoctorDashboard = () => {
                 </button>
               </div>
             </div>
-            <VideoCallModal open={videoCallOpen} onClose={() => { setVideoCallOpen(false); setPendingRoomCode(null); setIsOutgoingCall(false); }} patientName={modalData?.patientName} doctorName={currentUser?.displayName} doctorId={currentUser?.uid} initialRoomCode={pendingRoomCode} isDirectCall={isOutgoingCall && !!activeCallRoomId} directCallRoomId={activeCallRoomId} />
+            <VideoCallModal open={videoCallOpen} onClose={() => { setVideoCallOpen(false); setPendingRoomCode(null); setIsOutgoingCall(false); setVideoCallPatient(null); }} patientName={modalData?.patientName} doctorName={currentUser?.displayName} patientId={modalData?.patientId} doctorId={currentUser?.uid} initialRoomCode={pendingRoomCode} isDirectCall={isOutgoingCall && !!activeCallRoomId} directCallRoomId={activeCallRoomId} />
           </div>
         </div>
       )}
@@ -1105,7 +1292,13 @@ const DoctorDashboard = () => {
                     <span style={{ color: 'white', fontSize: '12px' }}>{getEmotionEmoji(detectedEmotion)} {detectedEmotion}</span>
                   </div>
                 )}
-                <button onClick={() => { setIsOutgoingCall(false); setVideoCallOpen(true); }} style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(96,165,250,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                <button onClick={() => {
+                  const patientName = chatPatient.displayName || chatPatient.name || chatPatient.email || 'Patient';
+                  setVideoCallPatient(chatPatient);
+                  setIsOutgoingCall(true);
+                  setVideoCallOpen(true);
+                  startCall(chatPatient.id, patientName);
+                }} style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(96,165,250,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
                   <FaVideo style={{ fontSize: '13px' }} />
                 </button>
                 <button onClick={() => setEmotionAnalysisEnabled(!emotionAnalysisEnabled)} style={{ width: '32px', height: '32px', borderRadius: '8px', background: emotionAnalysisEnabled ? 'rgba(251,191,36,0.8)' : 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
