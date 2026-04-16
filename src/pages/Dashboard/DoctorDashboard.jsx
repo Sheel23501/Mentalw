@@ -45,6 +45,7 @@ const DoctorDashboard = () => {
   const [pendingRoomCode, setPendingRoomCode] = useState(null);
   const [videoCallPatient, setVideoCallPatient] = useState(null); // track which patient is being video called
   const [isOutgoingCall, setIsOutgoingCall] = useState(false);
+  const [showAllPatients, setShowAllPatients] = useState(false);
 
   const [viewingPatientHistory, setViewingPatientHistory] = useState(null);
   const [patientHistory, setPatientHistory] = useState([]);
@@ -530,6 +531,11 @@ const DoctorDashboard = () => {
     );
   }
 
+  // Compute patients with unread messages
+  const patientsWithUnread = patients.filter(p => (unreadCounts[p.id] || 0) > 0);
+  // Also check scheduled chats for unread
+  const scheduledChatsWithUnread = scheduledChats.filter(c => (unreadCounts[c.id] || 0) > 0);
+
   return (
     <div className="min-h-screen pb-16" style={{ background: 'linear-gradient(135deg, #f0f4f0 0%, #e8efe5 30%, #f5f0eb 70%, #faf8f5 100%)', fontFamily: "'Inter', sans-serif" }}>
       {/* Hero / Welcome Section */}
@@ -545,16 +551,23 @@ const DoctorDashboard = () => {
               <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">
                 Welcome back, <span className="text-emerald-300">{currentUser?.displayName?.split(' ')[0] || 'Doctor'}</span>
               </h1>
-              <p className="text-emerald-100/70 text-base max-w-lg">Manage your patients, review sessions, and provide the best care possible.</p>
+              <p className="text-emerald-100/70 text-base max-w-lg">Here's your activity overview for today.</p>
             </div>
+            {/* Quick stats in the hero */}
             <div className="hidden sm:flex items-center gap-3">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10">
-                <p className="text-emerald-200 text-xs font-medium">Patients</p>
-                <p className="text-white text-2xl font-bold">{patients.length}</p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10 text-center">
+                <p className="text-emerald-200 text-xs font-medium">Active Patients</p>
+                <p className="text-white text-2xl font-bold">{loading ? '—' : patients.length}</p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10">
-                <p className="text-emerald-200 text-xs font-medium">Scheduled</p>
-                <p className="text-white text-2xl font-bold">{scheduledChats.length}</p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10 text-center">
+                <p className="text-emerald-200 text-xs font-medium">Pending Appts</p>
+                <p className="text-white text-2xl font-bold">{loadingChats ? '—' : scheduledChats.length}</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl px-5 py-3 border border-white/10 text-center">
+                <p className="text-emerald-200 text-xs font-medium">Unread Msgs</p>
+                <p className="text-white text-2xl font-bold" style={{ color: (patientsWithUnread.length + scheduledChatsWithUnread.length) > 0 ? '#fca5a5' : 'white' }}>
+                  {patientsWithUnread.length + scheduledChatsWithUnread.length}
+                </p>
               </div>
             </div>
           </div>
@@ -569,70 +582,133 @@ const DoctorDashboard = () => {
           <EmotionPanel />
         </div>
 
-        {/* Patients Section */}
-        <div className="mb-10">
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #4a7c65 0%, #3d6655 100%)' }}>
-                <FaComments className="w-4 h-4 text-white" />
-              </div>
-              <h2 className="text-lg font-bold text-gray-800 tracking-tight">Your Patients</h2>
+        {/* ── OVERVIEW STAT CARDS (3 focused widgets) ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 mt-4">
+          {/* Active Patients Count */}
+          <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #4a7c65 0%, #2d4a3e 100%)' }}>
+              <span className="text-2xl">👥</span>
             </div>
-            <span className="text-xs font-medium text-gray-400 bg-gray-100 px-3 py-1.5 rounded-full">{patients.length} total</span>
+            <div>
+              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5">Active Patients</p>
+              <p className="text-3xl font-bold text-gray-800" style={{ lineHeight: 1 }}>
+                {loading ? <span className="text-gray-300 text-2xl">—</span> : patients.length}
+              </p>
+              <p className="text-xs text-emerald-600 font-medium mt-1">Under your care</p>
+            </div>
           </div>
-          {loading ? (
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-12 text-center">
-              <div className="animate-pulse flex flex-col items-center">
-                <div className="w-12 h-12 rounded-full bg-gray-200 mb-4"></div>
-                <div className="w-32 h-4 bg-gray-200 rounded-full"></div>
-              </div>
+
+          {/* Pending Appointments Count */}
+          <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' }}>
+              <span className="text-2xl">📅</span>
             </div>
-          ) : patients.length === 0 ? (
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-12 text-center">
-              <div className="text-4xl mb-3">👥</div>
-              <p className="text-gray-400 text-sm">No patients found.</p>
+            <div>
+              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5">Pending Requests</p>
+              <p className="text-3xl font-bold text-gray-800" style={{ lineHeight: 1 }}>
+                {loadingChats ? <span className="text-gray-300 text-2xl">—</span> : scheduledChats.length}
+              </p>
+              <p className="text-xs text-blue-600 font-medium mt-1">Awaiting your response</p>
+            </div>
+          </div>
+
+          {/* Unread Messages Count */}
+          <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-5 shadow-sm flex items-center gap-4 hover:shadow-md transition-all" style={(patientsWithUnread.length + scheduledChatsWithUnread.length) > 0 ? { borderColor: '#fca5a5' } : {}}>
+            <div className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style={{ background: (patientsWithUnread.length + scheduledChatsWithUnread.length) > 0 ? 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)' : 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)' }}>
+              <span className="text-2xl">💬</span>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5">Unseen Messages</p>
+              <p className="text-3xl font-bold" style={{ lineHeight: 1, color: (patientsWithUnread.length + scheduledChatsWithUnread.length) > 0 ? '#ef4444' : '#1f2937' }}>
+                {patientsWithUnread.length + scheduledChatsWithUnread.length}
+              </p>
+              <p className="text-xs font-medium mt-1" style={{ color: (patientsWithUnread.length + scheduledChatsWithUnread.length) > 0 ? '#ef4444' : '#9ca3af' }}>
+                {(patientsWithUnread.length + scheduledChatsWithUnread.length) > 0 ? 'Needs attention' : 'All caught up!'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* ── UNSEEN MESSAGES ── */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center">
+                <FaEnvelope className="w-4 h-4 text-red-500" />
+              </div>
+              <h2 className="text-lg font-bold text-gray-800 tracking-tight">Unseen Messages</h2>
+            </div>
+            {(patientsWithUnread.length + scheduledChatsWithUnread.length) > 0 && (
+              <span className="text-xs font-bold text-white bg-red-500 px-3 py-1.5 rounded-full">
+                {patientsWithUnread.length + scheduledChatsWithUnread.length} new
+              </span>
+            )}
+          </div>
+
+          {(patientsWithUnread.length + scheduledChatsWithUnread.length) === 0 ? (
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-8 text-center">
+              <div className="text-3xl mb-2">✅</div>
+              <p className="text-gray-400 text-sm font-medium">All caught up! No unseen messages.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {patients.map((patient) => (
-                <div key={patient.id} className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-5 hover:shadow-lg hover:border-emerald-100 transition-all group">
-                  <div className="flex items-start gap-4">
-                    <img src={patient.photoURL || patient.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(patient.displayName || patient.name || patient.email || 'Unknown Patient')}&background=c7d2c4&color=374151`} alt={patient.displayName || patient.name || patient.email || 'Unknown Patient'} className="w-14 h-14 rounded-2xl object-cover border-2 border-white shadow-sm shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="font-semibold text-gray-800 text-sm truncate">{patient.displayName || patient.name || patient.email || 'Unknown Patient'}</h3>
-                        {unreadCounts[patient.id] > 0 && (
-                          <span className="bg-red-500 text-white text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1.5 shrink-0">
-                            {unreadCounts[patient.id]}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center text-xs text-gray-400 mt-1">
-                        <FaEnvelope className="mr-1.5 shrink-0" /> <span className="truncate">{patient.email || 'Unknown'}</span>
-                      </div>
-                      {/* Action buttons */}
-                      <div className="flex items-center gap-2 mt-3">
-                        <button
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:scale-105"
-                          style={{ background: 'linear-gradient(135deg, #4a7c65 0%, #3d6655 100%)', color: 'white' }}
-                          onClick={() => setChatPatient(patient)}
-                        >
-                          <FaComments className="w-3 h-3" /> Chat
-                        </button>
-                        <button
-                          className="flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-100 transition-all hover:scale-105"
-                          onClick={() => handleStartVideoCall(patient)}
-                        >
-                          <FaVideo className="w-3 h-3" /> Video
-                        </button>
-                        <button
-                          className="flex items-center gap-1.5 bg-gray-50 text-gray-600 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-100 transition-all hover:scale-105"
-                          onClick={() => handleViewHistory(patient)}
-                        >
-                          <FaHistory className="w-3 h-3" /> History
-                        </button>
-                      </div>
+            <div className="space-y-3">
+              {/* Direct chat unreads */}
+              {patientsWithUnread.map((patient) => (
+                <div
+                  key={patient.id}
+                  className="bg-white/80 backdrop-blur-md rounded-2xl border border-red-100 p-4 hover:shadow-lg hover:border-red-200 transition-all cursor-pointer group"
+                  onClick={() => setChatPatient(patient)}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="relative shrink-0">
+                      <img src={patient.photoURL || patient.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(patient.displayName || patient.name || patient.email || 'Unknown Patient')}&background=c7d2c4&color=374151`} alt={patient.displayName || patient.name || patient.email || 'Unknown Patient'} className="w-12 h-12 rounded-2xl object-cover border-2 border-white shadow-sm" />
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1.5 shadow">
+                        {unreadCounts[patient.id]}
+                      </span>
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-800 text-sm">{patient.displayName || patient.name || patient.email || 'Unknown Patient'}</h3>
+                      <p className="text-xs text-gray-400 mt-0.5">{patient.email || 'Unknown'}</p>
+                      <p className="text-xs text-red-500 font-medium mt-1">💬 {unreadCounts[patient.id]} unread message{unreadCounts[patient.id] > 1 ? 's' : ''}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white transition-all hover:scale-105 shadow-sm"
+                        style={{ background: 'linear-gradient(135deg, #4a7c65 0%, #3d6655 100%)' }}
+                        onClick={(e) => { e.stopPropagation(); setChatPatient(patient); }}
+                      >
+                        <FaComments className="w-3 h-3" /> Reply
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {/* Scheduled chat unreads */}
+              {scheduledChatsWithUnread.map((chat) => (
+                <div
+                  key={chat.id}
+                  className="bg-white/80 backdrop-blur-md rounded-2xl border border-red-100 p-4 hover:shadow-lg hover:border-red-200 transition-all cursor-pointer group"
+                  onClick={() => openModal('view', chat)}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="relative shrink-0">
+                      <img src={chat.patientPhotoURL || chat.patientImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.patientName || 'Patient')}&background=c7d2c4&color=374151`} alt={chat.patientName || 'Patient'} className="w-12 h-12 rounded-2xl object-cover border-2 border-white shadow-sm" />
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1.5 shadow">
+                        {unreadCounts[chat.id]}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-800 text-sm">{chat.patientName || 'Unknown Patient'}</h3>
+                      <p className="text-xs text-blue-500 font-medium">📅 Scheduled session</p>
+                      <p className="text-xs text-red-500 font-medium mt-1">💬 {unreadCounts[chat.id]} unread message{unreadCounts[chat.id] > 1 ? 's' : ''}</p>
+                    </div>
+                    <button
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white transition-all hover:scale-105 shadow-sm"
+                      style={{ background: 'linear-gradient(135deg, #4a7c65 0%, #3d6655 100%)' }}
+                      onClick={(e) => { e.stopPropagation(); openModal('view', chat); }}
+                    >
+                      <FaComments className="w-3 h-3" /> Reply
+                    </button>
                   </div>
                 </div>
               ))}
@@ -640,16 +716,16 @@ const DoctorDashboard = () => {
           )}
         </div>
 
-        {/* Scheduled Chats */}
+        {/* ── PENDING APPOINTMENT REQUESTS ── */}
         <div className="mb-10">
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
                 <FaCalendarAlt className="w-4 h-4 text-blue-600" />
               </div>
-              <h2 className="text-lg font-bold text-gray-800 tracking-tight">Scheduled Sessions</h2>
+              <h2 className="text-lg font-bold text-gray-800 tracking-tight">Pending Appointment Requests</h2>
             </div>
-            <span className="text-xs font-medium text-gray-400 bg-gray-100 px-3 py-1.5 rounded-full">{scheduledChats.length} sessions</span>
+            <span className="text-xs font-medium text-gray-400 bg-gray-100 px-3 py-1.5 rounded-full">{scheduledChats.length} request{scheduledChats.length !== 1 ? 's' : ''}</span>
           </div>
           {loadingChats ? (
             <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-12 text-center">
@@ -659,36 +735,50 @@ const DoctorDashboard = () => {
               </div>
             </div>
           ) : scheduledChats.length === 0 ? (
-            <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-12 text-center">
-              <div className="text-4xl mb-3">📅</div>
-              <p className="text-gray-400 text-sm">No scheduled sessions yet. This feature is coming soon.</p>
+            <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-8 text-center">
+              <div className="text-3xl mb-2">📅</div>
+              <p className="text-gray-400 text-sm">No pending appointment requests.</p>
             </div>
           ) : (
             <div className="space-y-3">
               {scheduledChats.map((chat) => (
-                <div key={chat.id} className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-5 hover:shadow-lg hover:border-blue-100 transition-all group">
+                <div key={chat.id} className="bg-white/80 backdrop-blur-md rounded-2xl border border-white/60 p-5 hover:shadow-lg hover:border-blue-100 transition-all">
                   <div className="flex items-center gap-4">
-                    <img src={chat.patientPhotoURL || chat.patientImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.patientName || chat.patientEmail || 'Unknown Patient')}&background=c7d2c4&color=374151`} alt={chat.patientName || 'Unknown Patient'} className="w-12 h-12 rounded-2xl object-cover border-2 border-white shadow-sm shrink-0" />
+                    <img
+                      src={chat.patientPhotoURL || chat.patientImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.patientName || chat.patientEmail || 'Unknown Patient')}&background=c7d2c4&color=374151`}
+                      alt={chat.patientName || 'Unknown Patient'}
+                      className="w-12 h-12 rounded-2xl object-cover border-2 border-white shadow-sm shrink-0"
+                    />
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-gray-800 text-sm truncate">{chat.patientName || 'Unknown Patient'}</h3>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium shrink-0">{chat.status || 'Scheduled'}</span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-semibold text-gray-800 text-sm">{chat.patientName || 'Unknown Patient'}</h3>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 font-semibold border border-amber-100">
+                          {chat.status || 'Pending'}
+                        </span>
                         {unreadCounts[chat.id] > 0 && (
-                          <span className="bg-red-500 text-white text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1.5 shrink-0">
+                          <span className="bg-red-500 text-white text-[10px] font-bold rounded-full h-5 min-w-[20px] flex items-center justify-center px-1.5">
                             {unreadCounts[chat.id]}
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-gray-400 mt-1">
-                        <span className="flex items-center gap-1"><FaEnvelope className="w-3 h-3" /> {chat.patientEmail || 'Unknown'}</span>
-                        <span className="flex items-center gap-1"><FaCalendarAlt className="w-3 h-3" /> {chat.date} at {chat.time}</span>
+                      {/* Date & Time displayed prominently */}
+                      <div className="mt-2 flex items-center gap-3">
+                        <div className="flex items-center gap-1.5 bg-blue-50 text-blue-700 rounded-lg px-3 py-1.5">
+                          <FaCalendarAlt className="w-3 h-3" />
+                          <span className="text-xs font-semibold">{chat.date || 'No date'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 rounded-lg px-3 py-1.5">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          <span className="text-xs font-semibold">{chat.time || 'No time'}</span>
+                        </div>
                       </div>
+                      <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1"><FaEnvelope className="w-3 h-3" /> {chat.patientEmail || 'Unknown'}</p>
                     </div>
                     <button
-                      className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium transition-all hover:scale-105 border border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
+                      className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-105 border border-emerald-200 text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
                       onClick={() => openModal('view', chat)}
                     >
-                      <FaCalendarAlt className="w-3 h-3" /> View
+                      <FaCalendarAlt className="w-3 h-3" /> Open
                     </button>
                   </div>
                 </div>
