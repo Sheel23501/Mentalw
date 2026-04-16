@@ -162,7 +162,7 @@
     <div class="checklist">
       <div><span id="check-camera" class="pending">⏳</span> Camera Access</div>
       <div><span id="check-mic" class="pending">⏳</span> Microphone Access</div>
-      <div><span id="check-server" class="pending">⏳</span> Signaling Server (localhost:3001)</div>
+      <div><span id="check-server" class="pending">⏳</span> Signaling Server (localhost:4000)</div>
       <div><span id="check-socket" class="pending">⏳</span> Socket.IO Connection</div>
     </div>
   </div>
@@ -260,7 +260,7 @@
     function connectToServer() {
       setStatus('Connecting to signaling server...', 'info');
       
-      socket = io('http://localhost:3001', {
+      socket = io('http://localhost:4000', {
         reconnection: true,
         timeout: 5000
       });
@@ -280,7 +280,7 @@
         console.error('Connection error:', err);
         setCheck('check-server', 'error');
         setCheck('check-socket', 'error');
-        setStatus('❌ Cannot connect to server. Make sure server.js is running on port 3001', 'error');
+        setStatus('❌ Cannot connect to server. Make sure server.js is running on port 4000', 'error');
       });
 
       // WebRTC signaling handlers
@@ -399,7 +399,7 @@
     }
 
     // Check server on load
-    fetch('http://localhost:3001/api/rooms/test')
+    fetch('http://localhost:4000/api/rooms/test')
       .then(() => setCheck('check-server', 'success'))
       .catch(() => setCheck('check-server', 'error'));
   </script>

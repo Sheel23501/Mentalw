@@ -4,7 +4,7 @@
 import fetch from 'node-fetch';
 import io from 'socket.io-client';
 
-const SERVER_URL = 'http://localhost:3001';
+const SERVER_URL = 'http://localhost:4000';
 
 async function testWebRTC() {
   console.log('\n🧪 Testing WebRTC Video Call System...\n');
