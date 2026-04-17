@@ -25,31 +25,21 @@ try {
 
 const app = express();
 
-// Enhanced CORS configuration — accept any localhost port for dev
+// Enhanced CORS configuration — accept any localhost or LAN IP for dev/testing
+const allowedOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?$/;
+
 const corsOriginCheck = (origin, callback) => {
   // Allow requests with no origin (mobile apps, curl, etc.)
   if (!origin) return callback(null, true);
-  // Allow any localhost / 127.0.0.1 origin
-  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+  // Allow any localhost or private-network IP
+  if (allowedOriginPattern.test(origin)) {
     return callback(null, true);
   }
   callback(new Error('Not allowed by CORS'));
 };
 
 app.use(cors({
-
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://localhost:5175',
-    'http://localhost:5176',
-    'http://localhost:4000',
-    'http://localhost:4002',
-    'http://localhost:4003',
-    'http://localhost:4004',
-    'http://localhost:4005',
-  ],
-
+  origin: corsOriginCheck,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -482,19 +472,7 @@ const PORT = 4000; // Changed port from 3001 to 4000
 const httpServer = createServer(app);
 const io = new SocketIOServer(httpServer, {
   cors: {
-
-    origin: [
-      'http://localhost:5173',
-      'http://localhost:5174',
-      'http://localhost:5175',
-      'http://localhost:5176',
-      'http://localhost:4000',
-      'http://localhost:4002',
-      'http://localhost:4003',
-      'http://localhost:4004',
-      'http://localhost:4005',
-    ],
-
+    origin: corsOriginCheck,
     credentials: true,
     methods: ['GET', 'POST']
   }
@@ -785,8 +763,8 @@ app.get('/api/rooms/:roomId', (req, res) => {
   res.json({ success: true, roomId, participants: room.participants });
 });
 
-httpServer.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+httpServer.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on http://0.0.0.0:${PORT} (accessible from LAN)`);
   console.log('📡 WebRTC Signaling Server ready (Socket.IO)');
   console.log('Available endpoints:');
   console.log('  POST /api/twilio/token - Generate video call token');
