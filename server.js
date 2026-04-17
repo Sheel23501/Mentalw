@@ -73,8 +73,9 @@ const twilio_client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 const HUGGINGFACE_API_KEY = process.env.HUGGINGFACE_API_KEY || '';
 const HF_TOKEN = process.env.HF_TOKEN || HUGGINGFACE_API_KEY;
 const EMOTION_PROVIDER = process.env.EMOTION_PROVIDER || (HUGGINGFACE_API_KEY ? 'hf' : 'local');
-const HF_TEXT_MODEL = process.env.HF_TEXT_MODEL || 'cointegrated/rubert-tiny2-cedr-emotion-detection';
+const HF_TEXT_MODEL = process.env.HF_TEXT_MODEL || 'SamLowe/roberta-base-go_emotions';
 const HF_IMAGE_MODEL = process.env.HF_IMAGE_MODEL || 'trpakov/vit-face-expression';
+const HF_AUDIO_MODEL = process.env.HF_AUDIO_MODEL || 'ehcalabres/wav2vec2-lg-xlsr-en-speech-emotion-recognition';
 
 // Track active call rooms in memory (for demo; use database in production)
 const activeRooms = new Map();
@@ -168,9 +169,8 @@ app.post('/api/twilio/token', async (req, res) => {
     const AccessToken = twilio.jwt.AccessToken;
     const VideoGrant = AccessToken.VideoGrant;
 
-    const token = new AccessToken(TWILIO_ACCOUNT_SID, TWILIO_API_KEY || TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+    const token = new AccessToken(TWILIO_ACCOUNT_SID, TWILIO_API_KEY || TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, { identity });
     token.addGrant(new VideoGrant({ room: roomName }));
-    token.identity = identity;
 
     // Track participant in room
     if (activeRooms.has(roomName)) {
@@ -785,6 +785,18 @@ app.get('/api/rooms/:roomId', (req, res) => {
   res.json({ success: true, roomId, participants: room.participants });
 });
 
+// ── Serve built frontend in production ──────────────────────────────────────
+const distPath = path.join(process.cwd(), 'dist');
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+  // SPA catch-all: serve index.html for any non-API route
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) return next();
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+  console.log('📂 Serving static frontend from /dist');
+}
+
 httpServer.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log('📡 WebRTC Signaling Server ready (Socket.IO)');
@@ -794,11 +806,63 @@ httpServer.listen(PORT, () => {
   console.log('  GET /api/twilio/rooms/:roomSid/participants - List room participants');
   console.log('  POST /api/cv/emotion - Analyze emotions from an image');
   console.log('  POST /api/cv/emotion/batch - Analyze emotions from 2-3 images and aggregate');
+  console.log('  POST /api/audio/emotion - Analyze emotions from audio (Hugging Face SER)');
   console.log('  POST /api/emotion/text - Analyze emotions from text (Hugging Face)');
   console.log('  POST /api/hf/chat - Hugging Face Router (OpenAI-compatible) chat completions');
   if (HF_TOKEN) {
     console.log(`HF image model: ${HF_IMAGE_MODEL}`);
+    console.log(`HF audio model: ${HF_AUDIO_MODEL}`);
     console.log(`HF text model: ${HF_TEXT_MODEL}`);
+  }
+});
+
+/**
+ * POST /api/audio/emotion
+ * Body: multipart/form-data with a single 'audio' field (webm/wav/mp3 blob)
+ * Routes the audio to a Hugging Face Speech Emotion Recognition (SER) model.
+ * Returns the top detected vocal emotion and confidence scores.
+ */
+app.post('/api/audio/emotion', upload.single('audio'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'No audio file uploaded' });
+    }
+    if (!HF_TOKEN) {
+      fs.unlink(req.file.path, () => {});
+      return res.status(500).json({ success: false, error: 'Missing HF_TOKEN or HUGGINGFACE_API_KEY' });
+    }
+
+    const audioBuffer = fs.readFileSync(req.file.path);
+    fs.unlink(req.file.path, () => {}); // clean up temp file
+
+    const modelName = req.body.model || HF_AUDIO_MODEL;
+
+    const resp = await fetch(`https://router.huggingface.co/hf-inference/models/${encodeURIComponent(modelName)}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${HF_TOKEN}`,
+        'Content-Type': 'audio/webm',
+      },
+      body: audioBuffer,
+    });
+
+    const data = await resp.json();
+    if (!resp.ok) {
+      console.error('HF audio emotion error:', data);
+      return res.status(resp.status).json({ success: false, error: data?.error || 'HF audio inference failed' });
+    }
+
+    // HF audio-classification returns [{label, score}, ...]
+    const arr = Array.isArray(data) ? data : [];
+    const candidates = Array.isArray(arr[0]) ? arr[0] : arr;
+    const top = candidates && candidates.length ? candidates.reduce((a, b) => (a.score >= b.score ? a : b)) : null;
+
+    console.log(`🎙️ Audio emotion: ${top?.label} (${(top?.score * 100).toFixed(1)}%)`);
+    return res.json({ success: true, model: modelName, candidates, top });
+  } catch (error) {
+    if (req.file) fs.unlink(req.file.path, () => {});
+    console.error('Error in /api/audio/emotion:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

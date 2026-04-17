@@ -163,8 +163,7 @@ export const getChatReportsForPatient = async (patientId) => {
   try {
     const reportsQuery = query(
       collection(db, 'chat_reports'),
-      where('patientId', '==', patientId),
-      orderBy('createdAt', 'desc')
+      where('patientId', '==', patientId)
     );
     const querySnapshot = await getDocs(reportsQuery);
     const reports = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -202,8 +201,7 @@ export const getMentalHealthTestResultsForUser = async (userId) => {
   try {
     const resultsQuery = query(
       collection(db, 'mental_health_test_results'),
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
+      where('userId', '==', userId)
     );
     const querySnapshot = await getDocs(resultsQuery);
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));

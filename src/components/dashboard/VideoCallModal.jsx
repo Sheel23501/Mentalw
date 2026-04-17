@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash, FaPhoneSlash, FaCopy } from 'react-icons/fa';
 import { useSocket } from '../../contexts/SocketContext';
+import { AudioEmotionRecorder } from '../../services/audioEmotion';
 
 /**
  * VideoCallModal
@@ -27,6 +28,8 @@ const VideoCallModal = ({
   // Direct call props
   isDirectCall = false,
   directCallRoomId = null,
+  // Audio emotion callback (Phase 3)
+  onAudioEmotion = null,
 }) => {
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -38,6 +41,7 @@ const VideoCallModal = ({
   const directCallTriggeredRef = useRef(false);
   const listenersSetupRef = useRef(false);
   const retryTimerRef = useRef(null);
+  const audioRecorderRef = useRef(null);  // Phase 3: audio emotion recorder
   
   const { callStatus, endCall: endGlobalCall, outgoingCall, cancelOutgoingCall, getWebRTC, remoteCallEnded } = useSocket();
 
@@ -53,8 +57,7 @@ const VideoCallModal = ({
   const [joinCode, setJoinCode] = useState('');
   const [copied, setCopied] = useState(false);
   const [hasRemoteStream, setHasRemoteStream] = useState(false);
-  // Track local stream separately so we can stop it on close
-  const localStreamRef = useRef(null);
+  const [vocalEmotion, setVocalEmotion] = useState(null);  // Phase 3
 
   // Helper: get the shared WebRTC instance (may be null briefly during init)
   const getSharedWebRTC = useCallback(() => {
@@ -100,22 +103,56 @@ const VideoCallModal = ({
         webrtc.peerConnections.clear();
       }
       
+      // Stop audio emotion recorder (Phase 3)
+      if (audioRecorderRef.current) {
+        audioRecorderRef.current.stop();
+        audioRecorderRef.current = null;
+      }
+      
       setCameraOn(false);
       setCallState('idle');
       setRoomId(null);
       setRoomCode(null);
       setRemoteParticipants([]);
       setHasRemoteStream(false);
+      setVocalEmotion(null);
       setError(null);
       setLoading(false);
       setJoinCode('');
     }
   }, [open]);
 
+  // Phase 3: Start audio emotion analysis when call connects
+  useEffect(() => {
+    if (callState === 'connected' && localStreamRef.current && !audioRecorderRef.current) {
+      const recorder = new AudioEmotionRecorder(localStreamRef.current, {
+        intervalMs: 15000, // 15-second chunks
+        onResult: (result) => {
+          const label = result.top?.label || 'unknown';
+          const score = result.top?.score || 0;
+          console.log(`🎙️ Vocal emotion: ${label} (${(score * 100).toFixed(1)}%)`);
+          setVocalEmotion({ label, score });
+          if (onAudioEmotion) {
+            onAudioEmotion({ label, score, candidates: result.candidates, timestamp: new Date() });
+          }
+        },
+        onError: (err) => console.warn('Audio emotion error (non-blocking):', err.message),
+      });
+      recorder.start();
+      audioRecorderRef.current = recorder;
+    }
+
+    return () => {
+      // If callState leaves connected, stop recorder
+      if (callState !== 'connected' && audioRecorderRef.current) {
+        audioRecorderRef.current.stop();
+        audioRecorderRef.current = null;
+      }
+    };
+  }, [callState, onAudioEmotion]);
 
   // Handle local stream display — store in ref so useEffect can apply it after video mounts
-  const displayLocalStream = (stream) => {
-
+  const displayLocalStream = useCallback((stream) => {
     localStreamRef.current = stream;
     if (localVideoRef.current) {
       localVideoRef.current.srcObject = stream;
@@ -135,8 +172,7 @@ const VideoCallModal = ({
   }, [callState]);
 
   // Handle remote stream display
-  const displayRemoteStream = (stream) => {
-
+  const displayRemoteStream = useCallback((stream) => {
     console.log('🎥 Displaying remote stream');
     if (remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = stream;
@@ -651,6 +687,16 @@ const VideoCallModal = ({
                   <FaCopy size={16} />
                 </button>
                 {copied && <span className="text-xs">Copied!</span>}
+              </div>
+            )}
+
+            {/* Vocal Emotion Badge (Phase 3) */}
+            {callState === 'connected' && vocalEmotion && (
+              <div className="absolute top-20 left-1/2 -translate-x-1/2 z-20" style={{ background: 'rgba(139,92,246,0.85)', backdropFilter: 'blur(8px)', padding: '6px 16px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '14px' }}>🎙️</span>
+                <span style={{ color: 'white', fontSize: '12px', fontWeight: 700 }}>
+                  Voice: {vocalEmotion.label} ({(vocalEmotion.score * 100).toFixed(0)}%)
+                </span>
               </div>
             )}
 

@@ -448,3 +448,69 @@ export const testGeminiConnection = async () => {
     return false;
   }
 };
+
+/**
+ * Analyze an entire chat session transcript and produce a clinical-grade summary.
+ * Used by the Doctor Dashboard when ending a chat — the result is saved alongside
+ * the chat report so the doctor can review AI insights later.
+ *
+ * @param {Array<{senderRole: string, text: string}>} messages - Full chat transcript
+ * @returns {Promise<Object>} - { primary_emotion, anxiety_level, risk_flag, mood_trajectory, key_concerns, clinical_summary }
+ */
+export const analyzeChatSession = async (messages) => {
+  try {
+    if (!GEMINI_API_KEY) {
+      console.warn('analyzeChatSession: Gemini API key missing — skipping analysis');
+      return null;
+    }
+    if (!messages || messages.length === 0) return null;
+
+    // Build a readable transcript
+    const transcript = messages
+      .map(m => `${m.senderRole === 'doctor' ? 'Doctor' : 'Patient'}: ${m.text}`)
+      .join('\n');
+
+    const ANALYSIS_PROMPT = `You are an expert clinical psychologist reviewing a completed therapy / support chat session between a Doctor and a Patient.
+
+Carefully analyze the entire transcript below and return ONLY a valid JSON object (no markdown, no explanation) with these fields:
+
+{
+  "primary_emotion": "<the dominant emotion the patient displayed across the session — e.g. Anxious, Sad, Overwhelmed, Hopeful, Calm, Angry, Fearful>",
+  "anxiety_level": <number 1-10, where 1 is totally relaxed and 10 is severe panic>,
+  "risk_flag": <boolean — true ONLY if the patient expressed self-harm ideation, suicidal thoughts, or extreme hopelessness>,
+  "mood_trajectory": "<Improving | Stable | Declining — how did the patient's mood change from the start to the end of the session>",
+  "key_concerns": ["<concern 1>", "<concern 2>"],
+  "clinical_summary": "<2-4 sentence professional summary of the session for the doctor's records>"
+}
+
+TRANSCRIPT:
+${transcript}`;
+
+    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: ANALYSIS_PROMPT }] }],
+        generationConfig: { temperature: 0.15, maxOutputTokens: 600 }
+      })
+    });
+
+    if (!response.ok) {
+      console.error('analyzeChatSession: Gemini API returned', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+
+    // Clean markdown fences if present
+    const cleanJson = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const analysis = JSON.parse(cleanJson);
+
+    console.log('🧠 Session Analysis:', analysis);
+    return analysis;
+  } catch (error) {
+    console.error('analyzeChatSession failed:', error);
+    return null;
+  }
+};
