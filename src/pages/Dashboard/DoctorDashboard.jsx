@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { FaComments, FaCalendarAlt, FaEnvelope, FaTimes, FaHistory, FaArrowLeft, FaBrain, FaChartLine, FaVideo, FaUser, FaEdit, FaSave, FaSignOutAlt, FaTh, FaUsers } from 'react-icons/fa';
 import { useEmotionMonitor } from '../../utils/useEmotionMonitor';
@@ -13,12 +13,14 @@ import {
   resetUnreadCount,
   saveChatReport,
   getChatReportsForPatient,
+  getMentalHealthTestResultsForUser,
   listenForAppointmentsForDoctor,
   updateAppointmentStatus
 } from '../../services/firestore';
 import SessionNotes from '../../components/dashboard/SessionNotes.jsx';
 import EmotionPanel from '../../components/dashboard/EmotionPanel.jsx';
 import VideoCallModal from '../../components/dashboard/VideoCallModal.jsx';
+import { analyzeChatSession } from '../../services/gemini.js';
 import { useSocket } from '../../contexts/SocketContext';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
@@ -592,7 +594,7 @@ const ProfileTab = ({ currentUser }) => {
       try {
         const { getDoc, doc } = await import('firebase/firestore');
         const { db } = await import('../../config/firebase');
-        const snap = await getDoc(doc(db, 'doctors', currentUser.uid));
+        const snap = await getDoc(doc(db, 'userProfiles', currentUser.uid));
         if (snap.exists()) {
           const data = snap.data();
           setForm(prev => ({
@@ -619,7 +621,7 @@ const ProfileTab = ({ currentUser }) => {
     try {
       const { doc, updateDoc } = await import('firebase/firestore');
       const { db } = await import('../../config/firebase');
-      await updateDoc(doc(db, 'doctors', currentUser.uid), form);
+      await updateDoc(doc(db, 'userProfiles', currentUser.uid), form);
       setSaved(true);
       setEditing(false);
       setTimeout(() => setSaved(false), 3000);
@@ -752,6 +754,11 @@ const DoctorDashboard = () => {
   const [detectedEmotion, setDetectedEmotion] = useState(null);
   const [emotionHistory, setEmotionHistory] = useState([]);
   const [showEmotionPanel, setShowEmotionPanel] = useState(false);
+  const [audioEmotionHistory, setAudioEmotionHistory] = useState([]);  // Phase 3: vocal emotion log
+
+  const handleAudioEmotion = useCallback((result) => {
+    setAudioEmotionHistory(prev => [...prev, result].slice(-30)); // keep last 30 readings
+  }, []);
 
   const { startCall, callStatus, activeCallRoomId, incomingCall, outgoingCall } = useSocket();
 
@@ -798,12 +805,22 @@ const DoctorDashboard = () => {
   const handleSaveAndEndChat = async (chatType, messages, patientInfo) => {
     closeChatModals(true);
     if (!messages || messages.length === 0) return;
+
+    // Run Gemini AI analysis on the chat transcript (Phase 2)
+    let aiAnalysis = null;
+    try {
+      aiAnalysis = await analyzeChatSession(messages);
+    } catch (err) {
+      console.warn('AI chat analysis failed (non-blocking):', err);
+    }
+
     const reportData = {
       doctorId: currentUser.uid,
       patientId: patientInfo.patientId,
       patientName: patientInfo.patientName,
       patientPhotoURL: patientInfo.patientPhotoURL,
       messages: messages.map(m => ({ ...m, timestamp: m.timestamp || new Date() })),
+      aiAnalysis: aiAnalysis || null,
     };
     try {
       await saveChatReport(reportData);
@@ -832,13 +849,36 @@ const DoctorDashboard = () => {
     }
   };
 
-  const handleViewHistory = (patient) => {
+  const handleViewHistory = async (patient) => {
     setViewingPatientHistory(patient);
     setHistoryLoading(true);
-    getChatReportsForPatient(patient.id)
-      .then(setPatientHistory)
-      .catch(() => setPatientHistory([]))
-      .finally(() => setHistoryLoading(false));
+    try {
+      const [chats, tests] = await Promise.all([
+        getChatReportsForPatient(patient.id).catch(() => []),
+        getMentalHealthTestResultsForUser(patient.id).catch(() => [])
+      ]);
+      
+      const typedChats = chats.map(c => ({ ...c, historyType: 'chat' }));
+      const typedTests = tests.map(t => ({ ...t, historyType: 'test' }));
+      
+      const combined = [...typedChats, ...typedTests].sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime();
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime();
+        return dateB - dateA; // Descending
+      });
+      
+      const fortyEightHoursAgo = Date.now() - (48 * 60 * 60 * 1000);
+      const filtered = combined.filter(item => {
+        const itemDate = item.createdAt?.toDate ? item.createdAt.toDate().getTime() : new Date(item.createdAt).getTime();
+        return itemDate >= fortyEightHoursAgo;
+      });
+      
+      setPatientHistory(filtered);
+    } catch (error) {
+      setPatientHistory([]);
+    } finally {
+      setHistoryLoading(false);
+    }
   };
 
   const handleBackToDashboard = () => {
@@ -1007,7 +1047,7 @@ const DoctorDashboard = () => {
               <img src={viewingPatientHistory.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(viewingPatientHistory.displayName || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '52px', height: '52px', borderRadius: '14px', objectFit: 'cover' }} />
               <div>
                 <h2 style={{ color: '#1f2937', fontWeight: 800, fontSize: '22px' }}>{viewingPatientHistory.displayName || 'Unknown'}</h2>
-                <p style={{ color: '#9ca3af', fontSize: '13px' }}>Session History</p>
+                <p style={{ color: '#9ca3af', fontSize: '13px' }}>Recent History (Last 48 Hours)</p>
               </div>
             </div>
             <div style={{ background: 'white', borderRadius: '20px', padding: '28px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
@@ -1020,24 +1060,31 @@ const DoctorDashboard = () => {
                 </div>
               ) : (
                 <ul style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {patientHistory.map(report => (
-                    <li key={report.id} onClick={() => { setChatReport(report); setReportModalOpen(true); }}
-                      style={{ background: '#f9fafb', borderRadius: '14px', border: '1px solid #f3f4f6', padding: '16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'all 0.2s' }}
-                      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'; e.currentTarget.style.background = 'white'; }}
-                      onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#f9fafb'; }}
+                  {patientHistory.map((item, index) => {
+                    const isTest = item.historyType === 'test';
+                    
+                    return (
+                    <li key={item.id || index} onClick={() => { if (!isTest) { setChatReport(item); setReportModalOpen(true); } }}
+                      style={{ background: '#f9fafb', borderRadius: '14px', border: '1px solid #f3f4f6', padding: '16px', cursor: isTest ? 'default' : 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'all 0.2s' }}
+                      onMouseEnter={e => { if(!isTest) { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'; e.currentTarget.style.background = 'white'; } }}
+                      onMouseLeave={e => { if(!isTest) { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#f9fafb'; } }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <FaComments style={{ color: '#059669', fontSize: '14px' }} />
+                        <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: isTest ? '#eff6ff' : '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {isTest ? <FaBrain style={{ color: '#3b82f6', fontSize: '14px' }} /> : <FaComments style={{ color: '#059669', fontSize: '14px' }} />}
                         </div>
                         <div>
-                          <p style={{ fontWeight: 600, color: '#1f2937', fontSize: '14px' }}>Chat Session</p>
-                          <p style={{ color: '#9ca3af', fontSize: '12px' }}>{report.messages.length} messages</p>
+                          <p style={{ fontWeight: 600, color: '#1f2937', fontSize: '14px' }}>
+                            {isTest ? `Mental Health Test: ${item.riskLevel || 'Checked'}` : 'Chat Session'}
+                          </p>
+                          <p style={{ color: '#9ca3af', fontSize: '12px' }}>
+                            {isTest ? `Score: ${item.score || item.totalScore || 'N/A'}` : `${item.messages?.length || 0} messages`}
+                          </p>
                         </div>
                       </div>
-                      <p style={{ color: '#9ca3af', fontSize: '12px' }}>{formatTimestamp(report.createdAt)}</p>
+                      <p style={{ color: '#9ca3af', fontSize: '12px' }}>{formatTimestamp(item.createdAt)}</p>
                     </li>
-                  ))}
+                  )})}
                 </ul>
               )}
             </div>
@@ -1148,6 +1195,7 @@ const DoctorDashboard = () => {
           initialRoomCode={pendingRoomCode}
           isDirectCall={isOutgoingCall && !!activeCallRoomId}
           directCallRoomId={activeCallRoomId}
+          onAudioEmotion={handleAudioEmotion}
         />
       )}
 
@@ -1263,7 +1311,7 @@ const DoctorDashboard = () => {
                 </button>
               </div>
             </div>
-            <VideoCallModal open={videoCallOpen} onClose={() => { setVideoCallOpen(false); setPendingRoomCode(null); setIsOutgoingCall(false); setVideoCallPatient(null); }} patientName={modalData?.patientName} doctorName={currentUser?.displayName} patientId={modalData?.patientId} doctorId={currentUser?.uid} initialRoomCode={pendingRoomCode} isDirectCall={isOutgoingCall && !!activeCallRoomId} directCallRoomId={activeCallRoomId} />
+            <VideoCallModal open={videoCallOpen} onClose={() => { setVideoCallOpen(false); setPendingRoomCode(null); setIsOutgoingCall(false); setVideoCallPatient(null); }} patientName={modalData?.patientName} doctorName={currentUser?.displayName} patientId={modalData?.patientId} doctorId={currentUser?.uid} initialRoomCode={pendingRoomCode} isDirectCall={isOutgoingCall && !!activeCallRoomId} directCallRoomId={activeCallRoomId} onAudioEmotion={handleAudioEmotion} />
           </div>
         </div>
       )}
@@ -1292,13 +1340,16 @@ const DoctorDashboard = () => {
                     <span style={{ color: 'white', fontSize: '12px' }}>{getEmotionEmoji(detectedEmotion)} {detectedEmotion}</span>
                   </div>
                 )}
+                <button onClick={() => { closeChatModals(); handleViewHistory(chatPatient); }} style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }} title="View Past 48h History">
+                  <FaHistory style={{ fontSize: '13px' }} />
+                </button>
                 <button onClick={() => {
                   const patientName = chatPatient.displayName || chatPatient.name || chatPatient.email || 'Patient';
                   setVideoCallPatient(chatPatient);
                   setIsOutgoingCall(true);
                   setVideoCallOpen(true);
                   startCall(chatPatient.id, patientName);
-                }} style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(96,165,250,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                }} style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(96,165,250,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }} title="Start Video Call">
                   <FaVideo style={{ fontSize: '13px' }} />
                 </button>
                 <button onClick={() => setEmotionAnalysisEnabled(!emotionAnalysisEnabled)} style={{ width: '32px', height: '32px', borderRadius: '8px', background: emotionAnalysisEnabled ? 'rgba(251,191,36,0.8)' : 'rgba(255,255,255,0.15)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
@@ -1393,7 +1444,7 @@ const DoctorDashboard = () => {
                 </button>
               </div>
             </div>
-            <VideoCallModal open={videoCallOpen} onClose={() => { setVideoCallOpen(false); setPendingRoomCode(null); setIsOutgoingCall(false); }} patientName={chatPatient?.displayName || chatPatient?.name || 'Patient'} doctorName={currentUser?.displayName || 'Doctor'} patientId={chatPatient?.id} doctorId={currentUser?.uid} initialRoomCode={pendingRoomCode} isDirectCall={isOutgoingCall && !!activeCallRoomId} directCallRoomId={activeCallRoomId} />
+            <VideoCallModal open={videoCallOpen} onClose={() => { setVideoCallOpen(false); setPendingRoomCode(null); setIsOutgoingCall(false); }} patientName={chatPatient?.displayName || chatPatient?.name || 'Patient'} doctorName={currentUser?.displayName || 'Doctor'} patientId={chatPatient?.id} doctorId={currentUser?.uid} initialRoomCode={pendingRoomCode} isDirectCall={isOutgoingCall && !!activeCallRoomId} directCallRoomId={activeCallRoomId} onAudioEmotion={handleAudioEmotion} />
           </div>
         </div>
       )}
@@ -1401,24 +1452,86 @@ const DoctorDashboard = () => {
       {/* ── Chat Report Modal ── */}
       {reportModalOpen && chatReport && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '16px' }}>
-          <div style={{ background: 'white', borderRadius: '24px', maxWidth: '640px', width: '100%', maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 60px rgba(0,0,0,0.25)' }}>
+          <div style={{ background: 'white', borderRadius: '24px', maxWidth: '720px', width: '100%', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 60px rgba(0,0,0,0.25)' }}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ fontWeight: 700, color: '#1f2937', fontSize: '17px' }}>Chat Report</h3>
+              <h3 style={{ fontWeight: 700, color: '#1f2937', fontSize: '17px' }}>Session Report & AI Analysis</h3>
               <button onClick={() => setReportModalOpen(false)} style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#f3f4f6', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <FaTimes style={{ color: '#6b7280', fontSize: '12px' }} />
               </button>
             </div>
             <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
+              {/* Patient header */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #f3f4f6' }}>
                 <img src={chatReport.patientPhotoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(chatReport.patientName || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '52px', height: '52px', borderRadius: '12px', objectFit: 'cover' }} />
                 <div>
                   <p style={{ fontWeight: 700, color: '#1f2937', fontSize: '15px' }}>{chatReport.patientName}</p>
-                  <p style={{ color: '#9ca3af', fontSize: '12px' }}>Session Summary</p>
+                  <p style={{ color: '#9ca3af', fontSize: '12px' }}>Session Summary · {chatReport.messages?.length || 0} messages</p>
                 </div>
               </div>
+
+              {/* ── AI Analysis Panel (Phase 2) ── */}
+              {chatReport.aiAnalysis && (
+                <div style={{ background: 'linear-gradient(135deg, #f0f9ff 0%, #eff6ff 50%, #f5f3ff 100%)', borderRadius: '16px', padding: '20px', marginBottom: '20px', border: '1px solid #dbeafe' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+                    <FaBrain style={{ color: '#3b82f6', fontSize: '15px' }} />
+                    <h4 style={{ fontWeight: 700, color: '#1e40af', fontSize: '14px', margin: 0 }}>AI Session Analysis</h4>
+                  </div>
+
+                  {/* Stat cards row */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '14px' }}>
+                    {/* Primary Emotion */}
+                    <div style={{ background: 'white', borderRadius: '12px', padding: '12px', textAlign: 'center', border: '1px solid #e0e7ff' }}>
+                      <p style={{ color: '#9ca3af', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Primary Emotion</p>
+                      <p style={{ color: '#1f2937', fontSize: '16px', fontWeight: 800 }}>{chatReport.aiAnalysis.primary_emotion || '—'}</p>
+                    </div>
+                    {/* Anxiety Level */}
+                    <div style={{ background: 'white', borderRadius: '12px', padding: '12px', textAlign: 'center', border: '1px solid #e0e7ff' }}>
+                      <p style={{ color: '#9ca3af', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Anxiety Level</p>
+                      <p style={{ color: (chatReport.aiAnalysis.anxiety_level || 0) >= 7 ? '#dc2626' : (chatReport.aiAnalysis.anxiety_level || 0) >= 4 ? '#d97706' : '#059669', fontSize: '16px', fontWeight: 800 }}>{chatReport.aiAnalysis.anxiety_level || 0}/10</p>
+                    </div>
+                    {/* Mood Trajectory */}
+                    <div style={{ background: 'white', borderRadius: '12px', padding: '12px', textAlign: 'center', border: '1px solid #e0e7ff' }}>
+                      <p style={{ color: '#9ca3af', fontSize: '10px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Mood Trend</p>
+                      <p style={{ color: chatReport.aiAnalysis.mood_trajectory === 'Improving' ? '#059669' : chatReport.aiAnalysis.mood_trajectory === 'Declining' ? '#dc2626' : '#6b7280', fontSize: '16px', fontWeight: 800 }}>
+                        {chatReport.aiAnalysis.mood_trajectory === 'Improving' ? '📈' : chatReport.aiAnalysis.mood_trajectory === 'Declining' ? '📉' : '➡️'} {chatReport.aiAnalysis.mood_trajectory || '—'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Risk flag */}
+                  {chatReport.aiAnalysis.risk_flag && (
+                    <div style={{ background: '#fef2f2', borderRadius: '10px', padding: '10px 14px', marginBottom: '12px', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '16px' }}>⚠️</span>
+                      <p style={{ color: '#dc2626', fontSize: '12px', fontWeight: 700, margin: 0 }}>Risk Flag: This session may require immediate follow-up or escalation.</p>
+                    </div>
+                  )}
+
+                  {/* Key concerns */}
+                  {chatReport.aiAnalysis.key_concerns && chatReport.aiAnalysis.key_concerns.length > 0 && (
+                    <div style={{ marginBottom: '12px' }}>
+                      <p style={{ color: '#374151', fontSize: '12px', fontWeight: 700, marginBottom: '6px' }}>Key Concerns:</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                        {chatReport.aiAnalysis.key_concerns.map((c, i) => (
+                          <span key={i} style={{ background: '#fef3c7', color: '#92400e', fontSize: '11px', fontWeight: 600, padding: '4px 10px', borderRadius: '999px', border: '1px solid #fde68a' }}>{c}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Clinical summary */}
+                  {chatReport.aiAnalysis.clinical_summary && (
+                    <div style={{ background: 'white', borderRadius: '10px', padding: '12px 14px', border: '1px solid #e0e7ff' }}>
+                      <p style={{ color: '#374151', fontSize: '12px', fontWeight: 700, marginBottom: '4px' }}>Clinical Summary:</p>
+                      <p style={{ color: '#4b5563', fontSize: '13px', lineHeight: '1.6', margin: 0 }}>{chatReport.aiAnalysis.clinical_summary}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Chat transcript */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {chatReport.messages.map(msg => (
-                  <div key={msg.id} style={{ padding: '12px', borderRadius: '10px', background: '#f9fafb', border: '1px solid #f3f4f6' }}>
+                {chatReport.messages.map((msg, idx) => (
+                  <div key={msg.id || idx} style={{ padding: '12px', borderRadius: '10px', background: '#f9fafb', border: '1px solid #f3f4f6' }}>
                     <p style={{ fontWeight: 600, fontSize: '13px', color: '#374151' }}>
                       {msg.senderRole === 'doctor' ? (currentUser.displayName || 'Doctor') : (chatReport.patientName || 'Patient')}
                       <span style={{ color: '#9ca3af', fontWeight: 400, fontSize: '11px', marginLeft: '8px' }}>{new Date(msg.timestamp?.seconds * 1000 || msg.timestamp).toLocaleString()}</span>

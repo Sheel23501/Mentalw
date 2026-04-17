@@ -1,0 +1,34 @@
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+.eslintcache
+.vite
+
+# Build directories
+dist
+build
+tmp_uploads
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Virtual environments
+.venv
+venv
+__pycache__
+
+# Local env files (don't bake secrets into the image!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ML Models
+cv/*.h5
+cv/*.pth
+cv/*.pt

@@ -163,8 +163,7 @@ export const getChatReportsForPatient = async (patientId) => {
   try {
     const reportsQuery = query(
       collection(db, 'chat_reports'),
-      where('patientId', '==', patientId),
-      orderBy('createdAt', 'desc')
+      where('patientId', '==', patientId)
     );
     const querySnapshot = await getDocs(reportsQuery);
     const reports = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -202,8 +201,7 @@ export const getMentalHealthTestResultsForUser = async (userId) => {
   try {
     const resultsQuery = query(
       collection(db, 'mental_health_test_results'),
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
+      where('userId', '==', userId)
     );
     const querySnapshot = await getDocs(resultsQuery);
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -243,4 +241,19 @@ export const saveUserMood = async (userId, date, mood) => {
     mood,
     timestamp: new Date().toISOString(),
   }, { merge: true });
+};
+
+// Get a user's profile data from userProfiles
+export const getUserProfile = async (userId) => {
+  if (!userId) return null;
+  const userRef = doc(db, 'userProfiles', userId);
+  const snap = await getDoc(userRef);
+  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+};
+
+// Update a user's profile fields in userProfiles (merge)
+export const updateUserProfile = async (userId, data) => {
+  if (!userId || !data) return;
+  const userRef = doc(db, 'userProfiles', userId);
+  await setDoc(userRef, { ...data, updatedAt: new Date().toISOString() }, { merge: true });
 };
