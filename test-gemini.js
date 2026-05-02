@@ -19,7 +19,7 @@ if (fs.existsSync(envPath)) {
 }
 
 const GEMINI_API_KEY = process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || '';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent';
 
 async function testGeminiAPI() {
   console.log('Testing Gemini API connection...\n');

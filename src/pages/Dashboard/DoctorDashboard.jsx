@@ -24,6 +24,8 @@ import { analyzeChatSession } from '../../services/gemini.js';
 import { useSocket } from '../../contexts/SocketContext';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
+import PatientReportModal from '../../components/dashboard/PatientReportModal.jsx';
+import AdvancedSessionNotesModal from '../../components/dashboard/AdvancedSessionNotesModal.jsx';
 
 // ─── Left Sidebar ────────────────────────────────────────────────────────────
 const Sidebar = ({ activeTab, setActiveTab, doctorName, doctorPhoto, onLogout }) => {
@@ -489,7 +491,7 @@ const AppointmentsTab = ({ appointments, loading, onUpdateStatus, openModal }) =
 };
 
 // ─── Patients Tab ─────────────────────────────────────────────────────────────
-const PatientsTab = ({ patients, loading, unreadCounts, setChatPatient, handleViewHistory, handleStartVideoCall }) => {
+const PatientsTab = ({ patients, loading, unreadCounts, setChatPatient, handleViewHistory, handleStartVideoCall, handleViewReport, handleOpenNotes }) => {
   const [search, setSearch] = useState('');
   const filtered = patients.filter(p =>
     (p.displayName || p.name || p.email || '').toLowerCase().includes(search.toLowerCase())
@@ -541,7 +543,7 @@ const PatientsTab = ({ patients, loading, unreadCounts, setChatPatient, handleVi
                   <p style={{ color: '#9ca3af', fontSize: '12px', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{patient.email || '—'}</p>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <button onClick={() => setChatPatient(patient)}
                   style={{ flex: 1, background: 'linear-gradient(135deg, #4a7c65, #3d6655)', color: 'white', border: 'none', borderRadius: '10px', padding: '9px 0', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', transition: 'opacity 0.2s' }}
                   onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
@@ -562,6 +564,20 @@ const PatientsTab = ({ patients, loading, unreadCounts, setChatPatient, handleVi
                   onMouseLeave={e => e.currentTarget.style.background = '#f9fafb'}
                 >
                   <FaHistory style={{ fontSize: '11px' }} /> History
+                </button>
+                <button onClick={() => handleViewReport(patient)}
+                  style={{ flex: 1, minWidth: '40%', background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '9px 0', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', transition: 'background 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#dcfce7'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#f0fdf4'}
+                >
+                  <FaChartLine style={{ fontSize: '11px' }} /> Report
+                </button>
+                <button onClick={() => handleOpenNotes(patient)}
+                  style={{ flex: 1, minWidth: '40%', background: '#fffbeb', color: '#d97706', border: '1px solid #fde68a', borderRadius: '10px', padding: '9px 0', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', transition: 'background 0.2s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#fef3c7'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#fffbeb'}
+                >
+                  <FaEdit style={{ fontSize: '11px' }} /> Notes
                 </button>
               </div>
             </div>
@@ -748,6 +764,8 @@ const DoctorDashboard = () => {
   const [isOutgoingCall, setIsOutgoingCall] = useState(false);
 
   const [viewingPatientHistory, setViewingPatientHistory] = useState(null);
+  const [reportPatient, setReportPatient] = useState(null);
+  const [notesPatient, setNotesPatient] = useState(null);
   const [patientHistory, setPatientHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [emotionAnalysisEnabled, setEmotionAnalysisEnabled] = useState(false);
@@ -1175,6 +1193,8 @@ const DoctorDashboard = () => {
               setChatPatient={setChatPatient}
               handleViewHistory={handleViewHistory}
               handleStartVideoCall={handleStartVideoCall}
+              handleViewReport={setReportPatient}
+              handleOpenNotes={setNotesPatient}
             />
           )}
           {activeTab === 'profile' && (
@@ -1547,6 +1567,20 @@ const DoctorDashboard = () => {
           </div>
         </div>
       )}
+      {/* Patient 48-Hour Report Modal */}
+      <PatientReportModal
+        open={!!reportPatient}
+        onClose={() => setReportPatient(null)}
+        patient={reportPatient}
+      />
+
+      {/* Advanced Session Notes Modal */}
+      <AdvancedSessionNotesModal
+        open={!!notesPatient}
+        onClose={() => setNotesPatient(null)}
+        patient={notesPatient}
+        doctorId={currentUser?.uid}
+      />
     </div>
   );
 };

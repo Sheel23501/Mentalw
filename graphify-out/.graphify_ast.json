@@ -1,0 +1,5091 @@
+{
+  "nodes": [
+    {
+      "id": "ai_js",
+      "label": "ai.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/ai.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "tailwind_config_js",
+      "label": "tailwind.config.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/tailwind.config.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "server_js",
+      "label": "server.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/server.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "server_corsorigincheck",
+      "label": "corsOriginCheck()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/server.js",
+      "source_location": "L31"
+    },
+    {
+      "id": "server_analyzeonehf",
+      "label": "analyzeOneHF()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/server.js",
+      "source_location": "L299"
+    },
+    {
+      "id": "vite_config_js",
+      "label": "vite.config.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/vite.config.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_gemini_js",
+      "label": "test-gemini.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/test-gemini.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_gemini_testgeminiapi",
+      "label": "testGeminiAPI()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/test-gemini.js",
+      "source_location": "L24"
+    },
+    {
+      "id": "test_webrtc_js",
+      "label": "test-webrtc.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/test-webrtc.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "test_webrtc_testwebrtc",
+      "label": "testWebRTC()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/test-webrtc.js",
+      "source_location": "L9"
+    },
+    {
+      "id": "eslint_config_js",
+      "label": "eslint.config.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/eslint.config.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "postcss_config_js",
+      "label": "postcss.config.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/postcss.config.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "cv_o_py",
+      "label": "o.py",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/cv/o.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "o_predict_emotions_in_image",
+      "label": "predict_emotions_in_image()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/cv/o.py",
+      "source_location": "L18"
+    },
+    {
+      "id": "o_run_cli",
+      "label": "run_cli()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/cv/o.py",
+      "source_location": "L40"
+    },
+    {
+      "id": "voice_api_main_py",
+      "label": "main.py",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "main_texttospeechrequest",
+      "label": "TextToSpeechRequest",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L84"
+    },
+    {
+      "id": "basemodel",
+      "label": "BaseModel",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": ""
+    },
+    {
+      "id": "main_speechtotextresponse",
+      "label": "SpeechToTextResponse",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L89"
+    },
+    {
+      "id": "main_chatmessage",
+      "label": "ChatMessage",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L93"
+    },
+    {
+      "id": "main_chatrequest",
+      "label": "ChatRequest",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L97"
+    },
+    {
+      "id": "main_contextresponse",
+      "label": "ContextResponse",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L101"
+    },
+    {
+      "id": "main_root",
+      "label": "root()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L108"
+    },
+    {
+      "id": "main_get_context",
+      "label": "get_context()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L119"
+    },
+    {
+      "id": "main_text_to_speech",
+      "label": "text_to_speech()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L135"
+    },
+    {
+      "id": "main_speech_to_text",
+      "label": "speech_to_text()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L194"
+    },
+    {
+      "id": "main_get_breathing_exercise",
+      "label": "get_breathing_exercise()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L251"
+    },
+    {
+      "id": "main_get_grounding_exercise",
+      "label": "get_grounding_exercise()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L267"
+    },
+    {
+      "id": "main_rationale_1",
+      "label": "TruCare Voice Assistant API FastAPI backend for voice processing with Hugging Fa",
+      "file_type": "rationale",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L1"
+    },
+    {
+      "id": "main_rationale_109",
+      "label": "Health check endpoint",
+      "file_type": "rationale",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L109"
+    },
+    {
+      "id": "main_rationale_120",
+      "label": "Get AI therapist context and configuration",
+      "file_type": "rationale",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L120"
+    },
+    {
+      "id": "main_rationale_136",
+      "label": "Convert text to speech using Hugging Face TTS model.     Returns audio as stream",
+      "file_type": "rationale",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L136"
+    },
+    {
+      "id": "main_rationale_195",
+      "label": "Convert speech to text using Hugging Face Whisper model.     Accepts audio file",
+      "file_type": "rationale",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L195"
+    },
+    {
+      "id": "main_rationale_252",
+      "label": "Get a guided breathing exercise script",
+      "file_type": "rationale",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L252"
+    },
+    {
+      "id": "main_rationale_268",
+      "label": "Get a grounding exercise for anxiety",
+      "file_type": "rationale",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L268"
+    },
+    {
+      "id": "src_main_jsx",
+      "label": "main.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/main.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_app_jsx",
+      "label": "App.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "app_login",
+      "label": "Login()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L18"
+    },
+    {
+      "id": "app_signup",
+      "label": "Signup()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L19"
+    },
+    {
+      "id": "app_protectedroute",
+      "label": "ProtectedRoute()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L22"
+    },
+    {
+      "id": "app_app",
+      "label": "App()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L40"
+    },
+    {
+      "id": "src_contexts_authcontext_jsx",
+      "label": "AuthContext.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/AuthContext.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "authcontext_useauth",
+      "label": "useAuth()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/AuthContext.jsx",
+      "source_location": "L9"
+    },
+    {
+      "id": "authcontext_authprovider",
+      "label": "AuthProvider()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/AuthContext.jsx",
+      "source_location": "L13"
+    },
+    {
+      "id": "src_contexts_socketcontext_jsx",
+      "label": "SocketContext.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/SocketContext.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "socketcontext_usesocket",
+      "label": "useSocket()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/SocketContext.jsx",
+      "source_location": "L7"
+    },
+    {
+      "id": "socketcontext_socketprovider",
+      "label": "SocketProvider()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/SocketContext.jsx",
+      "source_location": "L11"
+    },
+    {
+      "id": "src_config_firebase_js",
+      "label": "firebase.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/config/firebase.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_chatbot_chatbot_jsx",
+      "label": "ChatBot.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/chatbot/ChatBot.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "chatbot_getbotresponse",
+      "label": "getBotResponse()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/chatbot/ChatBot.jsx",
+      "source_location": "L118"
+    },
+    {
+      "id": "chatbot_getsuggestedmessage",
+      "label": "getSuggestedMessage()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/chatbot/ChatBot.jsx",
+      "source_location": "L140"
+    },
+    {
+      "id": "chatbot_chatbot",
+      "label": "ChatBot()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/chatbot/ChatBot.jsx",
+      "source_location": "L155"
+    },
+    {
+      "id": "src_chatbot_openai_js",
+      "label": "openai.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/chatbot/openai.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "openai_getopenairesponse",
+      "label": "getOpenAIResponse()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/chatbot/openai.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_utils_usevoiceassistant_js",
+      "label": "useVoiceAssistant.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/useVoiceAssistant.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "usevoiceassistant_isspeechsynthesissupported",
+      "label": "isSpeechSynthesisSupported()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/useVoiceAssistant.js",
+      "source_location": "L20"
+    },
+    {
+      "id": "usevoiceassistant_isspeechrecognitionsupported",
+      "label": "isSpeechRecognitionSupported()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/useVoiceAssistant.js",
+      "source_location": "L27"
+    },
+    {
+      "id": "usevoiceassistant_usevoiceassistant",
+      "label": "useVoiceAssistant()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/useVoiceAssistant.js",
+      "source_location": "L34"
+    },
+    {
+      "id": "src_utils_useemotionmonitor_js",
+      "label": "useEmotionMonitor.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/useEmotionMonitor.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "useemotionmonitor_useemotionmonitor",
+      "label": "useEmotionMonitor()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/useEmotionMonitor.js",
+      "source_location": "L8"
+    },
+    {
+      "id": "src_utils_validation_js",
+      "label": "validation.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/validation.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_utils_helpers_js",
+      "label": "helpers.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/helpers.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "helpers_gettodaydate",
+      "label": "getTodayDate()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/helpers.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "src_utils_emotionlabels_js",
+      "label": "emotionLabels.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/emotionLabels.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "emotionlabels_tofriendlylabel",
+      "label": "toFriendlyLabel()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/emotionLabels.js",
+      "source_location": "L25"
+    },
+    {
+      "id": "emotionlabels_aggregatelabels",
+      "label": "aggregateLabels()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/emotionLabels.js",
+      "source_location": "L31"
+    },
+    {
+      "id": "src_components_patienthistory_jsx",
+      "label": "PatientHistory.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/PatientHistory.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_ui_toast_jsx",
+      "label": "Toast.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/ui/Toast.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_ui_modal_jsx",
+      "label": "Modal.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/ui/Modal.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_ui_loading_jsx",
+      "label": "Loading.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/ui/Loading.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_components_layout_layout_jsx",
+      "label": "Layout.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Layout.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "layout_layout",
+      "label": "Layout()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Layout.jsx",
+      "source_location": "L8"
+    },
+    {
+      "id": "src_components_layout_footer_jsx",
+      "label": "Footer.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Footer.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "footer_footer",
+      "label": "Footer()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Footer.jsx",
+      "source_location": "L4"
+    },
+    {
+      "id": "src_components_layout_navbar_jsx",
+      "label": "Navbar.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Navbar.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "navbar_navbar",
+      "label": "Navbar()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Navbar.jsx",
+      "source_location": "L5"
+    },
+    {
+      "id": "src_components_dashboard_aitherapistchat_jsx",
+      "label": "AITherapistChat.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "aitherapistchat_getemotionemoji",
+      "label": "getEmotionEmoji()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L11"
+    },
+    {
+      "id": "aitherapistchat_aitherapistchat",
+      "label": "AITherapistChat()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L22"
+    },
+    {
+      "id": "src_components_dashboard_moodtracker_jsx",
+      "label": "MoodTracker.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/MoodTracker.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "moodtracker_moodtracker",
+      "label": "MoodTracker()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/MoodTracker.jsx",
+      "source_location": "L14"
+    },
+    {
+      "id": "src_components_dashboard_sessionnotes_jsx",
+      "label": "SessionNotes.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/SessionNotes.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "sessionnotes_sessionnotes",
+      "label": "SessionNotes()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/SessionNotes.jsx",
+      "source_location": "L5"
+    },
+    {
+      "id": "src_components_dashboard_assessmentprogress_jsx",
+      "label": "AssessmentProgress.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AssessmentProgress.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "assessmentprogress_assessmentprogress",
+      "label": "AssessmentProgress()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AssessmentProgress.jsx",
+      "source_location": "L11"
+    },
+    {
+      "id": "src_components_dashboard_emotionpanel_jsx",
+      "label": "EmotionPanel.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/EmotionPanel.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "emotionpanel_emotionpanel",
+      "label": "EmotionPanel()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/EmotionPanel.jsx",
+      "source_location": "L5"
+    },
+    {
+      "id": "src_components_dashboard_dashboardnavbar_jsx",
+      "label": "DashboardNavbar.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/DashboardNavbar.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "dashboardnavbar_dashboardnavbar",
+      "label": "DashboardNavbar()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/DashboardNavbar.jsx",
+      "source_location": "L5"
+    },
+    {
+      "id": "src_components_dashboard_incomingcallnotification_jsx",
+      "label": "IncomingCallNotification.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/IncomingCallNotification.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "incomingcallnotification_incomingcallnotification",
+      "label": "IncomingCallNotification()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/IncomingCallNotification.jsx",
+      "source_location": "L5"
+    },
+    {
+      "id": "src_components_dashboard_doctornavbar_jsx",
+      "label": "DoctorNavbar.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/DoctorNavbar.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "doctornavbar_doctornavbar",
+      "label": "DoctorNavbar()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/DoctorNavbar.jsx",
+      "source_location": "L5"
+    },
+    {
+      "id": "src_components_dashboard_videocallmodal_jsx",
+      "label": "VideoCallModal.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/VideoCallModal.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "videocallmodal_videocallmodal",
+      "label": "VideoCallModal()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/VideoCallModal.jsx",
+      "source_location": "L19"
+    },
+    {
+      "id": "src_components_common_button_jsx",
+      "label": "Button.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/common/Button.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "button_button",
+      "label": "Button()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/common/Button.jsx",
+      "source_location": "L3"
+    },
+    {
+      "id": "src_components_common_loader_jsx",
+      "label": "Loader.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/common/Loader.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "loader_loader",
+      "label": "Loader()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/common/Loader.jsx",
+      "source_location": "L3"
+    },
+    {
+      "id": "src_pages_aichat_jsx",
+      "label": "AIChat.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AIChat.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "aichat_aichat",
+      "label": "AIChat()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AIChat.jsx",
+      "source_location": "L4"
+    },
+    {
+      "id": "src_pages_dashboard_jsx",
+      "label": "Dashboard.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "dashboard_getemotionemoji",
+      "label": "getEmotionEmoji()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L15"
+    },
+    {
+      "id": "dashboard_patientsidebar",
+      "label": "PatientSidebar()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L30"
+    },
+    {
+      "id": "dashboard_overviewtab",
+      "label": "OverviewTab()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L158"
+    },
+    {
+      "id": "dashboard_doctorstab",
+      "label": "DoctorsTab()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L473"
+    },
+    {
+      "id": "dashboard_patientprofiletab",
+      "label": "PatientProfileTab()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L563"
+    },
+    {
+      "id": "dashboard_aichattab",
+      "label": "AIChatTab()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L716"
+    },
+    {
+      "id": "dashboard_dashboard",
+      "label": "Dashboard()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L725"
+    },
+    {
+      "id": "src_pages_authpage_jsx",
+      "label": "AuthPage.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AuthPage.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "authpage_authpage",
+      "label": "AuthPage()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AuthPage.jsx",
+      "source_location": "L18"
+    },
+    {
+      "id": "src_pages_home_jsx",
+      "label": "Home.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Home.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "home_home",
+      "label": "Home()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Home.jsx",
+      "source_location": "L8"
+    },
+    {
+      "id": "src_pages_dashboard_chatpage_jsx",
+      "label": "ChatPage.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/ChatPage.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "chatpage_chatpage",
+      "label": "ChatPage()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/ChatPage.jsx",
+      "source_location": "L3"
+    },
+    {
+      "id": "src_pages_dashboard_doctordashboard_jsx",
+      "label": "DoctorDashboard.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "doctordashboard_sidebar",
+      "label": "Sidebar()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L29"
+    },
+    {
+      "id": "doctordashboard_overviewtab",
+      "label": "OverviewTab()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L157"
+    },
+    {
+      "id": "doctordashboard_appointmentstab",
+      "label": "AppointmentsTab()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L324"
+    },
+    {
+      "id": "doctordashboard_patientstab",
+      "label": "PatientsTab()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L492"
+    },
+    {
+      "id": "doctordashboard_profiletab",
+      "label": "ProfileTab()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L576"
+    },
+    {
+      "id": "doctordashboard_doctordashboard",
+      "label": "DoctorDashboard()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L722"
+    },
+    {
+      "id": "src_pages_dashboard_testpage_jsx",
+      "label": "TestPage.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/TestPage.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "testpage_testpage",
+      "label": "TestPage()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/TestPage.jsx",
+      "source_location": "L6"
+    },
+    {
+      "id": "src_pages_dashboard_mentalhealthtest_jsx",
+      "label": "MentalHealthTest.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/MentalHealthTest.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "mentalhealthtest_mentalhealthtest",
+      "label": "MentalHealthTest()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/MentalHealthTest.jsx",
+      "source_location": "L7"
+    },
+    {
+      "id": "src_pages_dashboard_patienthistorypage_jsx",
+      "label": "PatientHistoryPage.jsx",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/PatientHistoryPage.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "patienthistorypage_patienthistory",
+      "label": "PatientHistory()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/PatientHistoryPage.jsx",
+      "source_location": "L5"
+    },
+    {
+      "id": "src_services_webrtc_js",
+      "label": "webrtc.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "webrtc_webrtcvideocall",
+      "label": "WebRTCVideoCall",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L6"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L7"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_connect",
+      "label": ".connect()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L40"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_registeruser",
+      "label": ".registerUser()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L68"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_createroom",
+      "label": ".createRoom()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L93"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_joinroom",
+      "label": ".joinRoom()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L120"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_getlocalstream",
+      "label": ".getLocalStream()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L151"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_createpeerconnection",
+      "label": ".createPeerConnection()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L176"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_sendoffer",
+      "label": ".sendOffer()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L224"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_handleoffer",
+      "label": ".handleOffer()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L246"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_handleanswer",
+      "label": ".handleAnswer()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L270"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_handleicecandidate",
+      "label": ".handleIceCandidate()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L286"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_leaveroom",
+      "label": ".leaveRoom()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L300"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_disconnect",
+      "label": ".disconnect()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L321"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_setaudioenabled",
+      "label": ".setAudioEnabled()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L331"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_setvideoenabled",
+      "label": ".setVideoEnabled()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L342"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_initiatecall",
+      "label": ".initiateCall()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L355"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_acceptcall",
+      "label": ".acceptCall()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L378"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_rejectcall",
+      "label": ".rejectCall()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L389"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_cancelcall",
+      "label": ".cancelCall()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L400"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_endcallsignal",
+      "label": ".endCallSignal()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L410"
+    },
+    {
+      "id": "webrtc_webrtcvideocall_setupcalllisteners",
+      "label": ".setupCallListeners()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L420"
+    },
+    {
+      "id": "src_services_gemini_js",
+      "label": "gemini.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "gemini_retrievetip",
+      "label": "retrieveTip()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L58"
+    },
+    {
+      "id": "gemini_detectemotion",
+      "label": "detectEmotion()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L113"
+    },
+    {
+      "id": "gemini_resetconversationtracking",
+      "label": "resetConversationTracking()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L186"
+    },
+    {
+      "id": "gemini_getescalationstatus",
+      "label": "getEscalationStatus()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L191"
+    },
+    {
+      "id": "gemini_getgeminiresponse",
+      "label": "getGeminiResponse()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L276"
+    },
+    {
+      "id": "gemini_testgeminiconnection",
+      "label": "testGeminiConnection()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L438"
+    },
+    {
+      "id": "gemini_analyzechatsession",
+      "label": "analyzeChatSession()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L460"
+    },
+    {
+      "id": "src_services_auth_js",
+      "label": "auth.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/auth.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_services_audioemotion_js",
+      "label": "audioEmotion.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "audioemotion_buildapiurl",
+      "label": "buildApiUrl()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L10"
+    },
+    {
+      "id": "audioemotion_analyzeaudioemotion",
+      "label": "analyzeAudioEmotion()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L17"
+    },
+    {
+      "id": "audioemotion_audioemotionrecorder",
+      "label": "AudioEmotionRecorder",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L44"
+    },
+    {
+      "id": "audioemotion_audioemotionrecorder_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L45"
+    },
+    {
+      "id": "audioemotion_audioemotionrecorder_start",
+      "label": ".start()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L55"
+    },
+    {
+      "id": "audioemotion_audioemotionrecorder_stop",
+      "label": ".stop()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L61"
+    },
+    {
+      "id": "audioemotion_audioemotionrecorder_record",
+      "label": "._record()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L73"
+    },
+    {
+      "id": "audioemotion_audioemotionrecorder_schedulenext",
+      "label": "._scheduleNext()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L141"
+    },
+    {
+      "id": "src_services_emotion_js",
+      "label": "emotion.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "emotion_buildapiurl",
+      "label": "buildApiUrl()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L3"
+    },
+    {
+      "id": "emotion_analyzeemotionfromblob",
+      "label": "analyzeEmotionFromBlob()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L6"
+    },
+    {
+      "id": "emotion_analyzeemotionframe",
+      "label": "analyzeEmotionFrame()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L21"
+    },
+    {
+      "id": "emotion_analyzeemotionbatch",
+      "label": "analyzeEmotionBatch()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L31"
+    },
+    {
+      "id": "emotion_capturevideoframe",
+      "label": "captureVideoFrame()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L46"
+    },
+    {
+      "id": "emotion_capturemultipleframes",
+      "label": "captureMultipleFrames()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L57"
+    },
+    {
+      "id": "src_services_firestore_js",
+      "label": "firestore.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "firestore_saveuserprofile",
+      "label": "saveUserProfile()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L5"
+    },
+    {
+      "id": "firestore_isemailroleconflict",
+      "label": "isEmailRoleConflict()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L23"
+    },
+    {
+      "id": "firestore_getalldoctors",
+      "label": "getAllDoctors()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L37"
+    },
+    {
+      "id": "firestore_getallpatients",
+      "label": "getAllPatients()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L43"
+    },
+    {
+      "id": "firestore_schedulechat",
+      "label": "scheduleChat()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L49"
+    },
+    {
+      "id": "firestore_getscheduledchatsfordoctor",
+      "label": "getScheduledChatsForDoctor()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L55"
+    },
+    {
+      "id": "firestore_createorgetchat",
+      "label": "createOrGetChat()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L61"
+    },
+    {
+      "id": "firestore_sendmessagetochat",
+      "label": "sendMessageToChat()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L77"
+    },
+    {
+      "id": "firestore_getchatdocument",
+      "label": "getChatDocument()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L92"
+    },
+    {
+      "id": "firestore_listenforchatmessages",
+      "label": "listenForChatMessages()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L98"
+    },
+    {
+      "id": "firestore_listenforchatdocchanges",
+      "label": "listenForChatDocChanges()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L107"
+    },
+    {
+      "id": "firestore_resetunreadcount",
+      "label": "resetUnreadCount()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L118"
+    },
+    {
+      "id": "firestore_savechatreport",
+      "label": "saveChatReport()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L131"
+    },
+    {
+      "id": "firestore_savementalhealthtest",
+      "label": "saveMentalHealthTest()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L146"
+    },
+    {
+      "id": "firestore_getchatreportsforpatient",
+      "label": "getChatReportsForPatient()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L162"
+    },
+    {
+      "id": "firestore_updateuserteststatus",
+      "label": "updateUserTestStatus()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L178"
+    },
+    {
+      "id": "firestore_savementalhealthtestresult",
+      "label": "saveMentalHealthTestResult()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L185"
+    },
+    {
+      "id": "firestore_getmentalhealthtestresultsforuser",
+      "label": "getMentalHealthTestResultsForUser()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L200"
+    },
+    {
+      "id": "firestore_getscheduledappointmentsforpatient",
+      "label": "getScheduledAppointmentsForPatient()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L215"
+    },
+    {
+      "id": "firestore_listenforappointmentsfordoctor",
+      "label": "listenForAppointmentsForDoctor()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L222"
+    },
+    {
+      "id": "firestore_updateappointmentstatus",
+      "label": "updateAppointmentStatus()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L231"
+    },
+    {
+      "id": "firestore_saveusermood",
+      "label": "saveUserMood()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L237"
+    },
+    {
+      "id": "firestore_getuserprofile",
+      "label": "getUserProfile()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L247"
+    },
+    {
+      "id": "firestore_updateuserprofile",
+      "label": "updateUserProfile()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L255"
+    },
+    {
+      "id": "src_services_mentalhealthdataset_js",
+      "label": "mentalHealthDataset.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/mentalHealthDataset.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "mentalhealthdataset_retrieverelevantexamples",
+      "label": "retrieveRelevantExamples()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/mentalHealthDataset.js",
+      "source_location": "L269"
+    },
+    {
+      "id": "mentalhealthdataset_formatexamplesforprompt",
+      "label": "formatExamplesForPrompt()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/mentalHealthDataset.js",
+      "source_location": "L312"
+    },
+    {
+      "id": "src_services_twilio_js",
+      "label": "twilio.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "twilio_generatetwiliotoken",
+      "label": "generateTwilioToken()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L21"
+    },
+    {
+      "id": "twilio_joinvideoroom",
+      "label": "joinVideoRoom()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L64"
+    },
+    {
+      "id": "twilio_leavevideoroom",
+      "label": "leaveVideoRoom()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L92"
+    },
+    {
+      "id": "twilio_participantdisconnect",
+      "label": "participantDisconnect()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L109"
+    },
+    {
+      "id": "twilio_setparticipantasdisconnected",
+      "label": "setParticipantAsDisconnected()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L118"
+    },
+    {
+      "id": "twilio_toggleaudio",
+      "label": "toggleAudio()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L128"
+    },
+    {
+      "id": "twilio_togglevideo",
+      "label": "toggleVideo()",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L145"
+    },
+    {
+      "id": "src_services_storage_js",
+      "label": "storage.js",
+      "file_type": "code",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/storage.js",
+      "source_location": "L1"
+    }
+  ],
+  "edges": [
+    {
+      "source": "ai_js",
+      "target": "express",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/ai.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "ai_js",
+      "target": "cors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/ai.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "ai_js",
+      "target": "http",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/ai.js",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "ai_js",
+      "target": "socket_io",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/ai.js",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "ai_js",
+      "target": "uuid",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/ai.js",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "server_js",
+      "target": "express",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/server.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "server_js",
+      "target": "cors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/server.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "server_js",
+      "target": "twilio",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/server.js",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "server_js",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/server.js",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "server_js",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/server.js",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "server_js",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/server.js",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "server_js",
+      "target": "multer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/server.js",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "server_js",
+      "target": "dotenv",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/server.js",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "server_js",
+      "target": "http",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/server.js",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "server_js",
+      "target": "socket_io",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/server.js",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "server_js",
+      "target": "server_corsorigincheck",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/server.js",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "server_js",
+      "target": "server_analyzeonehf",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/server.js",
+      "source_location": "L299",
+      "weight": 1.0
+    },
+    {
+      "source": "vite_config_js",
+      "target": "vite",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/vite.config.js",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "vite_config_js",
+      "target": "plugin_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/vite.config.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "test_gemini_js",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/test-gemini.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "test_gemini_js",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/test-gemini.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "test_gemini_js",
+      "target": "test_gemini_testgeminiapi",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/test-gemini.js",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "test_webrtc_js",
+      "target": "node_fetch",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/test-webrtc.js",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "test_webrtc_js",
+      "target": "socket_io_client",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/test-webrtc.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "test_webrtc_js",
+      "target": "test_webrtc_testwebrtc",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/test-webrtc.js",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "eslint_config_js",
+      "target": "js",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/eslint.config.js",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "eslint_config_js",
+      "target": "globals",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/eslint.config.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "eslint_config_js",
+      "target": "eslint_plugin_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/eslint.config.js",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "eslint_config_js",
+      "target": "eslint_plugin_react_hooks",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/eslint.config.js",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "eslint_config_js",
+      "target": "eslint_plugin_react_refresh",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/eslint.config.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "cv_o_py",
+      "target": "cv2",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/cv/o.py",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "cv_o_py",
+      "target": "numpy",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/cv/o.py",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "cv_o_py",
+      "target": "keras_models",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/cv/o.py",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "cv_o_py",
+      "target": "keras_preprocessing",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/cv/o.py",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "cv_o_py",
+      "target": "sys",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/cv/o.py",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "cv_o_py",
+      "target": "json",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/cv/o.py",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "cv_o_py",
+      "target": "argparse",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/cv/o.py",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "cv_o_py",
+      "target": "o_predict_emotions_in_image",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/cv/o.py",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "cv_o_py",
+      "target": "o_run_cli",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/cv/o.py",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "o_run_cli",
+      "target": "o_predict_emotions_in_image",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/cv/o.py",
+      "source_location": "L50",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "fastapi",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "fastapi_middleware_cors",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "fastapi_responses",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "pydantic",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "typing",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "httpx",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "os",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "io",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "dotenv",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "main_texttospeechrequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "main_texttospeechrequest",
+      "target": "basemodel",
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L84",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "main_speechtotextresponse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "main_speechtotextresponse",
+      "target": "basemodel",
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L89",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "main_chatmessage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "main_chatmessage",
+      "target": "basemodel",
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "main_chatrequest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L97",
+      "weight": 1.0
+    },
+    {
+      "source": "main_chatrequest",
+      "target": "basemodel",
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L97",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "main_contextresponse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L101",
+      "weight": 1.0
+    },
+    {
+      "source": "main_contextresponse",
+      "target": "basemodel",
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L101",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "main_root",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L108",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "main_get_context",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L119",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "main_text_to_speech",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L135",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "main_speech_to_text",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L194",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "main_get_breathing_exercise",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L251",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "main_get_grounding_exercise",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L267",
+      "weight": 1.0
+    },
+    {
+      "source": "voice_api_main_py",
+      "target": "uvicorn",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L284",
+      "weight": 1.0
+    },
+    {
+      "source": "main_get_context",
+      "target": "main_contextresponse",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L121",
+      "weight": 1.0
+    },
+    {
+      "source": "main_speech_to_text",
+      "target": "main_speechtotextresponse",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L242",
+      "weight": 1.0
+    },
+    {
+      "source": "main_rationale_1",
+      "target": "voice_api_main_py",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "main_rationale_109",
+      "target": "main_root",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "main_rationale_120",
+      "target": "main_get_context",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L120",
+      "weight": 1.0
+    },
+    {
+      "source": "main_rationale_136",
+      "target": "main_text_to_speech",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L136",
+      "weight": 1.0
+    },
+    {
+      "source": "main_rationale_195",
+      "target": "main_speech_to_text",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L195",
+      "weight": 1.0
+    },
+    {
+      "source": "main_rationale_252",
+      "target": "main_get_breathing_exercise",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L252",
+      "weight": 1.0
+    },
+    {
+      "source": "main_rationale_268",
+      "target": "main_get_grounding_exercise",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/voice_api/main.py",
+      "source_location": "L268",
+      "weight": 1.0
+    },
+    {
+      "source": "src_main_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/main.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_main_jsx",
+      "target": "client",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/main.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_main_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_index_css",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/main.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_main_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_app_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/main.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_authcontext_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_socketcontext_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_components_layout_layout",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_authcontext_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_components_dashboard_incomingcallnotification_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_pages_home",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_pages_authpage",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_pages_dashboard_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_pages_dashboard_doctordashboard_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_pages_dashboard_chatpage_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_pages_dashboard_mentalhealthtest_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_pages_aichat_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "app_login",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "app_signup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "app_protectedroute",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_jsx",
+      "target": "app_app",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "src_contexts_authcontext_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/AuthContext.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_contexts_authcontext_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_config_firebase",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/AuthContext.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_contexts_authcontext_jsx",
+      "target": "auth",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/AuthContext.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_contexts_authcontext_jsx",
+      "target": "firestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/AuthContext.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_contexts_authcontext_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_services_firestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/AuthContext.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_contexts_authcontext_jsx",
+      "target": "authcontext_useauth",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/AuthContext.jsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "src_contexts_authcontext_jsx",
+      "target": "authcontext_authprovider",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/AuthContext.jsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "src_contexts_socketcontext_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/SocketContext.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_contexts_socketcontext_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_authcontext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/SocketContext.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_contexts_socketcontext_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_services_webrtc",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/SocketContext.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_contexts_socketcontext_jsx",
+      "target": "socketcontext_usesocket",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/SocketContext.jsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_contexts_socketcontext_jsx",
+      "target": "socketcontext_socketprovider",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/SocketContext.jsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "src_config_firebase_js",
+      "target": "app",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/config/firebase.js",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_config_firebase_js",
+      "target": "auth",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/config/firebase.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_config_firebase_js",
+      "target": "firestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/config/firebase.js",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_config_firebase_js",
+      "target": "storage",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/config/firebase.js",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_chatbot_chatbot_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/chatbot/ChatBot.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_chatbot_chatbot_jsx",
+      "target": "io",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/chatbot/ChatBot.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_chatbot_chatbot_jsx",
+      "target": "fi",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/chatbot/ChatBot.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_chatbot_chatbot_jsx",
+      "target": "chatbot_getbotresponse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/chatbot/ChatBot.jsx",
+      "source_location": "L118",
+      "weight": 1.0
+    },
+    {
+      "source": "src_chatbot_chatbot_jsx",
+      "target": "chatbot_getsuggestedmessage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/chatbot/ChatBot.jsx",
+      "source_location": "L140",
+      "weight": 1.0
+    },
+    {
+      "source": "src_chatbot_chatbot_jsx",
+      "target": "chatbot_chatbot",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/chatbot/ChatBot.jsx",
+      "source_location": "L155",
+      "weight": 1.0
+    },
+    {
+      "source": "chatbot_chatbot",
+      "target": "chatbot_getsuggestedmessage",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/chatbot/ChatBot.jsx",
+      "source_location": "L237",
+      "weight": 1.0
+    },
+    {
+      "source": "src_chatbot_openai_js",
+      "target": "openai_getopenairesponse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/chatbot/openai.js",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_utils_usevoiceassistant_js",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/useVoiceAssistant.js",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "src_utils_usevoiceassistant_js",
+      "target": "usevoiceassistant_isspeechsynthesissupported",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/useVoiceAssistant.js",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "src_utils_usevoiceassistant_js",
+      "target": "usevoiceassistant_isspeechrecognitionsupported",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/useVoiceAssistant.js",
+      "source_location": "L27",
+      "weight": 1.0
+    },
+    {
+      "source": "src_utils_usevoiceassistant_js",
+      "target": "usevoiceassistant_usevoiceassistant",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/useVoiceAssistant.js",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "usevoiceassistant_usevoiceassistant",
+      "target": "usevoiceassistant_isspeechsynthesissupported",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/useVoiceAssistant.js",
+      "source_location": "L263",
+      "weight": 1.0
+    },
+    {
+      "source": "usevoiceassistant_usevoiceassistant",
+      "target": "usevoiceassistant_isspeechrecognitionsupported",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/useVoiceAssistant.js",
+      "source_location": "L264",
+      "weight": 1.0
+    },
+    {
+      "source": "src_utils_useemotionmonitor_js",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/useEmotionMonitor.js",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_utils_useemotionmonitor_js",
+      "target": "users_sheelgautam_downloads_mentalw_src_services_emotion",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/useEmotionMonitor.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_utils_useemotionmonitor_js",
+      "target": "useemotionmonitor_useemotionmonitor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/useEmotionMonitor.js",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "src_utils_helpers_js",
+      "target": "helpers_gettodaydate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/helpers.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_utils_emotionlabels_js",
+      "target": "emotionlabels_tofriendlylabel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/emotionLabels.js",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "src_utils_emotionlabels_js",
+      "target": "emotionlabels_aggregatelabels",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/emotionLabels.js",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "emotionlabels_aggregatelabels",
+      "target": "emotionlabels_tofriendlylabel",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/utils/emotionLabels.js",
+      "source_location": "L35",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_layout_layout_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Layout.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_layout_layout_jsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Layout.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_layout_layout_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_components_layout_navbar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Layout.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_layout_layout_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_components_dashboard_dashboardnavbar",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Layout.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_layout_layout_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_components_layout_footer",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Layout.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_layout_layout_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_authcontext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Layout.jsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_layout_layout_jsx",
+      "target": "layout_layout",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Layout.jsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_layout_footer_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Footer.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_layout_footer_jsx",
+      "target": "fi",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Footer.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_layout_footer_jsx",
+      "target": "footer_footer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Footer.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_layout_navbar_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Navbar.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_layout_navbar_jsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Navbar.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_layout_navbar_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_authcontext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Navbar.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_layout_navbar_jsx",
+      "target": "navbar_navbar",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Navbar.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_aitherapistchat_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_aitherapistchat_jsx",
+      "target": "fi",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_aitherapistchat_jsx",
+      "target": "bs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_aitherapistchat_jsx",
+      "target": "fa",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_aitherapistchat_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_services_gemini",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_aitherapistchat_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_utils_useemotionmonitor",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_aitherapistchat_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_utils_emotionlabels",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_aitherapistchat_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_utils_usevoiceassistant",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_aitherapistchat_jsx",
+      "target": "aitherapistchat_getemotionemoji",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_aitherapistchat_jsx",
+      "target": "aitherapistchat_aitherapistchat",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "aitherapistchat_aitherapistchat",
+      "target": "aitherapistchat_getemotionemoji",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L266",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_moodtracker_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/MoodTracker.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_moodtracker_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_authcontext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/MoodTracker.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_moodtracker_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_services_firestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/MoodTracker.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_moodtracker_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_utils_helpers",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/MoodTracker.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_moodtracker_jsx",
+      "target": "moodtracker_moodtracker",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/MoodTracker.jsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_sessionnotes_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/SessionNotes.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_sessionnotes_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_config_firebase",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/SessionNotes.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_sessionnotes_jsx",
+      "target": "firestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/SessionNotes.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_sessionnotes_jsx",
+      "target": "sessionnotes_sessionnotes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/SessionNotes.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_assessmentprogress_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AssessmentProgress.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_assessmentprogress_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_config_firebase",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AssessmentProgress.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_assessmentprogress_jsx",
+      "target": "firestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AssessmentProgress.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_assessmentprogress_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_authcontext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AssessmentProgress.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_assessmentprogress_jsx",
+      "target": "recharts",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AssessmentProgress.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_assessmentprogress_jsx",
+      "target": "assessmentprogress_assessmentprogress",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AssessmentProgress.jsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_emotionpanel_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/EmotionPanel.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_emotionpanel_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_utils_useemotionmonitor",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/EmotionPanel.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_emotionpanel_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_utils_emotionlabels",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/EmotionPanel.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_emotionpanel_jsx",
+      "target": "emotionpanel_emotionpanel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/EmotionPanel.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_dashboardnavbar_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/DashboardNavbar.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_dashboardnavbar_jsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/DashboardNavbar.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_dashboardnavbar_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_authcontext_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/DashboardNavbar.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_dashboardnavbar_jsx",
+      "target": "dashboardnavbar_dashboardnavbar",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/DashboardNavbar.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_incomingcallnotification_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/IncomingCallNotification.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_incomingcallnotification_jsx",
+      "target": "fa",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/IncomingCallNotification.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_incomingcallnotification_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_socketcontext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/IncomingCallNotification.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_incomingcallnotification_jsx",
+      "target": "incomingcallnotification_incomingcallnotification",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/IncomingCallNotification.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_doctornavbar_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/DoctorNavbar.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_doctornavbar_jsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/DoctorNavbar.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_doctornavbar_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_authcontext_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/DoctorNavbar.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_doctornavbar_jsx",
+      "target": "doctornavbar_doctornavbar",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/DoctorNavbar.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_videocallmodal_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/VideoCallModal.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_videocallmodal_jsx",
+      "target": "fa",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/VideoCallModal.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_videocallmodal_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_socketcontext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/VideoCallModal.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_videocallmodal_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_services_audioemotion",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/VideoCallModal.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_dashboard_videocallmodal_jsx",
+      "target": "videocallmodal_videocallmodal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/VideoCallModal.jsx",
+      "source_location": "L19",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_common_button_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/common/Button.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_common_button_jsx",
+      "target": "button_button",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/common/Button.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_common_loader_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/common/Loader.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_common_loader_jsx",
+      "target": "loader_loader",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/common/Loader.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_aichat_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AIChat.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_aichat_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_components_dashboard_aitherapistchat",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AIChat.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_aichat_jsx",
+      "target": "aichat_aichat",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AIChat.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_authcontext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "fa",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "bs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_services_firestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_components_dashboard_moodtracker_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_components_dashboard_videocallmodal_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_components_dashboard_aitherapistchat_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_pages_dashboard_mentalhealthtest_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_utils_useemotionmonitor",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_utils_emotionlabels",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_socketcontext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "dashboard_getemotionemoji",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "dashboard_patientsidebar",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L30",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "dashboard_overviewtab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L158",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "dashboard_doctorstab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L473",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "dashboard_patientprofiletab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L563",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "dashboard_aichattab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L716",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_jsx",
+      "target": "dashboard_dashboard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L725",
+      "weight": 1.0
+    },
+    {
+      "source": "dashboard_dashboard",
+      "target": "dashboard_getemotionemoji",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L1096",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_authpage_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AuthPage.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_authpage_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_config_firebase",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AuthPage.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_authpage_jsx",
+      "target": "auth",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AuthPage.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_authpage_jsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AuthPage.jsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_authpage_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_authcontext_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AuthPage.jsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_authpage_jsx",
+      "target": "fa",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AuthPage.jsx",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_authpage_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_config_firebase",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AuthPage.jsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_authpage_jsx",
+      "target": "firestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AuthPage.jsx",
+      "source_location": "L13",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_authpage_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_config_firebase",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AuthPage.jsx",
+      "source_location": "L14",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_authpage_jsx",
+      "target": "storage",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AuthPage.jsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_authpage_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_services_firestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AuthPage.jsx",
+      "source_location": "L16",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_authpage_jsx",
+      "target": "authpage_authpage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AuthPage.jsx",
+      "source_location": "L18",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_home_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Home.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_home_jsx",
+      "target": "fi",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Home.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_home_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_chatbot_chatbot",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Home.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_home_jsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Home.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_home_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_authcontext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Home.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_home_jsx",
+      "target": "home_home",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Home.jsx",
+      "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_chatpage_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/ChatPage.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_chatpage_jsx",
+      "target": "chatpage_chatpage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/ChatPage.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_authcontext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "fa",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_utils_useemotionmonitor",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_utils_emotionlabels",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_services_firestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_components_dashboard_sessionnotes_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L20",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_components_dashboard_emotionpanel_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_components_dashboard_videocallmodal_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L22",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_services_gemini_ts",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_socketcontext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "firestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L25",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_config_firebase",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L26",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "doctordashboard_sidebar",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "doctordashboard_overviewtab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L157",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "doctordashboard_appointmentstab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L324",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "doctordashboard_patientstab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L492",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "doctordashboard_profiletab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L576",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_doctordashboard_jsx",
+      "target": "doctordashboard_doctordashboard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L722",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_testpage_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/TestPage.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_testpage_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_components_dashboard_assessmentprogress_tsx",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/TestPage.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_testpage_jsx",
+      "target": "testpage_testpage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/TestPage.jsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_mentalhealthtest_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/MentalHealthTest.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_mentalhealthtest_jsx",
+      "target": "react_router_dom",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/MentalHealthTest.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_mentalhealthtest_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_contexts_authcontext",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/MentalHealthTest.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_mentalhealthtest_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_services_firestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/MentalHealthTest.jsx",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_mentalhealthtest_jsx",
+      "target": "fa",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/MentalHealthTest.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_mentalhealthtest_jsx",
+      "target": "mentalhealthtest_mentalhealthtest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/MentalHealthTest.jsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_patienthistorypage_jsx",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/PatientHistoryPage.jsx",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_patienthistorypage_jsx",
+      "target": "users_sheelgautam_downloads_mentalw_src_pages_services_firestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/PatientHistoryPage.jsx",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_patienthistorypage_jsx",
+      "target": "fa",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/PatientHistoryPage.jsx",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_pages_dashboard_patienthistorypage_jsx",
+      "target": "patienthistorypage_patienthistory",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/PatientHistoryPage.jsx",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_webrtc_js",
+      "target": "socket_io_client",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L4",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_webrtc_js",
+      "target": "webrtc_webrtcvideocall",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_connect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L40",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_registeruser",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L68",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_createroom",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L93",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_joinroom",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L120",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_getlocalstream",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L151",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_createpeerconnection",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L176",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_sendoffer",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L224",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_handleoffer",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L246",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_handleanswer",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L270",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_handleicecandidate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L286",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_leaveroom",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L300",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_disconnect",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L321",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_setaudioenabled",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L331",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_setvideoenabled",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L342",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_initiatecall",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L355",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_acceptcall",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L378",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_rejectcall",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L389",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_cancelcall",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L400",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_endcallsignal",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L410",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall",
+      "target": "webrtc_webrtcvideocall_setupcalllisteners",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L420",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall_sendoffer",
+      "target": "webrtc_webrtcvideocall_createpeerconnection",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L226",
+      "weight": 1.0
+    },
+    {
+      "source": "webrtc_webrtcvideocall_handleoffer",
+      "target": "webrtc_webrtcvideocall_createpeerconnection",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/webrtc.js",
+      "source_location": "L248",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_gemini_js",
+      "target": "users_sheelgautam_downloads_mentalw_src_services_mentalhealthdataset",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_gemini_js",
+      "target": "gemini_retrievetip",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_gemini_js",
+      "target": "gemini_detectemotion",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L113",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_gemini_js",
+      "target": "gemini_resetconversationtracking",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L186",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_gemini_js",
+      "target": "gemini_getescalationstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L191",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_gemini_js",
+      "target": "gemini_getgeminiresponse",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L276",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_gemini_js",
+      "target": "gemini_testgeminiconnection",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L438",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_gemini_js",
+      "target": "gemini_analyzechatsession",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L460",
+      "weight": 1.0
+    },
+    {
+      "source": "gemini_getgeminiresponse",
+      "target": "gemini_detectemotion",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L291",
+      "weight": 1.0
+    },
+    {
+      "source": "gemini_getgeminiresponse",
+      "target": "gemini_retrievetip",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L304",
+      "weight": 1.0
+    },
+    {
+      "source": "gemini_testgeminiconnection",
+      "target": "gemini_getgeminiresponse",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L443",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_audioemotion_js",
+      "target": "audioemotion_buildapiurl",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_audioemotion_js",
+      "target": "audioemotion_analyzeaudioemotion",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_audioemotion_js",
+      "target": "audioemotion_audioemotionrecorder",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L44",
+      "weight": 1.0
+    },
+    {
+      "source": "audioemotion_audioemotionrecorder",
+      "target": "audioemotion_audioemotionrecorder_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "audioemotion_audioemotionrecorder",
+      "target": "audioemotion_audioemotionrecorder_start",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "audioemotion_audioemotionrecorder",
+      "target": "audioemotion_audioemotionrecorder_stop",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "audioemotion_audioemotionrecorder",
+      "target": "audioemotion_audioemotionrecorder_record",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L73",
+      "weight": 1.0
+    },
+    {
+      "source": "audioemotion_audioemotionrecorder",
+      "target": "audioemotion_audioemotionrecorder_schedulenext",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L141",
+      "weight": 1.0
+    },
+    {
+      "source": "audioemotion_analyzeaudioemotion",
+      "target": "audioemotion_buildapiurl",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "audioemotion_audioemotionrecorder_start",
+      "target": "audioemotion_audioemotionrecorder_record",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L58",
+      "weight": 1.0
+    },
+    {
+      "source": "audioemotion_audioemotionrecorder_record",
+      "target": "audioemotion_audioemotionrecorder_start",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/audioEmotion.js",
+      "source_location": "L131",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_emotion_js",
+      "target": "emotion_buildapiurl",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_emotion_js",
+      "target": "emotion_analyzeemotionfromblob",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_emotion_js",
+      "target": "emotion_analyzeemotionframe",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_emotion_js",
+      "target": "emotion_analyzeemotionbatch",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_emotion_js",
+      "target": "emotion_capturevideoframe",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_emotion_js",
+      "target": "emotion_capturemultipleframes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L57",
+      "weight": 1.0
+    },
+    {
+      "source": "emotion_analyzeemotionfromblob",
+      "target": "emotion_buildapiurl",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "emotion_analyzeemotionframe",
+      "target": "emotion_buildapiurl",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "emotion_analyzeemotionbatch",
+      "target": "emotion_buildapiurl",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L34",
+      "weight": 1.0
+    },
+    {
+      "source": "emotion_capturemultipleframes",
+      "target": "emotion_capturevideoframe",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/emotion.js",
+      "source_location": "L60",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "users_sheelgautam_downloads_mentalw_src_config_firebase",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L2",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L3",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_saveuserprofile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_isemailroleconflict",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_getalldoctors",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L37",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_getallpatients",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L43",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_schedulechat",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L49",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_getscheduledchatsfordoctor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L55",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_createorgetchat",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_sendmessagetochat",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L77",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_getchatdocument",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_listenforchatmessages",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L98",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_listenforchatdocchanges",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L107",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_resetunreadcount",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L118",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_savechatreport",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L131",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_savementalhealthtest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L146",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_getchatreportsforpatient",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L162",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_updateuserteststatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L178",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_savementalhealthtestresult",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L185",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_getmentalhealthtestresultsforuser",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L200",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_getscheduledappointmentsforpatient",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L215",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_listenforappointmentsfordoctor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L222",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_updateappointmentstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L231",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_saveusermood",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L237",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_getuserprofile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L247",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_firestore_js",
+      "target": "firestore_updateuserprofile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/firestore.js",
+      "source_location": "L255",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_mentalhealthdataset_js",
+      "target": "users_sheelgautam_downloads_mentalw_src_services_intents_json",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/mentalHealthDataset.js",
+      "source_location": "L11",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_mentalhealthdataset_js",
+      "target": "mentalhealthdataset_retrieverelevantexamples",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/mentalHealthDataset.js",
+      "source_location": "L269",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_mentalhealthdataset_js",
+      "target": "mentalhealthdataset_formatexamplesforprompt",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/mentalHealthDataset.js",
+      "source_location": "L312",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_twilio_js",
+      "target": "twilio_generatetwiliotoken",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L21",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_twilio_js",
+      "target": "twilio_joinvideoroom",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L64",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_twilio_js",
+      "target": "twilio_leavevideoroom",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L92",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_twilio_js",
+      "target": "twilio_participantdisconnect",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L109",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_twilio_js",
+      "target": "twilio_setparticipantasdisconnected",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L118",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_twilio_js",
+      "target": "twilio_toggleaudio",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L128",
+      "weight": 1.0
+    },
+    {
+      "source": "src_services_twilio_js",
+      "target": "twilio_togglevideo",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L145",
+      "weight": 1.0
+    },
+    {
+      "source": "twilio_participantdisconnect",
+      "target": "twilio_setparticipantasdisconnected",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L110",
+      "weight": 1.0
+    },
+    {
+      "source": "test_webrtc_testwebrtc",
+      "target": "webrtc_webrtcvideocall_disconnect",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/test-webrtc.js",
+      "source_location": "L165",
+      "weight": 1.0
+    },
+    {
+      "source": "app_protectedroute",
+      "target": "authcontext_useauth",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/App.jsx",
+      "source_location": "L23",
+      "weight": 1.0
+    },
+    {
+      "source": "socketcontext_socketprovider",
+      "target": "authcontext_useauth",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/contexts/SocketContext.jsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "layout_layout",
+      "target": "authcontext_useauth",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Layout.jsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "navbar_navbar",
+      "target": "authcontext_useauth",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/layout/Navbar.jsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "aitherapistchat_aitherapistchat",
+      "target": "usevoiceassistant_usevoiceassistant",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L61",
+      "weight": 1.0
+    },
+    {
+      "source": "aitherapistchat_aitherapistchat",
+      "target": "useemotionmonitor_useemotionmonitor",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AITherapistChat.jsx",
+      "source_location": "L64",
+      "weight": 1.0
+    },
+    {
+      "source": "moodtracker_moodtracker",
+      "target": "authcontext_useauth",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/MoodTracker.jsx",
+      "source_location": "L15",
+      "weight": 1.0
+    },
+    {
+      "source": "assessmentprogress_assessmentprogress",
+      "target": "authcontext_useauth",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/AssessmentProgress.jsx",
+      "source_location": "L12",
+      "weight": 1.0
+    },
+    {
+      "source": "emotionpanel_emotionpanel",
+      "target": "useemotionmonitor_useemotionmonitor",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/EmotionPanel.jsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "dashboardnavbar_dashboardnavbar",
+      "target": "authcontext_useauth",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/DashboardNavbar.jsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "incomingcallnotification_incomingcallnotification",
+      "target": "socketcontext_usesocket",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/IncomingCallNotification.jsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
+      "source": "doctornavbar_doctornavbar",
+      "target": "authcontext_useauth",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/DoctorNavbar.jsx",
+      "source_location": "L7",
+      "weight": 1.0
+    },
+    {
+      "source": "videocallmodal_videocallmodal",
+      "target": "socketcontext_usesocket",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/components/dashboard/VideoCallModal.jsx",
+      "source_location": "L46",
+      "weight": 1.0
+    },
+    {
+      "source": "dashboard_dashboard",
+      "target": "authcontext_useauth",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L726",
+      "weight": 1.0
+    },
+    {
+      "source": "dashboard_dashboard",
+      "target": "socketcontext_usesocket",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L756",
+      "weight": 1.0
+    },
+    {
+      "source": "dashboard_dashboard",
+      "target": "useemotionmonitor_useemotionmonitor",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard.jsx",
+      "source_location": "L768",
+      "weight": 1.0
+    },
+    {
+      "source": "authpage_authpage",
+      "target": "authcontext_useauth",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/AuthPage.jsx",
+      "source_location": "L29",
+      "weight": 1.0
+    },
+    {
+      "source": "home_home",
+      "target": "authcontext_useauth",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Home.jsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "doctordashboard_doctordashboard",
+      "target": "authcontext_useauth",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L723",
+      "weight": 1.0
+    },
+    {
+      "source": "doctordashboard_doctordashboard",
+      "target": "socketcontext_usesocket",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L763",
+      "weight": 1.0
+    },
+    {
+      "source": "doctordashboard_doctordashboard",
+      "target": "useemotionmonitor_useemotionmonitor",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L791",
+      "weight": 1.0
+    },
+    {
+      "source": "doctordashboard_doctordashboard",
+      "target": "dashboard_getemotionemoji",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/DoctorDashboard.jsx",
+      "source_location": "L1223",
+      "weight": 1.0
+    },
+    {
+      "source": "mentalhealthtest_mentalhealthtest",
+      "target": "authcontext_useauth",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/pages/Dashboard/MentalHealthTest.jsx",
+      "source_location": "L9",
+      "weight": 1.0
+    },
+    {
+      "source": "gemini_getgeminiresponse",
+      "target": "mentalhealthdataset_retrieverelevantexamples",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L315",
+      "weight": 1.0
+    },
+    {
+      "source": "gemini_getgeminiresponse",
+      "target": "mentalhealthdataset_formatexamplesforprompt",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/gemini.js",
+      "source_location": "L316",
+      "weight": 1.0
+    },
+    {
+      "source": "twilio_joinvideoroom",
+      "target": "webrtc_webrtcvideocall_connect",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L79",
+      "weight": 1.0
+    },
+    {
+      "source": "twilio_leavevideoroom",
+      "target": "webrtc_webrtcvideocall_disconnect",
+      "relation": "calls",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "/Users/sheelgautam/Downloads/Mentalw/src/services/twilio.js",
+      "source_location": "L97",
+      "weight": 1.0
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

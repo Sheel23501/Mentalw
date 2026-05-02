@@ -1,7 +1,7 @@
 // Read API key from Vite environment variable. Create a `.env.local` file at the
 // project root with `VITE_GEMINI_API_KEY=your_key_here` during development.
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent';
 
 import { retrieveRelevantExamples, formatExamplesForPrompt } from './mentalHealthDataset';
 
@@ -170,9 +170,15 @@ export const detectEmotion = async (text) => {
   }
 };
 
-// ============== CONVERSATION TRACKING (Stress-Based Escalation) ==============
-// Track stress history for intelligent escalation
-let stressHistory = [];
+// ============== CONVERSATION TRACKING & RISK-BASED ESCALATION ==============
+// Sliding window of last 5 risk scores
+let riskWindow = [];
+let conversationTurnCount = 0;
+let lastUserConcerns = [];     // Last 3 user messages for repetition detection
+let unresolvedTurns = 0;       // Turns where risk stayed >= 5
+let unknownEmotionStreak = 0;  // Consecutive "Unknown" emotion results
+let escalationLocked = false;  // Once escalated, stays escalated for this session
+
 const HELPLINE_MESSAGE = `
 
 ❤️ I can feel how much you're hurting right now, and I want you to know you don't have to go through this alone. There are people who really want to help:
@@ -182,22 +188,209 @@ const HELPLINE_MESSAGE = `
 
 You matter. Please reach out to someone you trust tonight.`;
 
-// Reset tracking (call when conversation starts fresh)
-export const resetConversationTracking = () => {
-  stressHistory = [];
+const ESCALATION_MESSAGE = `I understand this might be serious. Based on what you're describing, it's really important to talk to a real doctor who can give you the support you need right now.
+
+I'm connecting you to an available doctor — they'll be able to help you properly. You're not alone in this. 💛`;
+
+// Emergency keywords that trigger immediate escalation
+const EMERGENCY_KEYWORDS = [
+  'chest pain', 'can\'t breathe', 'cannot breathe', 'trouble breathing',
+  'want to die', 'kill myself', 'self-harm', 'self harm', 'cutting myself',
+  'unconscious', 'overdose', 'suicide', 'suicidal', 'end my life',
+  'end it all', 'don\'t want to live', 'no reason to live',
+  'hurt myself', 'harming myself', 'take my life',
+];
+
+// Phrases indicating user wants a real doctor
+const DOCTOR_REQUEST_PHRASES = [
+  'talk to a doctor', 'need a doctor', 'real doctor', 'human doctor',
+  'connect me to doctor', 'see a doctor', 'speak to a doctor',
+  'want a doctor', 'need professional help', 'speak to someone real',
+  'talk to a real person', 'need a therapist', 'real therapist',
+];
+
+/**
+ * Detect emergency keywords in user message
+ * @param {string} text
+ * @returns {{ found: boolean, keyword: string }}
+ */
+const detectEmergencyKeywords = (text) => {
+  const lower = text.toLowerCase();
+  for (const kw of EMERGENCY_KEYWORDS) {
+    if (lower.includes(kw)) return { found: true, keyword: kw };
+  }
+  return { found: false, keyword: '' };
 };
 
-// Get current escalation status (now uses stress scores)
-export const getEscalationStatus = () => {
-  const avgStress = stressHistory.length > 0 
-    ? stressHistory.reduce((a, b) => a + b, 0) / stressHistory.length 
+/**
+ * Detect if user is explicitly requesting a doctor
+ * @param {string} text
+ * @returns {boolean}
+ */
+const detectDoctorRequest = (text) => {
+  const lower = text.toLowerCase();
+  return DOCTOR_REQUEST_PHRASES.some(phrase => lower.includes(phrase));
+};
+
+/**
+ * Detect if user is repeating the same concern (simple word-overlap similarity)
+ * @param {string} current
+ * @param {string[]} previous
+ * @returns {boolean}
+ */
+const detectRepetition = (current, previous) => {
+  if (previous.length < 2) return false;
+  const currentWords = new Set(current.toLowerCase().split(/\s+/).filter(w => w.length > 3));
+  if (currentWords.size === 0) return false;
+  let highOverlapCount = 0;
+  for (const prev of previous) {
+    const prevWords = new Set(prev.toLowerCase().split(/\s+/).filter(w => w.length > 3));
+    if (prevWords.size === 0) continue;
+    const intersection = [...currentWords].filter(w => prevWords.has(w));
+    const similarity = intersection.length / Math.max(currentWords.size, prevWords.size);
+    if (similarity >= 0.5) highOverlapCount++;
+  }
+  return highOverlapCount >= 2; // Repeating concern across 2+ of last 3 messages
+};
+
+/**
+ * Core risk analysis function — evaluates a single message in context
+ * @param {string} message - Current user message
+ * @param {Array} chatHistory - Full conversation history
+ * @returns {Promise<Object>} - { risk_score, escalation, escalation_reason, emotion, ... }
+ */
+export const analyzeMessage = async (message, chatHistory = []) => {
+  // If already escalated this session, keep it locked
+  if (escalationLocked) {
+    return {
+      risk_score: 10,
+      escalation: true,
+      escalation_reason: 'Session previously escalated — chat remains locked for safety.',
+      emotion: 'Unknown',
+      avg_risk: 10,
+    };
+  }
+
+  // Step 1: Run emotion analysis via Gemini
+  const analysis = await detectEmotion(message);
+  let riskScore = analysis.stress_score || 0;
+  let reasons = [];
+
+  // Step 2: Emergency keyword detection — overrides risk to 10
+  const emergency = detectEmergencyKeywords(message);
+  if (emergency.found) {
+    riskScore = 10;
+    reasons.push(`Emergency keyword detected: "${emergency.keyword}"`);
+  }
+
+  // Step 3: Doctor request detection — escalate immediately
+  const wantsDoctor = detectDoctorRequest(message);
+  if (wantsDoctor) {
+    riskScore = Math.max(riskScore, 8);
+    reasons.push('User explicitly requested a real doctor');
+  }
+
+  // Step 4: Repetition detection — boost risk
+  const isRepeating = detectRepetition(message, lastUserConcerns);
+  if (isRepeating) {
+    riskScore = Math.min(10, riskScore + 2);
+    reasons.push('User is repeating the same concern');
+  }
+
+  // Step 5: Track AI confidence
+  if (analysis.emotion === 'Unknown') {
+    unknownEmotionStreak++;
+    if (unknownEmotionStreak >= 3) {
+      riskScore = Math.max(riskScore, 7);
+      reasons.push('AI confidence is low (3+ consecutive unknown emotions)');
+    }
+  } else {
+    unknownEmotionStreak = 0;
+  }
+
+  // Step 6: Update sliding window
+  riskWindow.push(riskScore);
+  if (riskWindow.length > 5) riskWindow.shift();
+
+  // Step 7: Track unresolved turns
+  conversationTurnCount++;
+  if (riskScore >= 5) {
+    unresolvedTurns++;
+  } else {
+    unresolvedTurns = Math.max(0, unresolvedTurns - 1);
+  }
+  if (unresolvedTurns >= 4) {
+    reasons.push(`Unresolved distress for ${unresolvedTurns} consecutive turns`);
+  }
+
+  // Step 8: Update concerns history
+  lastUserConcerns.push(message);
+  if (lastUserConcerns.length > 3) lastUserConcerns.shift();
+
+  // Step 9: Compute average risk
+  const avgRisk = riskWindow.length > 0
+    ? Math.round((riskWindow.reduce((a, b) => a + b, 0) / riskWindow.length) * 10) / 10
     : 0;
-  const lastScore = stressHistory.length > 0 ? stressHistory[stressHistory.length - 1] : 0;
+
+  // Step 10: Final escalation decision
+  const shouldEscalate = (
+    riskScore >= 7 ||
+    avgRisk >= 6 ||
+    emergency.found ||
+    wantsDoctor ||
+    unresolvedTurns >= 4 ||
+    unknownEmotionStreak >= 3
+  );
+
+  if (shouldEscalate && reasons.length === 0) {
+    if (riskScore >= 7) reasons.push(`High risk score: ${riskScore}/10`);
+    if (avgRisk >= 6) reasons.push(`Sustained high average risk: ${avgRisk}/10`);
+  }
+
+  if (shouldEscalate) {
+    escalationLocked = true; // Lock escalation for this session
+  }
+
+  console.log(`🚨 Risk Analysis: score=${riskScore} avg=${avgRisk} escalate=${shouldEscalate} reasons=[${reasons.join('; ')}]`);
+
   return {
-    avgStress: Math.round(avgStress * 10) / 10,
+    risk_score: riskScore,
+    escalation: shouldEscalate,
+    escalation_reason: reasons.join('. ') || 'No escalation needed',
+    emotion: analysis.emotion,
+    sentiment: analysis.sentiment,
+    stress_score: analysis.stress_score,
+    risk_level: analysis.risk_level,
+    needs_escalation: analysis.needs_escalation,
+    avg_risk: avgRisk,
+    turn_count: conversationTurnCount,
+    reason: analysis.reason,
+  };
+};
+
+// Reset tracking (call when conversation starts fresh)
+export const resetConversationTracking = () => {
+  riskWindow = [];
+  conversationTurnCount = 0;
+  lastUserConcerns = [];
+  unresolvedTurns = 0;
+  unknownEmotionStreak = 0;
+  escalationLocked = false;
+};
+
+// Get current escalation status
+export const getEscalationStatus = () => {
+  const avgRisk = riskWindow.length > 0
+    ? riskWindow.reduce((a, b) => a + b, 0) / riskWindow.length
+    : 0;
+  const lastScore = riskWindow.length > 0 ? riskWindow[riskWindow.length - 1] : 0;
+  return {
+    avgStress: Math.round(avgRisk * 10) / 10,
     lastStressScore: lastScore,
-    messageCount: stressHistory.length,
-    shouldEscalate: avgStress >= 7 || lastScore >= 9
+    messageCount: conversationTurnCount,
+    shouldEscalate: escalationLocked || avgRisk >= 6 || lastScore >= 7,
+    unresolvedTurns,
+    riskWindow: [...riskWindow],
   };
 };
 
@@ -278,7 +471,7 @@ export const getGeminiResponse = async (messages, options = {}) => {
     const lastMessage = messages[messages.length - 1];
     const userText = lastMessage?.content || "";
     
-    // Step 1: Deep emotional analysis (unless skipped)
+    // Step 1: Full risk analysis (unless skipped)
     let emotion = "Unknown";
     let sentiment = "Neutral";
     let stress_score = 0;
@@ -286,22 +479,45 @@ export const getGeminiResponse = async (messages, options = {}) => {
     let needs_escalation = false;
     let tip = "";
     let escalated = false;
+    let risk_score = 0;
+    let escalation = false;
+    let escalation_reason = '';
+    let avg_risk = 0;
     
     if (!options.skipEmotionAnalysis && userText) {
-      const analysis = await detectEmotion(userText);
-      emotion = analysis.emotion;
-      sentiment = analysis.sentiment;
-      stress_score = analysis.stress_score;
-      risk_level = analysis.risk_level;
-      needs_escalation = analysis.needs_escalation;
-      
-      // Track stress history for escalation
-      stressHistory.push(stress_score);
-      // Keep only last 10 messages
-      if (stressHistory.length > 10) stressHistory.shift();
+      const riskAnalysis = await analyzeMessage(userText, messages);
+      emotion = riskAnalysis.emotion;
+      sentiment = riskAnalysis.sentiment || "Neutral";
+      stress_score = riskAnalysis.stress_score || 0;
+      risk_level = riskAnalysis.risk_level || "LOW";
+      needs_escalation = riskAnalysis.needs_escalation || false;
+      risk_score = riskAnalysis.risk_score;
+      escalation = riskAnalysis.escalation;
+      escalation_reason = riskAnalysis.escalation_reason;
+      avg_risk = riskAnalysis.avg_risk;
       
       // Get relevant tip based on emotion
       tip = retrieveTip(emotion);
+    }
+
+    // If escalation is triggered, return the escalation message immediately
+    // Do NOT continue normal AI conversation
+    if (escalation) {
+      console.log('🚨 ESCALATION TRIGGERED — stopping normal chat');
+      return {
+        response: ESCALATION_MESSAGE + HELPLINE_MESSAGE,
+        emotion,
+        sentiment,
+        stress_score,
+        risk_level,
+        needs_escalation: true,
+        tip,
+        escalated: true,
+        risk_score,
+        escalation: true,
+        escalation_reason,
+        avg_risk,
+      };
     }
     
     // Format messages for Gemini API
@@ -314,8 +530,21 @@ export const getGeminiResponse = async (messages, options = {}) => {
     // Retrieve relevant conversation examples from our dataset (RAG)
     const relevantExamples = retrieveRelevantExamples(userText, emotion, 3);
     const examplesBlock = formatExamplesForPrompt(relevantExamples);
+    
+    // Inject GAD-7 Context if available
+    let gad7ContextBlock = '';
+    if (options.gad7Context) {
+      const { score, severity } = options.gad7Context;
+      gad7ContextBlock = `\nCLINICAL CONTEXT (GAD-7 Assessment):
+- The user recently completed a GAD-7 anxiety assessment.
+- Score: ${score}/21
+- Severity Level: ${severity}
+${severity === 'Severe' ? '⚠️ CRITICAL: The user is experiencing SEVERE anxiety. Be extremely gentle, validating, and prioritize safety. If they express distress, gently suggest speaking to a professional.' : ''}
+${severity === 'Moderate' ? 'Note: The user is experiencing MODERATE anxiety. Be highly empathetic and reassuring.' : ''}
+${severity === 'Minimal' ? 'Note: The user is experiencing minimal anxiety, but still validate their current feelings.' : ''}`;
+    }
 
-    const enhancedSystemPrompt = `${THERAPIST_SYSTEM_PROMPT}
+    const enhancedSystemPrompt = `${THERAPIST_SYSTEM_PROMPT}${gad7ContextBlock}
 
 ABOUT THIS MESSAGE:
 - They're feeling: ${emotion}
@@ -404,12 +633,6 @@ ${stress_score >= 7 ? '- They\'re really struggling. Extra love, extra care, ext
       if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
         let responseText = candidate.content.parts[0].text;
         
-        // Smart escalation based on stress score and risk level
-        if (needs_escalation || risk_level === 'CRITICAL' || stress_score >= 9) {
-          responseText += HELPLINE_MESSAGE;
-          escalated = true;
-        }
-        
         // Return enhanced response object with full analysis
         return {
           response: responseText,
@@ -419,7 +642,11 @@ ${stress_score >= 7 ? '- They\'re really struggling. Extra love, extra care, ext
           risk_level,
           needs_escalation,
           tip,
-          escalated,
+          escalated: false,
+          risk_score,
+          escalation: false,
+          escalation_reason: '',
+          avg_risk,
         };
       }
     }
@@ -511,6 +738,104 @@ ${transcript}`;
     return analysis;
   } catch (error) {
     console.error('analyzeChatSession failed:', error);
+    return null;
+  }
+};
+
+/**
+ * Generates a concise summary insight of a patient's recent activity for the doctor dashboard.
+ * @param {Array} chatLogs - Array of recent chat log objects
+ * @param {Array} emotionTimeline - Array of recent emotion objects
+ * @returns {Promise<string>} - A 1-2 sentence clinical summary
+ */
+export const generateDoctorInsight = async (chatLogs, emotionTimeline) => {
+  if (!chatLogs || chatLogs.length === 0) return "Not enough data to generate an insight.";
+
+  try {
+    const prompt = `You are a clinical AI assistant summarizing recent patient activity for a doctor.
+Here is the patient's data from the last 48 hours:
+
+CHAT LOGS:
+${JSON.stringify(chatLogs.map(l => ({ sender: l.senderType, msg: l.messageText })), null, 2)}
+
+DETECTED EMOTIONS:
+${JSON.stringify(emotionTimeline.map(e => ({ time: e.time, emotion: e.emotion })), null, 2)}
+
+Based on this data, provide a single, highly concise, 1-2 sentence clinical insight highlighting key themes, emotional trends, or specific concerns the doctor should be aware of. Do not include any greeting or conversational filler.`;
+
+    const requestBody = {
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.2, // low temp for clinical accuracy
+        maxOutputTokens: 100,
+      }
+    };
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) return "Unable to generate insight at this time.";
+
+    const data = await response.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "No clear insights detected.";
+  } catch (error) {
+    console.error("Error generating doctor insight:", error);
+    return "Error generating insight.";
+  }
+};
+
+/**
+ * Generates an auto-filled session note draft based on the patient's last 48 hours of data.
+ * @param {Object} reportData - The 48-hour report object from Firestore
+ * @returns {Promise<Object>} - A structured draft note
+ */
+export const generateSessionNoteDraft = async (reportData) => {
+  if (!reportData || !reportData.chat_history) return null;
+
+  try {
+    const prompt = `You are a clinical AI assistant helping a doctor write session notes.
+Here is the patient's data from the last 48 hours:
+
+GAD-7 Score: ${reportData.gad_score} (${reportData.severity})
+CHAT LOGS:
+${JSON.stringify(reportData.chat_history.map(l => ({ sender: l.senderType, msg: l.messageText })), null, 2)}
+EMOTIONS:
+${JSON.stringify(reportData.emotion_timeline, null, 2)}
+
+Analyze this data and generate a structured clinical session note draft.
+Return ONLY a raw JSON object with the following keys exactly:
+- summary: A 2-3 sentence overview of the patient's recent state.
+- key_points: A bulleted string of 2-3 main issues discussed.
+- observations: A short description of the patient's emotional tone/behavior.
+- recommendations: 1-2 suggested next steps or interventions.
+
+Do NOT include markdown formatting like \`\`\`json. Just the raw JSON object.`;
+
+    const requestBody = {
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.2, // precise
+      }
+    };
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '{}';
+    const cleanJson = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    
+    return JSON.parse(cleanJson);
+  } catch (error) {
+    console.error("Error generating note draft:", error);
     return null;
   }
 };

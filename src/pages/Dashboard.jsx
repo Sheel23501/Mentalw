@@ -713,10 +713,12 @@ const PatientProfileTab = ({ currentUser }) => {
 };
 
 // ─── AI Chat Tab (inline wrapper) ─────────────────────────────────────────────
-const AIChatTab = () => {
+const AIChatTab = ({ onDoctorSelected, currentUser }) => {
   return (
     <div style={{ maxWidth: '800px' }}>
-      <AITherapistChat />
+      <AITherapistChat
+        onNavigateToDoctors={onDoctorSelected}
+      />
     </div>
   );
 };
@@ -751,6 +753,12 @@ const Dashboard = () => {
   const [isOutgoingCall, setIsOutgoingCall] = useState(false);
   const [myAppointments, setMyAppointments] = useState([]);
   const [appointmentsLoading, setAppointmentsLoading] = useState(false);
+
+  // Handle doctor selection from escalation modal (navigates to chat)
+  const handleEscalationDoctorSelected = (doctor) => {
+    handleStartChat(doctor);
+    setActiveTab('doctors');
+  };
 
   // Socket context for direct video calls
   const { startCall, callStatus, activeCallRoomId, incomingCall } = useSocket();
@@ -1063,7 +1071,10 @@ const Dashboard = () => {
             <PatientProfileTab currentUser={currentUser} />
           )}
           {activeTab === 'ai-chat' && (
-            <AIChatTab />
+            <AIChatTab
+              onDoctorSelected={handleEscalationDoctorSelected}
+              currentUser={currentUser}
+            />
           )}
         </div>
       </main>

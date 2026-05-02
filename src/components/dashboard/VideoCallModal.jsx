@@ -150,7 +150,6 @@ const VideoCallModal = ({
       }
     };
   }, [callState, onAudioEmotion]);
-
   // Handle local stream display — store in ref so useEffect can apply it after video mounts
   const displayLocalStream = useCallback((stream) => {
     localStreamRef.current = stream;
