@@ -59,4 +59,4 @@ __pycache__/
 
 # datasets / models
 datasets/
-models/
+models/src/config/firebase.js
