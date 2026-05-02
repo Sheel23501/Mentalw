@@ -29,13 +29,8 @@ const app = express();
 const allowedOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?$/;
 
 const corsOriginCheck = (origin, callback) => {
-  // Allow requests with no origin (mobile apps, curl, etc.)
-  if (!origin) return callback(null, true);
-  // Allow any localhost or private-network IP
-  if (allowedOriginPattern.test(origin)) {
-    return callback(null, true);
-  }
-  callback(new Error('Not allowed by CORS'));
+  // Allow all origins for production (or you can specify your render URL here)
+  return callback(null, true);
 };
 
 app.use(cors({
