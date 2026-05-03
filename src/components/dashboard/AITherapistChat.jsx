@@ -363,31 +363,6 @@ const AITherapistChat = ({ autoOpen = false, onNavigateToDoctors, currentUser })
               <span className="text-xs">Listening...</span>
             </div>
           )}
-          {/* Text-based Emotion Display (AI detected) */}
-          {textEmotion && (
-            <div className="flex items-center gap-1 bg-purple-400/30 px-2 py-1 rounded-lg" title="Detected from your messages">
-              <FaHeart className="w-3 h-3" />
-              <span className="text-xs">{getEmotionEmoji(textEmotion)} {textEmotion}</span>
-            </div>
-          )}
-          {/* Stress Score Indicator */}
-          {stressScore > 0 && (
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium ${
-              stressScore >= 8 ? 'bg-red-400/40 animate-pulse' :
-              stressScore >= 6 ? 'bg-orange-400/30' :
-              stressScore >= 4 ? 'bg-yellow-400/30' :
-              'bg-green-400/20'
-            }`} title={`Stress Level: ${stressScore}/10 | Risk: ${riskLevel}`}>
-              <span>{stressScore >= 8 ? '🔴' : stressScore >= 6 ? '🟠' : stressScore >= 4 ? '🟡' : '🟢'}</span>
-              <span>Stress: {stressScore}/10</span>
-            </div>
-          )}
-          {/* Camera-based Emotion Display */}
-          {emotionAnalysisEnabled && detectedEmotion && (
-            <div className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-lg">
-              <span className="text-sm">{getEmotionEmoji(detectedEmotion)} {detectedEmotion}</span>
-            </div>
-          )}
           {/* Voice Toggle */}
           {canSpeak && (
             <button
@@ -401,14 +376,6 @@ const AITherapistChat = ({ autoOpen = false, onNavigateToDoctors, currentUser })
               {voiceEnabled ? <FiVolume2 className="w-4 h-4" /> : <FiVolumeX className="w-4 h-4" />}
             </button>
           )}
-          {/* Emotion Analysis Toggle */}
-          <button
-            onClick={() => setEmotionAnalysisEnabled(!emotionAnalysisEnabled)}
-            className={`${emotionAnalysisEnabled ? 'bg-yellow-400 text-gray-800' : 'bg-white/20 text-white'} hover:bg-white/30 p-2 rounded-full transition`}
-            title={emotionAnalysisEnabled ? 'Disable Emotion Analysis' : 'Enable Emotion Analysis'}
-          >
-            <FaBrain className="w-4 h-4" />
-          </button>
           <button
             onClick={() => {
               setIsOpen(false);
@@ -491,19 +458,6 @@ const AITherapistChat = ({ autoOpen = false, onNavigateToDoctors, currentUser })
                 {prompt}
               </button>
             ))}
-          </div>
-        </div>
-      )}
-
-      {/* Current Wellness Tip */}
-      {currentTip && messages.length > 1 && (
-        <div className="px-4 py-2 bg-gradient-to-r from-purple-50 to-green-50 border-t border-purple-100">
-          <div className="flex items-start gap-2">
-            <span className="text-lg">💡</span>
-            <div>
-              <p className="text-xs font-medium text-purple-700">Wellness Tip</p>
-              <p className="text-xs text-gray-600">{currentTip}</p>
-            </div>
           </div>
         </div>
       )}

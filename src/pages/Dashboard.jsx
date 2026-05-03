@@ -1117,21 +1117,6 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {emotionAnalysisEnabled && (
-                    <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full">
-                      <span className="text-xs text-white/80">Emotion:</span>
-                      <span className="text-sm font-semibold text-white">
-                        {emotionAnalyzing ? '🔄 Analyzing...' : detectedEmotion ? `${getEmotionEmoji(detectedEmotion)} ${detectedEmotion}` : '—'}
-                      </span>
-                    </div>
-                  )}
-                  <button
-                    onClick={() => setEmotionAnalysisEnabled(!emotionAnalysisEnabled)}
-                    className={`${emotionAnalysisEnabled ? 'bg-green-400 text-white' : 'bg-primary-100 text-primary-700'} hover:bg-primary-200 p-2 rounded-full transition shadow flex items-center justify-center`}
-                    title={emotionAnalysisEnabled ? 'Disable Emotion Analysis' : 'Enable Emotion Analysis'}
-                  >
-                    <FaBrain className="w-5 h-5" />
-                  </button>
                   <button
                     onClick={() => {
                       if (selectedDoctor) {

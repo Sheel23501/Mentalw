@@ -875,7 +875,17 @@ Return ONLY a valid JSON object (no markdown, no explanation):
       })
     });
 
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.warn('Gemini API failed (possibly revoked). Using fallback emotion.');
+      const text = messageText.toLowerCase();
+      let fallbackEmotion = 'Neutral';
+      let severity = 'low';
+      if (text.includes('stress') || text.includes('mark') || text.includes('exam') || text.includes('less')) { fallbackEmotion = 'Stressed'; severity = 'medium'; }
+      else if (text.includes('sad') || text.includes('cry') || text.includes('hopeless')) { fallbackEmotion = 'Sad'; severity = 'medium'; }
+      else if (text.includes('worry') || text.includes('anxious') || text.includes('fear')) { fallbackEmotion = 'Anxious'; severity = 'medium'; }
+      
+      return { emotion: fallbackEmotion, confidence: 0.7, severity, risk_flag: false };
+    }
 
     const data = await response.json();
     const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
@@ -883,7 +893,7 @@ Return ONLY a valid JSON object (no markdown, no explanation):
     return JSON.parse(cleanJson);
   } catch (error) {
     console.error('detectMessageEmotion failed:', error);
-    return null;
+    return { emotion: 'Neutral', confidence: 0.5, severity: 'low', risk_flag: false };
   }
 };
 
