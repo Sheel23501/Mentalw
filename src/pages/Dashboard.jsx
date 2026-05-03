@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { FaComments, FaCalendarAlt, FaStar, FaVideo, FaBrain, FaClock, FaCheckCircle, FaTimesCircle, FaTh, FaUserMd, FaClipboardList, FaUser, FaSignOutAlt, FaEdit, FaSave, FaRobot } from 'react-icons/fa';
 import { BsInfoCircle } from 'react-icons/bs';
-import { getAllDoctors, scheduleChat, createOrGetChat, sendMessageToChat, listenForChatMessages, listenForChatDocChanges, resetUnreadCount, getChatDocument, getScheduledAppointmentsForPatient, getUserProfile, updateUserProfile } from '../services/firestore';
+import { getAllDoctors, scheduleChat, createOrGetChat, sendMessageToChat, listenForChatMessages, listenForChatDocChanges, resetUnreadCount, getChatDocument, getScheduledAppointmentsForPatient, getUserProfile, updateUserProfile, savePatientEmotionLog, updateChatPatientEmotion } from '../services/firestore';
+import { detectMessageEmotion } from '../services/gemini';
 import MoodTracker from '../components/dashboard/MoodTracker.jsx';
 import VideoCallModal from '../components/dashboard/VideoCallModal.jsx';
 import AITherapistChat from '../components/dashboard/AITherapistChat.jsx';
@@ -918,6 +919,22 @@ const Dashboard = () => {
         text: messageToSend,
         timestamp: new Date(),
       });
+
+      // Fire-and-forget: detect emotion silently (patient never sees this)
+      detectMessageEmotion(messageToSend).then(emotionResult => {
+        if (emotionResult && chatId) {
+          const emotionData = {
+            patientId: currentUser.uid,
+            messageText: messageToSend,
+            emotion: emotionResult.emotion,
+            confidence: emotionResult.confidence,
+            severity: emotionResult.severity,
+            risk_flag: emotionResult.risk_flag || false,
+          };
+          savePatientEmotionLog(chatId, emotionData);
+          updateChatPatientEmotion(chatId, emotionData);
+        }
+      }).catch(err => console.warn('Emotion detection skipped:', err));
     } catch (error) {
       console.error("Error sending message:", error);
     } finally {

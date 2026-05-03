@@ -1,7 +1,11 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash, FaPhoneSlash, FaCopy } from 'react-icons/fa';
+import { FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash, FaPhoneSlash, FaCopy, FaClosedCaptioning } from 'react-icons/fa';
 import { useSocket } from '../../contexts/SocketContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { AudioEmotionRecorder } from '../../services/audioEmotion';
+import LiveTranscript from './LiveTranscript';
+import { saveVideoTranscript, saveTranscriptSummary } from '../../services/firestore';
+import { generateTranscriptSummary } from '../../services/gemini';
 
 /**
  * VideoCallModal
@@ -43,7 +47,8 @@ const VideoCallModal = ({
   const retryTimerRef = useRef(null);
   const audioRecorderRef = useRef(null);  // Phase 3: audio emotion recorder
   
-  const { callStatus, endCall: endGlobalCall, outgoingCall, cancelOutgoingCall, getWebRTC, remoteCallEnded } = useSocket();
+  const { callStatus, endCall: endGlobalCall, outgoingCall, cancelOutgoingCall, getWebRTC, remoteCallEnded, socket } = useSocket();
+  const { userRole } = useAuth();
 
   const [cameraOn, setCameraOn] = useState(false);
   const [micOn, setMicOn] = useState(true);
@@ -58,6 +63,12 @@ const VideoCallModal = ({
   const [copied, setCopied] = useState(false);
   const [hasRemoteStream, setHasRemoteStream] = useState(false);
   const [vocalEmotion, setVocalEmotion] = useState(null);  // Phase 3
+  
+  // Phase 4: Transcription
+  const [transcriptText, setTranscriptText] = useState('');
+  const [transcriptSegments, setTranscriptSegments] = useState([]);
+  const [showTranscript, setShowTranscript] = useState(true);
+  const callStartTimeRef = useRef(null);
 
   // Helper: get the shared WebRTC instance (may be null briefly during init)
   const getSharedWebRTC = useCallback(() => {
@@ -140,6 +151,7 @@ const VideoCallModal = ({
       });
       recorder.start();
       audioRecorderRef.current = recorder;
+      callStartTimeRef.current = Date.now();
     }
 
     return () => {
@@ -362,6 +374,12 @@ const VideoCallModal = ({
   useEffect(() => {
     if (remoteCallEnded && open && (callState === 'connected' || callState === 'waiting' || callState === 'calling')) {
       console.log('📴 Remote side ended the call — auto-closing');
+      
+      // Phase 4: Auto-save transcript if doctor
+      if (userRole === 'doctor' && transcriptSegments.length > 0) {
+        processAndSaveTranscript();
+      }
+
       // Cleanup local side
       const webrtc = getSharedWebRTC();
       if (webrtc) {
@@ -468,8 +486,46 @@ const VideoCallModal = ({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // ====== Phase 4: Process and Save Transcript ======
+  const processAndSaveTranscript = async () => {
+    if (userRole !== 'doctor' || transcriptSegments.length === 0) return;
+
+    try {
+      const duration = callStartTimeRef.current ? Math.round((Date.now() - callStartTimeRef.current) / 1000) : 0;
+      
+      console.log('💾 Saving transcript to Firestore...');
+      const transcriptId = await saveVideoTranscript({
+        sessionId: roomId || roomCode,
+        patientId: patientId,
+        doctorId: doctorId,
+        transcript: transcriptText,
+        segments: transcriptSegments,
+        duration: duration
+      });
+
+      console.log('🧠 Generating AI summary for transcript...');
+      const summaryData = await generateTranscriptSummary(transcriptText, transcriptSegments);
+      if (summaryData) {
+        await saveTranscriptSummary({
+          transcriptId,
+          patientId,
+          doctorId,
+          ...summaryData
+        });
+        console.log('✅ AI Transcript Summary saved');
+      }
+    } catch (err) {
+      console.error('Failed to process/save transcript:', err);
+    }
+  };
+
   // ====== End/close the call ======
   const handleEndCall = () => {
+    // Phase 4: Save transcript if doctor
+    if (userRole === 'doctor' && transcriptSegments.length > 0) {
+      processAndSaveTranscript();
+    }
+
     const webrtc = getSharedWebRTC();
     if (webrtc) {
       try { webrtc.leaveRoom(); } catch(e) { /* ignore */ }
@@ -722,6 +778,16 @@ const VideoCallModal = ({
               </button>
 
               <button
+                onClick={() => setShowTranscript(!showTranscript)}
+                className={`w-16 h-16 rounded-full flex items-center justify-center shadow-xl transition text-2xl border-2 ${
+                  showTranscript ? 'bg-white/80 text-primary-700 border-white' : 'bg-dark-700 text-white border-white/20'
+                }`}
+                title={showTranscript ? 'Hide transcript' : 'Show transcript'}
+              >
+                <FaClosedCaptioning />
+              </button>
+
+              <button
                 onClick={handleEndCall}
                 className="w-16 h-16 rounded-full flex items-center justify-center shadow-xl transition bg-red-600 hover:bg-red-700 text-white text-2xl border-2 border-red-700"
                 title="End call"
@@ -729,6 +795,20 @@ const VideoCallModal = ({
                 <FaPhoneSlash />
               </button>
             </div>
+
+            {/* Live Transcript Overlay (Phase 4) */}
+            {callState === 'connected' && showTranscript && (
+              <LiveTranscript 
+                socket={socket}
+                roomId={roomId || roomCode}
+                userRole={userRole}
+                userName={userRole === 'doctor' ? doctorName : patientName}
+                onTranscriptChange={(text, segments) => {
+                  setTranscriptText(text);
+                  setTranscriptSegments(segments);
+                }}
+              />
+            )}
           </div>
         )}
       </div>

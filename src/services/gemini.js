@@ -839,3 +839,149 @@ Do NOT include markdown formatting like \`\`\`json. Just the raw JSON object.`;
     return null;
   }
 };
+
+// ==========================================
+// Real-Time Patient Emotion Detection (Text)
+// ==========================================
+
+/**
+ * Detects emotion from a single patient message text.
+ * Designed for low-latency, real-time use during doctor-patient chat.
+ * Returns: { emotion, confidence, severity }
+ */
+export const detectMessageEmotion = async (messageText) => {
+  if (!GEMINI_API_KEY || !messageText?.trim()) return null;
+
+  const prompt = `You are a clinical emotion classifier for a mental health platform.
+Analyze this SINGLE patient message and classify the emotion.
+
+Message: "${messageText}"
+
+Return ONLY a valid JSON object (no markdown, no explanation):
+{
+  "emotion": "<one of: Anxious, Sad, Stressed, Angry, Overwhelmed, Hopeless, Fearful, Lonely, Frustrated, Confused, Calm, Hopeful, Grateful, Neutral>",
+  "confidence": <number 0.0 to 1.0>,
+  "severity": "<low | medium | high>",
+  "risk_flag": <boolean - true ONLY if message contains self-harm or suicidal ideation>
+}`;
+
+  try {
+    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 150 }
+      })
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+    const cleanJson = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    return JSON.parse(cleanJson);
+  } catch (error) {
+    console.error('detectMessageEmotion failed:', error);
+    return null;
+  }
+};
+
+// ==========================================
+// Phase 4: Transcription & Briefing AI
+// ==========================================
+
+/**
+ * Generates a clinical summary from a video call transcript
+ */
+export const generateTranscriptSummary = async (transcript, segments) => {
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+
+  const prompt = `
+    You are a clinical AI assistant for a mental health platform. 
+    Analyze the following video call transcript between a doctor and a patient.
+    
+    Transcript:
+    ${transcript}
+
+    Segments:
+    ${JSON.stringify(segments)}
+
+    Provide a structured clinical summary in JSON format:
+    {
+      "clinical_mood": "Brief description of the patient's affect",
+      "key_concerns": ["Concern 1", "Concern 2"],
+      "risk_assessment": "High/Medium/Low with brief reasoning",
+      "action_items": ["Step 1", "Step 2"],
+      "summary_paragraph": "A concise professional summary of the session"
+    }
+  `;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const text = result.response.text().replace(/```json|```/g, '').trim();
+    return JSON.parse(text);
+  } catch (err) {
+    console.error('Failed to generate transcript summary:', err);
+    return null;
+  }
+};
+
+/**
+ * Generates a pre-session briefing for a doctor
+ */
+export const generatePreSessionBriefing = async (patientData) => {
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+
+  const prompt = `
+    You are a clinical AI assistant. Synthesize the following patient history for a doctor 
+    who is about to start a video session. Provide an intelligence briefing.
+
+    Data:
+    ${JSON.stringify(patientData)}
+
+    Provide a concise clinical briefing in JSON format:
+    {
+      "overall_trajectory": "Improving / Stable / Declining",
+      "since_last_session": "Summary of significant events/feelings since the last doctor visit",
+      "emotional_patterns": "Key trends observed in recent emotion tracking",
+      "ai_chat_highlights": "Brief mention of significant topics discussed with the AI bot",
+      "risk_alerts": "Any critical flags or 'No active risk alerts'",
+      "recommended_focus": "One or two sentences on what the doctor should prioritize in this session"
+    }
+  `;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const text = result.response.text().replace(/```json|```/g, '').trim();
+    return JSON.parse(text);
+  } catch (err) {
+    console.error('Failed to generate pre-session briefing:', err);
+    return null;
+  }
+};
+
+/**
+ * Generates a high-level patient overview for the history dashboard
+ */
+export const generatePatientOverview = async (patientHistory) => {
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+
+  const prompt = `
+    Analyze this mental health patient's history and provide a concise clinical overview 
+    suitable for a doctor's dashboard.
+
+    Data:
+    ${JSON.stringify(patientHistory)}
+
+    Provide a 2-3 sentence clinical summary of the patient's current state and trajectory.
+  `;
+
+  try {
+    const result = await model.generateContent(prompt);
+    return result.response.text().trim();
+  } catch (err) {
+    console.error('Failed to generate patient overview:', err);
+    return "History synthesis currently unavailable.";
+  }
+};

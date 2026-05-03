@@ -1,6 +1,6 @@
 import { db } from '../config/firebase';
-import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { collection, query, where, getDocs, addDoc, onSnapshot, orderBy, increment } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, onSnapshot, orderBy, increment, limit } from 'firebase/firestore';
 
 export const saveUserProfile = async (user, role) => {
   if (!user) return;
@@ -128,6 +128,59 @@ export const resetUnreadCount = async (chatId, userId, userRole) => {
   }
 };
 
+// ==========================================
+// Real-Time Patient Emotion Intelligence
+// ==========================================
+
+/**
+ * Saves an emotion detection result for a patient message.
+ * Stored in a per-chat subcollection so doctors get real-time updates.
+ */
+export const savePatientEmotionLog = async (chatId, emotionData) => {
+  try {
+    const emotionRef = collection(db, 'chats', chatId, 'emotionLogs');
+    await addDoc(emotionRef, {
+      ...emotionData,
+      timestamp: serverTimestamp()
+    });
+  } catch (err) {
+    console.error('Error saving emotion log:', err);
+  }
+};
+
+/**
+ * Real-time listener for patient emotion logs within a chat.
+ * Doctor subscribes to this to see live emotion updates.
+ */
+export const listenForPatientEmotions = (chatId, callback) => {
+  const emotionRef = collection(db, 'chats', chatId, 'emotionLogs');
+  const q = query(emotionRef, orderBy('timestamp', 'desc'), limit(30));
+  return onSnapshot(q, (snapshot) => {
+    const emotions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    callback(emotions);
+  });
+};
+
+/**
+ * Updates the chat document with the latest patient emotion (for header display).
+ */
+export const updateChatPatientEmotion = async (chatId, emotionData) => {
+  try {
+    const chatRef = doc(db, 'chats', chatId);
+    await setDoc(chatRef, {
+      patientEmotion: emotionData.emotion,
+      patientEmotionSeverity: emotionData.severity,
+      patientEmotionTimestamp: new Date().toISOString(),
+      patientRiskFlag: emotionData.risk_flag || false,
+    }, { merge: true });
+  } catch (err) {
+    console.error('Error updating chat emotion:', err);
+  }
+};
+
+const videoTranscriptsCollection = collection(db, 'video_transcripts');
+const transcriptSummariesCollection = collection(db, 'transcript_summaries');
+
 export const saveChatReport = async (reportData) => {
   try {
     const reportRef = await addDoc(collection(db, 'chat_reports'), {
@@ -171,6 +224,166 @@ export const getChatReportsForPatient = async (patientId) => {
   } catch (error) {
     console.error("Error fetching chat reports: ", error);
     throw error;
+  }
+};
+
+// ==========================================
+// Phase 4: Video Transcription Services
+// ==========================================
+
+export const saveVideoTranscript = async (data) => {
+  try {
+    const docRef = await addDoc(videoTranscriptsCollection, {
+      ...data,
+      timestamp: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (err) {
+    console.error('Error saving transcript:', err);
+    throw err;
+  }
+};
+
+export const saveTranscriptSummary = async (data) => {
+  try {
+    await addDoc(transcriptSummariesCollection, {
+      ...data,
+      timestamp: serverTimestamp()
+    });
+  } catch (err) {
+    console.error('Error saving transcript summary:', err);
+  }
+};
+
+export const getVideoTranscriptsForPatient = async (patientId) => {
+  try {
+    const q = query(
+      videoTranscriptsCollection,
+      where('patientId', '==', patientId),
+      orderBy('timestamp', 'desc')
+    );
+    const snap = await getDocs(q);
+    const transcripts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Fetch summaries for each transcript
+    const summaryQ = query(
+      transcriptSummariesCollection,
+      where('patientId', '==', patientId)
+    );
+    const summarySnap = await getDocs(summaryQ);
+    const summaries = summarySnap.docs.reduce((acc, doc) => {
+      const data = doc.data();
+      acc[data.transcriptId] = data;
+      return acc;
+    }, {});
+
+    return transcripts.map(t => ({
+      ...t,
+      summary: summaries[t.id] || null
+    }));
+  } catch (err) {
+    console.error('Error fetching transcripts:', err);
+    return [];
+  }
+};
+
+// ==========================================
+// Phase 5: Patient History Data Aggregation
+// ==========================================
+
+export const getGad7History = async (userId) => {
+  try {
+    const q = query(
+      collection(db, 'testResults'),
+      where('userId', '==', userId),
+      where('testId', '==', 'gad7'),
+      orderBy('timestamp', 'desc')
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      timestamp: doc.data().timestamp?.toDate ? doc.data().timestamp.toDate() : doc.data().timestamp
+    }));
+  } catch (err) {
+    console.error('Error fetching GAD7 history:', err);
+    return [];
+  }
+};
+
+export const getEmotionHistory = async (userId) => {
+  try {
+    // Check user's individual emotionLogs collection
+    const logsRef = collection(db, 'users', userId, 'emotionLogs');
+    const q = query(logsRef, orderBy('timestamp', 'desc'), limit(50));
+    const snap = await getDocs(q);
+    return snap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      timestamp: doc.data().timestamp?.toDate ? doc.data().timestamp.toDate() : doc.data().timestamp
+    }));
+  } catch (err) {
+    console.error('Error fetching emotion history:', err);
+    return [];
+  }
+};
+
+export const getAIChatHistory = async (userId) => {
+  try {
+    // Assuming AI chats are in a specific collection or flagged in messages
+    const q = query(
+      collection(db, 'messages'),
+      where('userId', '==', userId),
+      where('receiverId', '==', 'ai_therapist'),
+      orderBy('timestamp', 'desc'),
+      limit(100)
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      timestamp: doc.data().timestamp?.toDate ? doc.data().timestamp.toDate() : doc.data().timestamp
+    }));
+  } catch (err) {
+    console.error('Error fetching AI chat history:', err);
+    return [];
+  }
+};
+
+/**
+ * Aggregates all patient data for clinical review
+ */
+export const getComprehensivePatientData = async (patientId) => {
+  try {
+    const [
+      profileSnap,
+      gad7,
+      emotions,
+      aiChats,
+      sessionNotes,
+      transcripts
+    ] = await Promise.all([
+      getDoc(doc(db, 'userProfiles', patientId)),
+      getGad7History(patientId),
+      getEmotionHistory(patientId),
+      getAIChatHistory(patientId),
+      getChatReportsForPatient(patientId), // Existing notes/reports
+      getVideoTranscriptsForPatient(patientId)
+    ]);
+
+    return {
+      profile: profileSnap.exists() ? profileSnap.data() : { id: patientId },
+      history: {
+        gad7,
+        emotions,
+        aiChats,
+        sessionNotes,
+        transcripts
+      }
+    };
+  } catch (err) {
+    console.error('Error fetching comprehensive patient data:', err);
+    throw err;
   }
 };
 

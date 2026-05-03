@@ -15,7 +15,8 @@ import {
   getChatReportsForPatient,
   getMentalHealthTestResultsForUser,
   listenForAppointmentsForDoctor,
-  updateAppointmentStatus
+  updateAppointmentStatus,
+  listenForPatientEmotions
 } from '../../services/firestore';
 import SessionNotes from '../../components/dashboard/SessionNotes.jsx';
 import EmotionPanel from '../../components/dashboard/EmotionPanel.jsx';
@@ -26,6 +27,8 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import PatientReportModal from '../../components/dashboard/PatientReportModal.jsx';
 import AdvancedSessionNotesModal from '../../components/dashboard/AdvancedSessionNotesModal.jsx';
+import PatientHistoryPanel from '../../components/dashboard/PatientHistoryPanel.jsx';
+import PreSessionBriefing from '../../components/dashboard/PreSessionBriefing.jsx';
 
 // ─── Left Sidebar ────────────────────────────────────────────────────────────
 const Sidebar = ({ activeTab, setActiveTab, doctorName, doctorPhoto, onLogout }) => {
@@ -773,6 +776,17 @@ const DoctorDashboard = () => {
   const [emotionHistory, setEmotionHistory] = useState([]);
   const [showEmotionPanel, setShowEmotionPanel] = useState(false);
   const [audioEmotionHistory, setAudioEmotionHistory] = useState([]);  // Phase 3: vocal emotion log
+  
+  // Phase 5 & 6
+  const [historyPanelOpen, setHistoryPanelOpen] = useState(false);
+  const [briefingOpen, setBriefingOpen] = useState(false);
+  const [selectedPatientForBriefing, setSelectedPatientForBriefing] = useState(null);
+
+  // Real-time patient emotion intelligence (text-based)
+  const [patientTextEmotions, setPatientTextEmotions] = useState([]); // from Firestore listener
+  const [currentPatientEmotion, setCurrentPatientEmotion] = useState(null);
+  const [sustainedStressAlert, setSustainedStressAlert] = useState(null);
+  const emotionListenerRef = useRef(null);
 
   const handleAudioEmotion = useCallback((result) => {
     setAudioEmotionHistory(prev => [...prev, result].slice(-30)); // keep last 30 readings
@@ -781,11 +795,25 @@ const DoctorDashboard = () => {
   const { startCall, callStatus, activeCallRoomId, incomingCall, outgoingCall } = useSocket();
 
   const handleStartVideoCall = (patient) => {
+    setSelectedPatientForBriefing(patient);
+    setBriefingOpen(true);
+  };
+
+  const proceedToVideoCall = () => {
+    const patient = selectedPatientForBriefing;
+    if (!patient) return;
+    
+    setBriefingOpen(false);
     const patientName = patient.displayName || patient.name || patient.email || 'Patient';
     setVideoCallPatient(patient);
     setIsOutgoingCall(true);
     setVideoCallOpen(true);
     startCall(patient.id, patientName);
+  };
+
+  const handleViewHistory = (patient) => {
+    setViewingPatientHistory(patient);
+    setHistoryPanelOpen(true);
   };
 
   useEffect(() => {
@@ -867,37 +895,8 @@ const DoctorDashboard = () => {
     }
   };
 
-  const handleViewHistory = async (patient) => {
-    setViewingPatientHistory(patient);
-    setHistoryLoading(true);
-    try {
-      const [chats, tests] = await Promise.all([
-        getChatReportsForPatient(patient.id).catch(() => []),
-        getMentalHealthTestResultsForUser(patient.id).catch(() => [])
-      ]);
-      
-      const typedChats = chats.map(c => ({ ...c, historyType: 'chat' }));
-      const typedTests = tests.map(t => ({ ...t, historyType: 'test' }));
-      
-      const combined = [...typedChats, ...typedTests].sort((a, b) => {
-        const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime();
-        const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime();
-        return dateB - dateA; // Descending
-      });
-      
-      const fortyEightHoursAgo = Date.now() - (48 * 60 * 60 * 1000);
-      const filtered = combined.filter(item => {
-        const itemDate = item.createdAt?.toDate ? item.createdAt.toDate().getTime() : new Date(item.createdAt).getTime();
-        return itemDate >= fortyEightHoursAgo;
-      });
-      
-      setPatientHistory(filtered);
-    } catch (error) {
-      setPatientHistory([]);
-    } finally {
-      setHistoryLoading(false);
-    }
-  };
+
+
 
   const handleBackToDashboard = () => {
     setViewingPatientHistory(null);
@@ -983,6 +982,47 @@ const DoctorDashboard = () => {
     // eslint-disable-next-line
   }, [modalOpen, modalType, modalData, currentUser]);
 
+  // Subscribe to patient text emotions when scheduled chat opens
+  useEffect(() => {
+    if (modalOpen && modalType === 'view' && modalData?.id) {
+      const chatId = modalData.id;
+      setPatientTextEmotions([]);
+      setCurrentPatientEmotion(null);
+      setSustainedStressAlert(null);
+      emotionListenerRef.current = listenForPatientEmotions(chatId, (emotions) => {
+        setPatientTextEmotions(emotions);
+        if (emotions.length > 0) {
+          setCurrentPatientEmotion(emotions[0]); // most recent
+          // Sustained stress detection: check last 3 emotions
+          const last3 = emotions.slice(0, 3);
+          const negativeEmotions = ['Stressed', 'Anxious', 'Sad', 'Overwhelmed', 'Hopeless', 'Angry', 'Fearful'];
+          const allNegative = last3.length >= 3 && last3.every(e => negativeEmotions.includes(e.emotion));
+          if (allNegative) {
+            setSustainedStressAlert(`⚠️ Patient showing sustained ${last3[0].emotion.toLowerCase()} pattern`);
+          } else if (emotions.length >= 2 && emotions[0].severity === 'high' && emotions[1].severity !== 'high') {
+            setSustainedStressAlert('⚠️ Sudden emotional drop detected');
+          } else {
+            setSustainedStressAlert(null);
+          }
+        }
+      });
+    } else {
+      if (emotionListenerRef.current) {
+        emotionListenerRef.current();
+        emotionListenerRef.current = null;
+      }
+      setPatientTextEmotions([]);
+      setCurrentPatientEmotion(null);
+      setSustainedStressAlert(null);
+    }
+    return () => {
+      if (emotionListenerRef.current) {
+        emotionListenerRef.current();
+        emotionListenerRef.current = null;
+      }
+    };
+  }, [modalOpen, modalType, modalData]);
+
   useEffect(() => {
     if (chatPatient && currentUser) {
       const chatId = `${currentUser.uid}_${chatPatient.id}`;
@@ -1012,6 +1052,43 @@ const DoctorDashboard = () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
     // eslint-disable-next-line
+  }, [chatPatient, currentUser]);
+
+  // Subscribe to patient text emotions when direct chat opens
+  useEffect(() => {
+    if (chatPatient && currentUser) {
+      const chatId = `${currentUser.uid}_${chatPatient.id}`;
+      setPatientTextEmotions([]);
+      setCurrentPatientEmotion(null);
+      setSustainedStressAlert(null);
+      emotionListenerRef.current = listenForPatientEmotions(chatId, (emotions) => {
+        setPatientTextEmotions(emotions);
+        if (emotions.length > 0) {
+          setCurrentPatientEmotion(emotions[0]);
+          const last3 = emotions.slice(0, 3);
+          const negativeEmotions = ['Stressed', 'Anxious', 'Sad', 'Overwhelmed', 'Hopeless', 'Angry', 'Fearful'];
+          const allNegative = last3.length >= 3 && last3.every(e => negativeEmotions.includes(e.emotion));
+          if (allNegative) {
+            setSustainedStressAlert(`⚠️ Patient showing sustained ${last3[0].emotion.toLowerCase()} pattern`);
+          } else if (emotions.length >= 2 && emotions[0].severity === 'high' && emotions[1].severity !== 'high') {
+            setSustainedStressAlert('⚠️ Sudden emotional drop detected');
+          } else {
+            setSustainedStressAlert(null);
+          }
+        }
+      });
+    } else {
+      if (emotionListenerRef.current) {
+        emotionListenerRef.current();
+        emotionListenerRef.current = null;
+      }
+    }
+    return () => {
+      if (emotionListenerRef.current) {
+        emotionListenerRef.current();
+        emotionListenerRef.current = null;
+      }
+    };
   }, [chatPatient, currentUser]);
 
   useEffect(() => {
@@ -1048,6 +1125,22 @@ const DoctorDashboard = () => {
 
   const patientsWithUnread = patients.filter(p => (unreadCounts[p.id] || 0) > 0);
   const scheduledChatsWithUnread = scheduledChats.filter(c => (unreadCounts[c.id] || 0) > 0);
+
+  // Helper: get emotion tag color
+  const getEmotionTagColor = (emotion) => {
+    const e = emotion?.toLowerCase();
+    if (['stressed', 'overwhelmed', 'frustrated'].includes(e)) return { bg: '#fef2f2', color: '#dc2626', border: '#fecaca' };
+    if (['sad', 'lonely', 'hopeless'].includes(e)) return { bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' };
+    if (['anxious', 'fearful', 'confused'].includes(e)) return { bg: '#fffbeb', color: '#d97706', border: '#fde68a' };
+    if (['angry'].includes(e)) return { bg: '#fef2f2', color: '#b91c1c', border: '#fca5a5' };
+    if (['calm', 'hopeful', 'grateful'].includes(e)) return { bg: '#f0fdf4', color: '#15803d', border: '#bbf7d0' };
+    return { bg: '#f9fafb', color: '#6b7280', border: '#e5e7eb' };
+  };
+
+  // Helper: find emotion for a specific patient message
+  const getEmotionForMessage = (messageText) => {
+    return patientTextEmotions.find(e => e.messageText === messageText);
+  };
 
   const handleLogout = async () => { try { await logout(); } catch (e) { console.error(e); } };
 
@@ -1289,21 +1382,63 @@ const DoctorDashboard = () => {
                   <p style={{ color: '#9ca3af', fontSize: '13px' }}>No messages yet. Start the conversation!</p>
                 </div>
               ) : (
-                chatMessages.map(msg => (
-                  <div key={msg.id} style={{ display: 'flex', justifyContent: msg.senderId === currentUser.uid ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: '8px' }}>
-                    {msg.senderId !== currentUser.uid && (
-                      <img src={modalData.patientPhotoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(modalData.patientName || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '28px', height: '28px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0 }} />
-                    )}
-                    <div style={{ maxWidth: '70%', padding: '10px 14px', borderRadius: '16px', fontSize: '13px', wordBreak: 'break-word', background: msg.senderId === currentUser.uid ? 'linear-gradient(135deg, #3d6655, #4a7c65)' : 'white', color: msg.senderId === currentUser.uid ? 'white' : '#1f2937', border: msg.senderId === currentUser.uid ? 'none' : '1px solid #e5e7eb', borderBottomRightRadius: msg.senderId === currentUser.uid ? '4px' : '16px', borderBottomLeftRadius: msg.senderId !== currentUser.uid ? '4px' : '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                      {msg.text}
-                      <div style={{ fontSize: '10px', marginTop: '4px', color: msg.senderId === currentUser.uid ? 'rgba(167,243,208,0.8)' : '#9ca3af', textAlign: 'right' }}>
-                        {msg.timestamp && new Date(msg.timestamp.seconds ? msg.timestamp.seconds * 1000 : msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                chatMessages.map(msg => {
+                  const isPatient = msg.senderId !== currentUser.uid;
+                  const emotionData = isPatient ? getEmotionForMessage(msg.text) : null;
+                  const tagColor = emotionData ? getEmotionTagColor(emotionData.emotion) : null;
+                  return (
+                  <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', alignItems: msg.senderId === currentUser.uid ? 'flex-end' : 'flex-start' }}>
+                    <div style={{ display: 'flex', justifyContent: msg.senderId === currentUser.uid ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: '8px' }}>
+                      {isPatient && (
+                        <img src={modalData.patientPhotoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(modalData.patientName || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '28px', height: '28px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0 }} />
+                      )}
+                      <div style={{ maxWidth: '70%', padding: '10px 14px', borderRadius: '16px', fontSize: '13px', wordBreak: 'break-word', background: msg.senderId === currentUser.uid ? 'linear-gradient(135deg, #3d6655, #4a7c65)' : 'white', color: msg.senderId === currentUser.uid ? 'white' : '#1f2937', border: msg.senderId === currentUser.uid ? 'none' : '1px solid #e5e7eb', borderBottomRightRadius: msg.senderId === currentUser.uid ? '4px' : '16px', borderBottomLeftRadius: isPatient ? '4px' : '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                        {msg.text}
+                        <div style={{ fontSize: '10px', marginTop: '4px', color: msg.senderId === currentUser.uid ? 'rgba(167,243,208,0.8)' : '#9ca3af', textAlign: 'right' }}>
+                          {msg.timestamp && new Date(msg.timestamp.seconds ? msg.timestamp.seconds * 1000 : msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
                       </div>
                     </div>
+                    {/* Emotion tag - ONLY on patient messages, ONLY visible to doctor */}
+                    {emotionData && tagColor && (
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '4px',
+                        fontSize: '10px', fontWeight: 700,
+                        padding: '2px 8px', borderRadius: '999px', marginTop: '4px',
+                        background: tagColor.bg, color: tagColor.color, border: `1px solid ${tagColor.border}`,
+                        transition: 'all 0.3s ease',
+                        animation: 'emotionFadeIn 0.4s ease',
+                      }}>
+                        {getEmotionEmoji(emotionData.emotion)} {emotionData.emotion}
+                        {emotionData.risk_flag && <span style={{ color: '#dc2626', marginLeft: '4px' }}>🚨</span>}
+                      </span>
+                    )}
                   </div>
-                ))
+                  );
+                })
               )}
             </div>
+            {/* Sustained stress alert */}
+            {sustainedStressAlert && (
+              <div style={{ padding: '8px 16px', background: '#fef2f2', borderBottom: '1px solid #fecaca', fontSize: '12px', fontWeight: 600, color: '#dc2626', display: 'flex', alignItems: 'center', gap: '6px', animation: 'emotionFadeIn 0.3s ease' }}>
+                {sustainedStressAlert}
+              </div>
+            )}
+            {/* Live patient emotion indicator */}
+            {currentPatientEmotion && (() => {
+              const liveColor = getEmotionTagColor(currentPatientEmotion.emotion);
+              return (
+                <div style={{ padding: '6px 16px', background: liveColor.bg, borderBottom: `1px solid ${liveColor.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', animation: 'emotionFadeIn 0.3s ease' }}>
+                  <span style={{ fontWeight: 700, color: liveColor.color, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: liveColor.color, animation: 'emotionPulse 2s infinite' }}></span>
+                    Patient Mood: {getEmotionEmoji(currentPatientEmotion.emotion)} {currentPatientEmotion.emotion}
+                  </span>
+                  <span style={{ color: '#9ca3af' }}>
+                    {currentPatientEmotion.severity && `Severity: ${currentPatientEmotion.severity}`}
+                  </span>
+                </div>
+              );
+            })()}
             {/* Session notes */}
             <div style={{ padding: '8px 16px' }}>
               <SessionNotes doctorId={currentUser?.uid} patientId={modalData?.patientId} sessionId={modalData?.id} sessionDate={modalData?.date} />
@@ -1434,22 +1569,63 @@ const DoctorDashboard = () => {
                         </button>
                       </div>
                     </div>
-                  ) : (
-                    <div key={msg.id} style={{ display: 'flex', justifyContent: msg.senderId === currentUser.uid ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: '8px' }}>
-                      {msg.senderId !== currentUser.uid && (
-                        <img src={chatPatient.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(chatPatient.displayName || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '28px', height: '28px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0 }} />
-                      )}
-                      <div style={{ maxWidth: '70%', padding: '10px 14px', borderRadius: '16px', fontSize: '13px', wordBreak: 'break-word', background: msg.senderId === currentUser.uid ? 'linear-gradient(135deg, #3d6655, #4a7c65)' : 'white', color: msg.senderId === currentUser.uid ? 'white' : '#1f2937', border: msg.senderId === currentUser.uid ? 'none' : '1px solid #e5e7eb', borderBottomRightRadius: msg.senderId === currentUser.uid ? '4px' : '16px', borderBottomLeftRadius: msg.senderId !== currentUser.uid ? '4px' : '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                        {msg.text}
-                        <div style={{ fontSize: '10px', marginTop: '4px', color: msg.senderId === currentUser.uid ? 'rgba(167,243,208,0.8)' : '#9ca3af', textAlign: 'right' }}>
-                          {msg.timestamp && new Date(msg.timestamp.seconds ? msg.timestamp.seconds * 1000 : msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  ) : (() => {
+                    const isPatient = msg.senderId !== currentUser.uid;
+                    const emotionData = isPatient ? getEmotionForMessage(msg.text) : null;
+                    const tagColor = emotionData ? getEmotionTagColor(emotionData.emotion) : null;
+                    return (
+                      <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', alignItems: msg.senderId === currentUser.uid ? 'flex-end' : 'flex-start' }}>
+                        <div style={{ display: 'flex', justifyContent: msg.senderId === currentUser.uid ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: '8px' }}>
+                          {isPatient && (
+                            <img src={chatPatient.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(chatPatient.displayName || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '28px', height: '28px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0 }} />
+                          )}
+                          <div style={{ maxWidth: '70%', padding: '10px 14px', borderRadius: '16px', fontSize: '13px', wordBreak: 'break-word', background: msg.senderId === currentUser.uid ? 'linear-gradient(135deg, #3d6655, #4a7c65)' : 'white', color: msg.senderId === currentUser.uid ? 'white' : '#1f2937', border: msg.senderId === currentUser.uid ? 'none' : '1px solid #e5e7eb', borderBottomRightRadius: msg.senderId === currentUser.uid ? '4px' : '16px', borderBottomLeftRadius: isPatient ? '4px' : '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+                            {msg.text}
+                            <div style={{ fontSize: '10px', marginTop: '4px', color: msg.senderId === currentUser.uid ? 'rgba(167,243,208,0.8)' : '#9ca3af', textAlign: 'right' }}>
+                              {msg.timestamp && new Date(msg.timestamp.seconds ? msg.timestamp.seconds * 1000 : msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          </div>
                         </div>
+                        {/* Emotion tag on patient messages */}
+                        {emotionData && tagColor && (
+                          <span style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '4px',
+                            fontSize: '10px', fontWeight: 700,
+                            padding: '2px 8px', borderRadius: '999px', marginTop: '4px',
+                            background: tagColor.bg, color: tagColor.color, border: `1px solid ${tagColor.border}`,
+                            animation: 'emotionFadeIn 0.4s ease',
+                          }}>
+                            {getEmotionEmoji(emotionData.emotion)} {emotionData.emotion}
+                            {emotionData.risk_flag && <span style={{ color: '#dc2626', marginLeft: '4px' }}>🚨</span>}
+                          </span>
+                        )}
                       </div>
-                    </div>
-                  )
+                    );
+                  })()
                 )
               )}
             </div>
+            {/* Sustained stress alert */}
+            {sustainedStressAlert && (
+              <div style={{ padding: '8px 16px', background: '#fef2f2', borderBottom: '1px solid #fecaca', fontSize: '12px', fontWeight: 600, color: '#dc2626', display: 'flex', alignItems: 'center', gap: '6px', animation: 'emotionFadeIn 0.3s ease' }}>
+                {sustainedStressAlert}
+              </div>
+            )}
+            {/* Live patient emotion indicator */}
+            {currentPatientEmotion && (() => {
+              const liveColor = getEmotionTagColor(currentPatientEmotion.emotion);
+              return (
+                <div style={{ padding: '6px 16px', background: liveColor.bg, borderBottom: `1px solid ${liveColor.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '11px', animation: 'emotionFadeIn 0.3s ease' }}>
+                  <span style={{ fontWeight: 700, color: liveColor.color, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: liveColor.color, animation: 'emotionPulse 2s infinite' }}></span>
+                    Patient Mood: {getEmotionEmoji(currentPatientEmotion.emotion)} {currentPatientEmotion.emotion}
+                  </span>
+                  <span style={{ color: '#9ca3af' }}>
+                    {currentPatientEmotion.severity && `Severity: ${currentPatientEmotion.severity}`}
+                  </span>
+                </div>
+              );
+            })()}
             {/* Footer */}
             <div style={{ borderTop: '1px solid #f3f4f6', background: 'white' }}>
               <div style={{ padding: '10px 12px', display: 'flex', gap: '8px' }}>
@@ -1581,6 +1757,33 @@ const DoctorDashboard = () => {
         patient={notesPatient}
         doctorId={currentUser?.uid}
       />
+
+      {/* Phase 6: Patient History Panel */}
+      <PatientHistoryPanel 
+        open={historyPanelOpen}
+        onClose={() => setHistoryPanelOpen(false)}
+        patient={viewingPatientHistory}
+      />
+
+      {/* Phase 6: Pre-Session Briefing */}
+      <PreSessionBriefing 
+        open={briefingOpen}
+        onClose={() => setBriefingOpen(false)}
+        patient={selectedPatientForBriefing}
+        onJoinCall={proceedToVideoCall}
+      />
+
+      {/* Emotion animation styles */}
+      <style>{`
+        @keyframes emotionFadeIn {
+          from { opacity: 0; transform: translateY(6px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes emotionPulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+      `}</style>
     </div>
   );
 };
