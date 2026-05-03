@@ -361,14 +361,16 @@ export const getComprehensivePatientData = async (patientId) => {
       emotions,
       aiChats,
       sessionNotes,
-      transcripts
+      transcripts,
+      testResults
     ] = await Promise.all([
       getDoc(doc(db, 'userProfiles', patientId)),
       getGad7History(patientId),
       getEmotionHistory(patientId),
       getAIChatHistory(patientId),
       getChatReportsForPatient(patientId), // Existing notes/reports
-      getVideoTranscriptsForPatient(patientId)
+      getVideoTranscriptsForPatient(patientId),
+      getMentalHealthTestResultsForUser(patientId)
     ]);
 
     return {
@@ -378,7 +380,8 @@ export const getComprehensivePatientData = async (patientId) => {
         emotions,
         aiChats,
         sessionNotes,
-        transcripts
+        transcripts,
+        testResults
       }
     };
   } catch (err) {
@@ -704,4 +707,42 @@ export const getPatientSessionNotes = async (patientId) => {
     console.error('Error fetching session notes:', error);
     return [];
   }
+};
+
+// Get IDs of doctors a patient has chatted with (has a chat document with at least 1 message)
+export const getChattedDoctorIds = async (patientId) => {
+  if (!patientId) return [];
+  const q = query(
+    collection(db, 'chats'),
+    where('participants', 'array-contains', patientId)
+  );
+  const snap = await getDocs(q);
+  const doctorIds = [];
+  snap.docs.forEach(d => {
+    const data = d.data();
+    if (data.lastMessage) {
+      const others = (data.participants || []).filter(id => id !== patientId);
+      others.forEach(id => { if (!doctorIds.includes(id)) doctorIds.push(id); });
+    }
+  });
+  return doctorIds;
+};
+
+// Get IDs of patients a doctor has chatted with (has a chat document with at least 1 message)
+export const getChattedPatientIds = async (doctorId) => {
+  if (!doctorId) return [];
+  const q = query(
+    collection(db, 'chats'),
+    where('participants', 'array-contains', doctorId)
+  );
+  const snap = await getDocs(q);
+  const patientIds = [];
+  snap.docs.forEach(d => {
+    const data = d.data();
+    if (data.lastMessage) {
+      const others = (data.participants || []).filter(id => id !== doctorId);
+      others.forEach(id => { if (!patientIds.includes(id)) patientIds.push(id); });
+    }
+  });
+  return patientIds;
 };

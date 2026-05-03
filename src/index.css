@@ -31,6 +31,15 @@
   }
 }
 
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
 .animate-vibrate {
   animation: vibrate 0.4s linear;
 }

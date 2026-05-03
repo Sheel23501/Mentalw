@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaTimes, FaUser, FaChartLine, FaBrain, FaComments, FaVideo, FaEdit, FaExclamationTriangle } from 'react-icons/fa';
+import { FaTimes, FaUser, FaChartLine, FaBrain, FaComments, FaVideo, FaEdit, FaExclamationTriangle, FaClipboardList } from 'react-icons/fa';
 import { getComprehensivePatientData } from '../../services/firestore';
 import { generatePatientOverview } from '../../services/gemini';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
@@ -124,8 +124,9 @@ const PatientHistoryPanel = ({ open, onClose, patient }) => {
         </div>
 
         {/* Tabs */}
-        <div style={{ padding: '12px 32px', display: 'flex', gap: '8px', background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+        <div style={{ padding: '12px 32px', display: 'flex', gap: '8px', background: '#f8fafc', borderBottom: '1px solid #f1f5f9', flexWrap: 'wrap' }}>
           <TabButton id="summary" label="Summary" icon={<FaChartLine />} />
+          <TabButton id="tests" label="Tests" icon={<FaClipboardList />} />
           <TabButton id="gad7" label="GAD-7" icon={<FaBrain />} />
           <TabButton id="emotions" label="Emotions" icon={<FaChartLine />} />
           <TabButton id="aichat" label="AI Chat" icon={<FaComments />} />
@@ -304,6 +305,107 @@ const PatientHistoryPanel = ({ open, onClose, patient }) => {
                       ))
                     ) : (
                       <div style={{ textAlign: 'center', padding: '80px', color: '#94a3b8' }}>No session notes available.</div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'tests' && (
+                <div style={{ animation: 'fadeIn 0.3s ease' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '24px' }}>Mental Health Assessments</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {(history.testResults && history.testResults.length > 0) ? (
+                      history.testResults
+                        .sort((a, b) => {
+                          const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
+                          const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
+                          return dateB - dateA;
+                        })
+                        .map((result, i) => {
+                          const date = result.createdAt?.toDate ? result.createdAt.toDate() : new Date(result.createdAt);
+                          const testName = result.testName || result.results?.testName || 'General Assessment';
+                          const alert = result.results?.alert || '';
+                          let riskBg = '#f0fdf4'; let riskColor = '#15803d'; let riskBorder = '#bbf7d0'; let riskLabel = 'Low';
+                          if (alert.includes('High priority') || alert.includes('Severe')) {
+                            riskBg = '#fef2f2'; riskColor = '#b91c1c'; riskBorder = '#fecaca'; riskLabel = 'High';
+                          } else if (alert.includes('Moderate')) {
+                            riskBg = '#fffbeb'; riskColor = '#92400e'; riskBorder = '#fde68a'; riskLabel = 'Moderate';
+                          }
+                          return (
+                            <div key={result.id || i} style={{ padding: '24px', borderRadius: '20px', border: '1px solid #f1f5f9', background: '#fff' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                  <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <FaClipboardList style={{ color: '#2563eb' }} />
+                                  </div>
+                                  <div>
+                                    <p style={{ fontWeight: 700, fontSize: '15px', margin: 0 }}>{testName}</p>
+                                    <p style={{ fontSize: '12px', color: '#94a3b8' }}>{date.toLocaleString()}</p>
+                                  </div>
+                                </div>
+                                <span style={{ fontSize: '11px', fontWeight: 700, color: riskColor, background: riskBg, border: `1px solid ${riskBorder}`, padding: '4px 12px', borderRadius: '999px' }}>
+                                  {riskLabel} Risk
+                                </span>
+                              </div>
+
+                              {alert && (
+                                <div style={{ background: riskBg, border: `1px solid ${riskBorder}`, borderRadius: '12px', padding: '12px 16px', marginBottom: '14px' }}>
+                                  <p style={{ fontSize: '13px', color: riskColor, fontWeight: 600, margin: 0 }}>{alert}</p>
+                                </div>
+                              )}
+
+                              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', marginBottom: '14px' }}>
+                                {result.results?.totalScore !== undefined && (
+                                  <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '12px', textAlign: 'center', border: '1px solid #f1f5f9' }}>
+                                    <p style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Total Score</p>
+                                    <p style={{ fontSize: '20px', fontWeight: 800, color: '#1e293b', margin: 0 }}>{result.results.totalScore}</p>
+                                  </div>
+                                )}
+                                {result.results?.severity && (
+                                  <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '12px', textAlign: 'center', border: '1px solid #f1f5f9' }}>
+                                    <p style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Severity</p>
+                                    <p style={{ fontSize: '14px', fontWeight: 700, color: '#1e293b', margin: 0 }}>{result.results.severity}</p>
+                                  </div>
+                                )}
+                                {result.results?.emotional_symptoms_score !== undefined && (
+                                  <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '12px', textAlign: 'center', border: '1px solid #f1f5f9' }}>
+                                    <p style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Emotional</p>
+                                    <p style={{ fontSize: '20px', fontWeight: 800, color: '#1e293b', margin: 0 }}>{result.results.emotional_symptoms_score}</p>
+                                  </div>
+                                )}
+                                {result.results?.function_impact_score !== undefined && (
+                                  <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '12px', textAlign: 'center', border: '1px solid #f1f5f9' }}>
+                                    <p style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Functional</p>
+                                    <p style={{ fontSize: '20px', fontWeight: 800, color: '#1e293b', margin: 0 }}>{result.results.function_impact_score}</p>
+                                  </div>
+                                )}
+                                {result.results?.self_insight_score !== undefined && (
+                                  <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '12px', textAlign: 'center', border: '1px solid #f1f5f9' }}>
+                                    <p style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Self-Insight</p>
+                                    <p style={{ fontSize: '20px', fontWeight: 800, color: '#1e293b', margin: 0 }}>{result.results.self_insight_score}</p>
+                                  </div>
+                                )}
+                              </div>
+
+                              {result.results?.tags && result.results.tags.length > 0 && (
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '12px' }}>
+                                  {result.results.tags.map((tag, j) => (
+                                    <span key={j} style={{ fontSize: '10px', fontWeight: 600, background: '#f1f5f9', color: '#475569', padding: '3px 10px', borderRadius: '999px' }}>{tag}</span>
+                                  ))}
+                                </div>
+                              )}
+
+                              {result.results?.treatmentAction && (
+                                <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '12px', padding: '12px 16px' }}>
+                                  <p style={{ fontSize: '11px', fontWeight: 700, color: '#1d4ed8', marginBottom: '4px' }}>Treatment Action</p>
+                                  <p style={{ fontSize: '13px', color: '#1e40af', margin: 0 }}>{result.results.treatmentAction}</p>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })
+                    ) : (
+                      <div style={{ textAlign: 'center', padding: '80px', color: '#94a3b8' }}>No mental health test results available for this patient.</div>
                     )}
                   </div>
                 </div>

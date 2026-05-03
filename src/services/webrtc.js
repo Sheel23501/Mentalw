@@ -17,17 +17,11 @@ class WebRTCVideoCall {
       // import.meta may not be available in some contexts; ignore
     }
 
-    // Fallback: build URL from current page host
+    // Fallback: build URL from current page host so other devices connect to the correct machine
     if (!resolved && typeof window !== 'undefined') {
       const host = window.location.hostname || 'localhost';
       const protocol = window.location.protocol || 'http:';
-      // In production (non-localhost), connect to same origin (no port needed)
-      // In development (localhost), connect to backend on port 4000
-      if (host === 'localhost' || host === '127.0.0.1') {
-        resolved = `${protocol}//${host}:4000`;
-      } else {
-        resolved = `${protocol}//${host}`;
-      }
+      resolved = `${protocol}//${host}:4000`;
     }
 
     // Final fallback
@@ -61,6 +55,17 @@ class WebRTCVideoCall {
         this.socket.on('connect_error', (error) => {
           console.error('❌ Connection error:', error);
           reject(error);
+        });
+
+        // Handle auto-reconnections: re-register user so they appear online again
+        this.socket.on('connect', () => {
+          if (this.userId && this.userName) {
+            console.log('🔄 Reconnected to server, re-registering user...');
+            this.socket.emit('user:register', {
+              userId: this.userId,
+              userName: this.userName
+            });
+          }
         });
       } catch (error) {
         reject(error);

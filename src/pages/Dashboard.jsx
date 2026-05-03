@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { FaComments, FaCalendarAlt, FaStar, FaVideo, FaBrain, FaClock, FaCheckCircle, FaTimesCircle, FaTh, FaUserMd, FaClipboardList, FaUser, FaSignOutAlt, FaEdit, FaSave, FaRobot } from 'react-icons/fa';
 import { BsInfoCircle } from 'react-icons/bs';
-import { getAllDoctors, scheduleChat, createOrGetChat, sendMessageToChat, listenForChatMessages, listenForChatDocChanges, resetUnreadCount, getChatDocument, getScheduledAppointmentsForPatient, getUserProfile, updateUserProfile, savePatientEmotionLog, updateChatPatientEmotion } from '../services/firestore';
+import { getAllDoctors, scheduleChat, createOrGetChat, sendMessageToChat, listenForChatMessages, listenForChatDocChanges, resetUnreadCount, getChatDocument, getScheduledAppointmentsForPatient, getUserProfile, updateUserProfile, savePatientEmotionLog, updateChatPatientEmotion, getChattedDoctorIds } from '../services/firestore';
 import { detectMessageEmotion } from '../services/gemini';
 import MoodTracker from '../components/dashboard/MoodTracker.jsx';
 import VideoCallModal from '../components/dashboard/VideoCallModal.jsx';
@@ -471,7 +471,7 @@ const OverviewTab = ({ currentUser, doctors, myAppointments, appointmentsLoading
 };
 
 // ─── Available Doctors Tab ────────────────────────────────────────────────────
-const DoctorsTab = ({ doctors, loading, onStartChat, onScheduleChat, unreadCounts }) => {
+const DoctorsTab = ({ doctors, loading, onStartChat, onScheduleChat, unreadCounts, onlineUsers = [], chattedDoctorIds = [] }) => {
   const [search, setSearch] = useState('');
   const filtered = doctors.filter(d =>
     (d.displayName || d.name || d.email || '').toLowerCase().includes(search.toLowerCase()) ||
@@ -514,15 +514,28 @@ const DoctorsTab = ({ doctors, loading, onStartChat, onScheduleChat, unreadCount
               <div style={{ position: 'relative', marginBottom: '14px' }}>
                 <img
                   src={doctor.photoURL || doctor.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(doctor.displayName || doctor.name || doctor.email || 'Doctor')}&background=c7d2c4&color=374151`}
-                  alt="" style={{ width: '64px', height: '64px', borderRadius: '16px', objectFit: 'cover', border: '2px solid #f3f4f6' }}
+                  alt="" style={{ width: '64px', height: '64px', borderRadius: '16px', objectFit: 'cover', border: `2px solid ${onlineUsers.includes(doctor.id) ? '#22c55e' : '#e5e7eb'}` }}
                 />
                 {(unreadCounts[doctor.id] || 0) > 0 && (
                   <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#ef4444', color: 'white', fontSize: '10px', fontWeight: 700, borderRadius: '999px', minWidth: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 4px', border: '2px solid white' }}>{unreadCounts[doctor.id]}</span>
                 )}
+                {/* Online/Offline indicator dot */}
+                <span style={{ position: 'absolute', bottom: '-3px', right: '-3px', width: '14px', height: '14px', background: onlineUsers.includes(doctor.id) ? '#22c55e' : '#9ca3af', borderRadius: '50%', border: '2px solid white', display: 'block' }} title={onlineUsers.includes(doctor.id) ? 'Online' : 'Offline'} />
               </div>
               <h3 style={{ fontWeight: 700, color: '#1f2937', fontSize: '15px', textAlign: 'center', marginBottom: '4px' }}>
                 {doctor.displayName || doctor.name || doctor.email || 'Unknown Doctor'}
               </h3>
+              {/* Online/Offline status badge */}
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                fontSize: '11px', fontWeight: 600, padding: '3px 10px', borderRadius: '999px', marginBottom: '8px',
+                background: onlineUsers.includes(doctor.id) ? '#f0fdf4' : '#f9fafb',
+                color: onlineUsers.includes(doctor.id) ? '#15803d' : '#9ca3af',
+                border: `1px solid ${onlineUsers.includes(doctor.id) ? '#bbf7d0' : '#e5e7eb'}`,
+              }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: onlineUsers.includes(doctor.id) ? '#22c55e' : '#9ca3af', display: 'inline-block', animation: onlineUsers.includes(doctor.id) ? 'pulse 2s infinite' : 'none' }} />
+                {onlineUsers.includes(doctor.id) ? 'Online' : 'Offline'}
+              </span>
               <p style={{ color: '#4a7c65', fontSize: '12px', fontWeight: 600, textAlign: 'center', marginBottom: '8px' }}>
                 {doctor.specialization || 'Specialist'}
               </p>
@@ -754,15 +767,10 @@ const Dashboard = () => {
   const [isOutgoingCall, setIsOutgoingCall] = useState(false);
   const [myAppointments, setMyAppointments] = useState([]);
   const [appointmentsLoading, setAppointmentsLoading] = useState(false);
-
-  // Handle doctor selection from escalation modal (navigates to chat)
-  const handleEscalationDoctorSelected = (doctor) => {
-    handleStartChat(doctor);
-    setActiveTab('doctors');
-  };
+  const [chattedDoctorIds, setChattedDoctorIds] = useState([]);
 
   // Socket context for direct video calls
-  const { startCall, callStatus, activeCallRoomId, incomingCall } = useSocket();
+  const { startCall, callStatus, activeCallRoomId, incomingCall, onlineUsers } = useSocket();
 
   // When an incoming call is accepted (from IncomingCallNotification), open the video call modal
   useEffect(() => {
@@ -770,6 +778,8 @@ const Dashboard = () => {
       setPendingVideoRoomCode(incomingCall.roomId);
       setIsOutgoingCall(false);
       setVideoCallOpen(true);
+      // Close chat modal so only video call shows
+      setShowChatModal(false);
     }
   }, [callStatus, incomingCall, videoCallOpen]);
 
@@ -830,6 +840,20 @@ const Dashboard = () => {
       setAppointmentsLoading(false);
     };
     fetchAppointments();
+  }, [currentUser]);
+
+  // Fetch which doctors this patient has previously chatted with
+  useEffect(() => {
+    if (!currentUser?.uid) return;
+    const fetchChattedDoctors = async () => {
+      try {
+        const ids = await getChattedDoctorIds(currentUser.uid);
+        setChattedDoctorIds(ids);
+      } catch (err) {
+        setChattedDoctorIds([]);
+      }
+    };
+    fetchChattedDoctors();
   }, [currentUser]);
 
   // Listen for unread counts for each doctor
@@ -1073,12 +1097,14 @@ const Dashboard = () => {
             />
           )}
           {activeTab === 'doctors' && (
-            <DoctorsTab
+          <DoctorsTab
               doctors={doctors}
               loading={loading}
               onStartChat={handleStartChat}
               onScheduleChat={handleScheduleChat}
               unreadCounts={unreadCounts}
+              onlineUsers={onlineUsers}
+              chattedDoctorIds={chattedDoctorIds}
             />
           )}
           {activeTab === 'tests' && (
@@ -1125,6 +1151,8 @@ const Dashboard = () => {
                       }
                       setIsOutgoingCall(true);
                       setVideoCallOpen(true);
+                      // Close chat modal so only video call shows
+                      setShowChatModal(false);
                     }}
                     className="bg-primary-100 hover:bg-primary-200 text-primary-700 p-2 rounded-full transition shadow flex items-center justify-center"
                     title="Start Video Call"

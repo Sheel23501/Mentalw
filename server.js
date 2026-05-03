@@ -58,9 +58,8 @@ const twilio_client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 const HUGGINGFACE_API_KEY = process.env.HUGGINGFACE_API_KEY || '';
 const HF_TOKEN = process.env.HF_TOKEN || HUGGINGFACE_API_KEY;
 const EMOTION_PROVIDER = process.env.EMOTION_PROVIDER || (HUGGINGFACE_API_KEY ? 'hf' : 'local');
-const HF_TEXT_MODEL = process.env.HF_TEXT_MODEL || 'SamLowe/roberta-base-go_emotions';
+const HF_TEXT_MODEL = process.env.HF_TEXT_MODEL || 'cointegrated/rubert-tiny2-cedr-emotion-detection';
 const HF_IMAGE_MODEL = process.env.HF_IMAGE_MODEL || 'trpakov/vit-face-expression';
-const HF_AUDIO_MODEL = process.env.HF_AUDIO_MODEL || 'ehcalabres/wav2vec2-lg-xlsr-en-speech-emotion-recognition';
 
 // Track active call rooms in memory (for demo; use database in production)
 const activeRooms = new Map();
@@ -154,8 +153,9 @@ app.post('/api/twilio/token', async (req, res) => {
     const AccessToken = twilio.jwt.AccessToken;
     const VideoGrant = AccessToken.VideoGrant;
 
-    const token = new AccessToken(TWILIO_ACCOUNT_SID, TWILIO_API_KEY || TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, { identity });
+    const token = new AccessToken(TWILIO_ACCOUNT_SID, TWILIO_API_KEY || TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
     token.addGrant(new VideoGrant({ room: roomName }));
+    token.identity = identity;
 
     // Track participant in room
     if (activeRooms.has(roomName)) {
@@ -461,7 +461,7 @@ app.delete('/api/twilio/rooms/:roomName', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 4000;
+const PORT = 4000; // Fixed port for signaling server
 
 // Create HTTP server and attach Socket.IO for WebRTC signaling
 const httpServer = createServer(app);
@@ -478,6 +478,12 @@ const connectedUsers = new Map(); // socketId -> { userId, userName }
 const userSocketMap = new Map(); // userId -> socketId (reverse lookup for call routing)
 const videoRooms = new Map(); // roomId -> { participants: [], createdAt }
 
+// Helper: broadcast the list of online userIds to all connected clients
+const broadcastOnlineUsers = () => {
+  const onlineUserIds = Array.from(userSocketMap.keys());
+  io.emit('users:online', onlineUserIds);
+};
+
 io.on('connection', (socket) => {
   console.log(`🔌 Socket connected: ${socket.id}`);
 
@@ -490,6 +496,9 @@ io.on('connection', (socket) => {
     
     if (callback) callback({ success: true, socketId: socket.id });
     socket.emit('user:registered', { success: true, socketId: socket.id });
+
+    // Broadcast updated online users list to everyone
+    broadcastOnlineUsers();
   });
 
   // ============== Call Notification Events ==============
@@ -730,6 +739,9 @@ io.on('connection', (socket) => {
     if (user?.userId) {
       userSocketMap.delete(user.userId);
     }
+
+    // Broadcast updated online users list to everyone
+    broadcastOnlineUsers();
   });
 });
 

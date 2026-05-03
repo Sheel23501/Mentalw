@@ -16,7 +16,8 @@ import {
   getMentalHealthTestResultsForUser,
   listenForAppointmentsForDoctor,
   updateAppointmentStatus,
-  listenForPatientEmotions
+  listenForPatientEmotions,
+  getChattedPatientIds
 } from '../../services/firestore';
 import SessionNotes from '../../components/dashboard/SessionNotes.jsx';
 import EmotionPanel from '../../components/dashboard/EmotionPanel.jsx';
@@ -494,26 +495,46 @@ const AppointmentsTab = ({ appointments, loading, onUpdateStatus, openModal }) =
 };
 
 // ─── Patients Tab ─────────────────────────────────────────────────────────────
-const PatientsTab = ({ patients, loading, unreadCounts, setChatPatient, handleViewHistory, handleStartVideoCall, handleViewReport, handleOpenNotes }) => {
+const PatientsTab = ({ patients, loading, unreadCounts, setChatPatient, handleViewHistory, handleStartVideoCall, handleViewReport, handleOpenNotes, chattedPatientIds = [] }) => {
   const [search, setSearch] = useState('');
-  const filtered = patients.filter(p =>
+  const [view, setView] = useState('my'); // 'my' or 'all'
+
+  const myPatients = patients.filter(p => chattedPatientIds.includes(p.id));
+  const displayPatients = view === 'my' ? myPatients : patients;
+  const filtered = displayPatients.filter(p =>
     (p.displayName || p.name || p.email || '').toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h1 style={{ color: '#1f2937', fontWeight: 800, fontSize: '24px', letterSpacing: '-0.5px' }}>All Patients</h1>
-          <p style={{ color: '#9ca3af', fontSize: '14px', marginTop: '2px' }}>{loading ? '...' : `${patients.length} patient${patients.length !== 1 ? 's' : ''} under your care`}</p>
+          <h1 style={{ color: '#1f2937', fontWeight: 800, fontSize: '24px', letterSpacing: '-0.5px' }}>{view === 'my' ? 'My Patients' : 'All Patients'}</h1>
+          <p style={{ color: '#9ca3af', fontSize: '14px', marginTop: '2px' }}>{loading ? '...' : `${displayPatients.length} patient${displayPatients.length !== 1 ? 's' : ''} ${view === 'my' ? 'you have interacted with' : 'under your care'}`}</p>
         </div>
-        <input
-          type="text"
-          placeholder="🔍  Search patients..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          style={{ border: '1.5px solid #e5e7eb', borderRadius: '12px', padding: '10px 16px', fontSize: '14px', outline: 'none', width: '220px', background: 'white', color: '#374151', fontFamily: "'Inter', sans-serif" }}
-        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', background: '#f3f4f6', borderRadius: '12px', padding: '3px' }}>
+            {[{ key: 'my', label: 'My Patients' }, { key: 'all', label: 'All Patients' }].map(tab => (
+              <button key={tab.key} onClick={() => setView(tab.key)}
+                style={{
+                  padding: '7px 16px', borderRadius: '10px', border: 'none', cursor: 'pointer',
+                  fontFamily: "'Inter', sans-serif", fontSize: '13px', fontWeight: 600,
+                  background: view === tab.key ? 'linear-gradient(135deg, #4a7c65, #3d6655)' : 'transparent',
+                  color: view === tab.key ? 'white' : '#6b7280',
+                  transition: 'all 0.2s',
+                  boxShadow: view === tab.key ? '0 2px 8px rgba(74,124,101,0.3)' : 'none',
+                }}
+              >{tab.label} ({tab.key === 'my' ? myPatients.length : patients.length})</button>
+            ))}
+          </div>
+          <input
+            type="text"
+            placeholder="🔍  Search patients..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{ border: '1.5px solid #e5e7eb', borderRadius: '12px', padding: '10px 16px', fontSize: '14px', outline: 'none', width: '220px', background: 'white', color: '#374151', fontFamily: "'Inter', sans-serif" }}
+          />
+        </div>
       </div>
 
       {loading ? (
@@ -765,6 +786,7 @@ const DoctorDashboard = () => {
   const [pendingRoomCode, setPendingRoomCode] = useState(null);
   const [videoCallPatient, setVideoCallPatient] = useState(null);
   const [isOutgoingCall, setIsOutgoingCall] = useState(false);
+  const [chattedPatientIds, setChattedPatientIds] = useState([]);
 
   const [viewingPatientHistory, setViewingPatientHistory] = useState(null);
   const [reportPatient, setReportPatient] = useState(null);
@@ -823,6 +845,11 @@ const DoctorDashboard = () => {
       setPendingRoomCode(incomingCall.roomId);
       setIsOutgoingCall(false);
       setVideoCallOpen(true);
+      // Close any open chat modals so only video call shows
+      setChatPatient(null);
+      setModalOpen(false);
+      setModalData(null);
+      setModalType('');
     }
   }, [callStatus, incomingCall, videoCallOpen, patients]);
 
@@ -920,6 +947,20 @@ const DoctorDashboard = () => {
     };
     fetchPatients();
   }, []);
+
+  // Fetch which patients this doctor has previously interacted with
+  useEffect(() => {
+    if (!currentUser?.uid) return;
+    const fetchChattedPatients = async () => {
+      try {
+        const ids = await getChattedPatientIds(currentUser.uid);
+        setChattedPatientIds(ids);
+      } catch (err) {
+        setChattedPatientIds([]);
+      }
+    };
+    fetchChattedPatients();
+  }, [currentUser]);
 
   // Real-time listener for scheduled appointments
   useEffect(() => {
@@ -1288,6 +1329,7 @@ const DoctorDashboard = () => {
               handleStartVideoCall={handleStartVideoCall}
               handleViewReport={setReportPatient}
               handleOpenNotes={setNotesPatient}
+              chattedPatientIds={chattedPatientIds}
             />
           )}
           {activeTab === 'profile' && (
@@ -1454,7 +1496,12 @@ const DoctorDashboard = () => {
                 <button onClick={() => {
                   const patientName = modalData?.patientName || 'Patient';
                   const patientId = modalData?.patientId;
-                  setVideoCallPatient({ id: patientId, displayName: patientName, photoURL: modalData?.patientPhotoURL });
+                  const patientPhoto = modalData?.patientPhotoURL;
+                  // Close chat modal so only video call shows
+                  setModalOpen(false);
+                  setModalData(null);
+                  setModalType('');
+                  setVideoCallPatient({ id: patientId, displayName: patientName, photoURL: patientPhoto });
                   setIsOutgoingCall(true);
                   setVideoCallOpen(true);
                   if (patientId) startCall(patientId, patientName);
@@ -1499,11 +1546,14 @@ const DoctorDashboard = () => {
                   <FaHistory style={{ fontSize: '13px' }} />
                 </button>
                 <button onClick={() => {
-                  const patientName = chatPatient.displayName || chatPatient.name || chatPatient.email || 'Patient';
-                  setVideoCallPatient(chatPatient);
+                  const patient = chatPatient;
+                  const patientName = patient.displayName || patient.name || patient.email || 'Patient';
+                  // Close chat modal so only video call shows
+                  setChatPatient(null);
+                  setVideoCallPatient(patient);
                   setIsOutgoingCall(true);
                   setVideoCallOpen(true);
-                  startCall(chatPatient.id, patientName);
+                  startCall(patient.id, patientName);
                 }} style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(96,165,250,0.6)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }} title="Start Video Call">
                   <FaVideo style={{ fontSize: '13px' }} />
                 </button>

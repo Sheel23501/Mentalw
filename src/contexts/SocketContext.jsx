@@ -19,6 +19,7 @@ export const SocketProvider = ({ children }) => {
   const cleanupRef = useRef(null);
   const ringtoneTimeoutRef = useRef(null);
   const [remoteCallEnded, setRemoteCallEnded] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState([]); // array of online userIds
 
   // Initialize socket connection when user logs in
   useEffect(() => {
@@ -99,6 +100,11 @@ export const SocketProvider = ({ children }) => {
         });
 
         cleanupRef.current = cleanup;
+
+        // Listen for online users broadcasts from server
+        webrtc.socket.on('users:online', (userIds) => {
+          setOnlineUsers(userIds);
+        });
       } catch (err) {
         console.error('Failed to initialize socket:', err);
       }
@@ -208,6 +214,7 @@ export const SocketProvider = ({ children }) => {
     isConnected,
     webrtc: webrtcRef.current,
     getWebRTC,
+    onlineUsers,
     incomingCall,
     outgoingCall,
     callStatus,
