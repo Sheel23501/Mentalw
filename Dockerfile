@@ -20,7 +20,7 @@ COPY . .
 
 # Write .env file for Vite to read during build
 # Vite automatically reads .env files and injects VITE_ prefixed vars
-RUN echo "VITE_GEMINI_API_KEY=AIzaSyA7xD5D-uHBiOqVZa_0FkV-FreDrKsxEw4" > .env && \
+RUN echo "VITE_GEMINI_API_KEY=AIzaSyA7ITLgr742OJaHplVsahPuMCXUL5O6fIQ" > .env && \
     echo "VITE_API_BASE_URL=" >> .env && \
     echo "VITE_FIREBASE_API_KEY=AIzaSyD3jwJgKyOFc2ypsHkJK9TiUvSx6TPA_xA" >> .env && \
     echo "VITE_FIREBASE_AUTH_DOMAIN=trucare-76365.firebaseapp.com" >> .env && \
