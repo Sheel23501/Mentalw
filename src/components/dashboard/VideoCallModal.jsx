@@ -2,8 +2,6 @@ import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { FaMicrophone, FaMicrophoneSlash, FaVideo, FaVideoSlash, FaPhoneSlash, FaCopy } from 'react-icons/fa';
 import { useSocket } from '../../contexts/SocketContext';
 import { AudioEmotionRecorder } from '../../services/audioEmotion';
-import { saveVideoTranscript, saveTranscriptSummary } from '../../services/firestore';
-import { summarizeTranscript } from '../../services/gemini';
 
 /**
  * VideoCallModal
@@ -32,8 +30,6 @@ const VideoCallModal = ({
   directCallRoomId = null,
   // Audio emotion callback (Phase 3)
   onAudioEmotion = null,
-  // Transcription callback (called on call end with { transcriptId, transcript })
-  onTranscriptSaved = null,
 }) => {
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -46,9 +42,6 @@ const VideoCallModal = ({
   const listenersSetupRef = useRef(false);
   const retryTimerRef = useRef(null);
   const audioRecorderRef = useRef(null);  // Phase 3: audio emotion recorder
-  const speechRecognitionRef = useRef(null); // Web Speech API instance
-  const transcriptLinesRef = useRef([]); // Accumulated transcript lines
-  const callStartTimeRef = useRef(null); // Track call duration
   
   const { callStatus, endCall: endGlobalCall, outgoingCall, cancelOutgoingCall, getWebRTC, remoteCallEnded } = useSocket();
 
@@ -65,8 +58,6 @@ const VideoCallModal = ({
   const [copied, setCopied] = useState(false);
   const [hasRemoteStream, setHasRemoteStream] = useState(false);
   const [vocalEmotion, setVocalEmotion] = useState(null);  // Phase 3
-  const [isTranscribing, setIsTranscribing] = useState(false); // Transcription active indicator
-  const [transcriptLineCount, setTranscriptLineCount] = useState(0); // Live line count
 
   // Helper: get the shared WebRTC instance (may be null briefly during init)
   const getSharedWebRTC = useCallback(() => {
@@ -118,12 +109,6 @@ const VideoCallModal = ({
         audioRecorderRef.current = null;
       }
       
-      // Stop speech recognition
-      if (speechRecognitionRef.current) {
-        try { speechRecognitionRef.current.stop(); } catch(e) { /* ignore */ }
-        speechRecognitionRef.current = null;
-      }
-
       setCameraOn(false);
       setCallState('idle');
       setRoomId(null);
@@ -131,8 +116,6 @@ const VideoCallModal = ({
       setRemoteParticipants([]);
       setHasRemoteStream(false);
       setVocalEmotion(null);
-      setIsTranscribing(false);
-      setTranscriptLineCount(0);
       setError(null);
       setLoading(false);
       setJoinCode('');
@@ -167,116 +150,6 @@ const VideoCallModal = ({
       }
     };
   }, [callState, onAudioEmotion]);
-
-  // ====== Web Speech API Transcription ======
-  useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-    if (callState === 'connected' && SpeechRecognition && !speechRecognitionRef.current) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = false;
-      recognition.lang = 'en-US';
-
-      recognition.onresult = (event) => {
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          if (event.results[i].isFinal) {
-            const text = event.results[i][0].transcript.trim();
-            if (text) {
-              transcriptLinesRef.current.push({
-                text,
-                timestamp: new Date().toISOString(),
-                confidence: event.results[i][0].confidence,
-              });
-              setTranscriptLineCount(transcriptLinesRef.current.length);
-            }
-          }
-        }
-      };
-
-      recognition.onerror = (event) => {
-        // 'no-speech' and 'aborted' are non-fatal
-        if (event.error !== 'no-speech' && event.error !== 'aborted') {
-          console.warn('Speech recognition error:', event.error);
-        }
-      };
-
-      recognition.onend = () => {
-        // Auto-restart if still connected (Chrome stops after ~60s of silence)
-        if (callState === 'connected' && speechRecognitionRef.current) {
-          try { speechRecognitionRef.current.start(); } catch(e) { /* ignore */ }
-        }
-      };
-
-      try {
-        recognition.start();
-        speechRecognitionRef.current = recognition;
-        callStartTimeRef.current = Date.now();
-        transcriptLinesRef.current = [];
-        setIsTranscribing(true);
-        setTranscriptLineCount(0);
-        console.log('🎙️ Speech transcription started');
-      } catch(e) {
-        console.warn('Could not start speech recognition:', e);
-      }
-    }
-
-    // Stop transcription when leaving connected state
-    if (callState !== 'connected' && speechRecognitionRef.current) {
-      try { speechRecognitionRef.current.stop(); } catch(e) { /* ignore */ }
-      speechRecognitionRef.current = null;
-      setIsTranscribing(false);
-    }
-  }, [callState]);
-
-  // ====== Save transcript on call end ======
-  const saveCallTranscript = useCallback(async () => {
-    const lines = transcriptLinesRef.current;
-    if (!lines || lines.length === 0) return;
-
-    const fullTranscript = lines.map(l => l.text).join('\n');
-    const durationSeconds = callStartTimeRef.current
-      ? Math.round((Date.now() - callStartTimeRef.current) / 1000)
-      : 0;
-
-    try {
-      const transcriptId = await saveVideoTranscript({
-        session_id: roomCode || roomId || `call-${Date.now()}`,
-        patient_id: patientId || '',
-        doctor_id: doctorId || '',
-        transcript: fullTranscript,
-        duration_seconds: durationSeconds,
-      });
-
-      console.log('✅ Transcript saved, generating AI summary...');
-
-      if (onTranscriptSaved) {
-        onTranscriptSaved({ transcriptId, transcript: fullTranscript });
-      }
-
-      // Generate and save AI summary (async, non-blocking)
-      summarizeTranscript(fullTranscript).then(async (summary) => {
-        if (summary) {
-          await saveTranscriptSummary({
-            transcript_id: transcriptId,
-            patient_id: patientId || '',
-            summary_text: summary.summary_text || '',
-            key_concerns: summary.key_concerns || [],
-            emotional_cues: summary.emotional_cues || [],
-            action_items: summary.action_items || [],
-          });
-          console.log('✅ Transcript summary saved');
-        }
-      }).catch(err => console.error('Transcript summary error:', err));
-    } catch (err) {
-      console.error('Error saving transcript:', err);
-    }
-
-    // Reset
-    transcriptLinesRef.current = [];
-    callStartTimeRef.current = null;
-  }, [roomCode, roomId, patientId, doctorId, onTranscriptSaved]);
-
   // Handle local stream display — store in ref so useEffect can apply it after video mounts
   const displayLocalStream = useCallback((stream) => {
     localStreamRef.current = stream;
@@ -597,9 +470,6 @@ const VideoCallModal = ({
 
   // ====== End/close the call ======
   const handleEndCall = () => {
-    // Save transcript before cleanup
-    saveCallTranscript();
-
     const webrtc = getSharedWebRTC();
     if (webrtc) {
       try { webrtc.leaveRoom(); } catch(e) { /* ignore */ }
@@ -816,16 +686,6 @@ const VideoCallModal = ({
                   <FaCopy size={16} />
                 </button>
                 {copied && <span className="text-xs">Copied!</span>}
-              </div>
-            )}
-
-            {/* Transcribing Indicator */}
-            {callState === 'connected' && isTranscribing && (
-              <div className="absolute top-20 right-4 z-20" style={{ background: 'rgba(220,38,38,0.85)', backdropFilter: 'blur(8px)', padding: '6px 14px', borderRadius: '999px', display: 'flex', alignItems: 'center', gap: '8px', animation: 'pulse 2s infinite' }}>
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#fff', display: 'inline-block', animation: 'pulse 1.5s infinite' }} />
-                <span style={{ color: 'white', fontSize: '11px', fontWeight: 700 }}>
-                  Transcribing ({transcriptLineCount})
-                </span>
               </div>
             )}
 

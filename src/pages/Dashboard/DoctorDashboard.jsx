@@ -26,8 +26,6 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import PatientReportModal from '../../components/dashboard/PatientReportModal.jsx';
 import AdvancedSessionNotesModal from '../../components/dashboard/AdvancedSessionNotesModal.jsx';
-import PatientHistoryPanel from '../../components/dashboard/PatientHistoryPanel.jsx';
-import PreSessionBriefing from '../../components/dashboard/PreSessionBriefing.jsx';
 
 // ─── Left Sidebar ────────────────────────────────────────────────────────────
 const Sidebar = ({ activeTab, setActiveTab, doctorName, doctorPhoto, onLogout }) => {
@@ -493,7 +491,7 @@ const AppointmentsTab = ({ appointments, loading, onUpdateStatus, openModal }) =
 };
 
 // ─── Patients Tab ─────────────────────────────────────────────────────────────
-const PatientsTab = ({ patients, loading, unreadCounts, setChatPatient, handleViewHistory, handleStartVideoCall, handleViewReport, handleOpenNotes, handlePrepareSession }) => {
+const PatientsTab = ({ patients, loading, unreadCounts, setChatPatient, handleViewHistory, handleStartVideoCall, handleViewReport, handleOpenNotes }) => {
   const [search, setSearch] = useState('');
   const filtered = patients.filter(p =>
     (p.displayName || p.name || p.email || '').toLowerCase().includes(search.toLowerCase())
@@ -575,18 +573,11 @@ const PatientsTab = ({ patients, loading, unreadCounts, setChatPatient, handleVi
                   <FaChartLine style={{ fontSize: '11px' }} /> Report
                 </button>
                 <button onClick={() => handleOpenNotes(patient)}
-                  style={{ flex: 1, minWidth: '30%', background: '#fffbeb', color: '#d97706', border: '1px solid #fde68a', borderRadius: '10px', padding: '9px 0', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', transition: 'background 0.2s' }}
+                  style={{ flex: 1, minWidth: '40%', background: '#fffbeb', color: '#d97706', border: '1px solid #fde68a', borderRadius: '10px', padding: '9px 0', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', transition: 'background 0.2s' }}
                   onMouseEnter={e => e.currentTarget.style.background = '#fef3c7'}
                   onMouseLeave={e => e.currentTarget.style.background = '#fffbeb'}
                 >
                   <FaEdit style={{ fontSize: '11px' }} /> Notes
-                </button>
-                <button onClick={() => handlePrepareSession(patient)}
-                  style={{ flex: 1, minWidth: '30%', background: '#ede9fe', color: '#6d28d9', border: '1px solid #ddd6fe', borderRadius: '10px', padding: '9px 0', fontSize: '12px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', transition: 'background 0.2s' }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#ddd6fe'}
-                  onMouseLeave={e => e.currentTarget.style.background = '#ede9fe'}
-                >
-                  <FaBrain style={{ fontSize: '11px' }} /> Prepare
                 </button>
               </div>
             </div>
@@ -773,7 +764,6 @@ const DoctorDashboard = () => {
   const [isOutgoingCall, setIsOutgoingCall] = useState(false);
 
   const [viewingPatientHistory, setViewingPatientHistory] = useState(null);
-  const [preSessionPatient, setPreSessionPatient] = useState(null);
   const [reportPatient, setReportPatient] = useState(null);
   const [notesPatient, setNotesPatient] = useState(null);
   const [patientHistory, setPatientHistory] = useState([]);
@@ -877,12 +867,41 @@ const DoctorDashboard = () => {
     }
   };
 
-  const handleViewHistory = (patient) => {
+  const handleViewHistory = async (patient) => {
     setViewingPatientHistory(patient);
+    setHistoryLoading(true);
+    try {
+      const [chats, tests] = await Promise.all([
+        getChatReportsForPatient(patient.id).catch(() => []),
+        getMentalHealthTestResultsForUser(patient.id).catch(() => [])
+      ]);
+      
+      const typedChats = chats.map(c => ({ ...c, historyType: 'chat' }));
+      const typedTests = tests.map(t => ({ ...t, historyType: 'test' }));
+      
+      const combined = [...typedChats, ...typedTests].sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime();
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime();
+        return dateB - dateA; // Descending
+      });
+      
+      const fortyEightHoursAgo = Date.now() - (48 * 60 * 60 * 1000);
+      const filtered = combined.filter(item => {
+        const itemDate = item.createdAt?.toDate ? item.createdAt.toDate().getTime() : new Date(item.createdAt).getTime();
+        return itemDate >= fortyEightHoursAgo;
+      });
+      
+      setPatientHistory(filtered);
+    } catch (error) {
+      setPatientHistory([]);
+    } finally {
+      setHistoryLoading(false);
+    }
   };
 
-  const handlePrepareSession = (patient) => {
-    setPreSessionPatient(patient);
+  const handleBackToDashboard = () => {
+    setViewingPatientHistory(null);
+    setPatientHistory([]);
   };
 
   useEffect(() => {
@@ -1031,6 +1050,93 @@ const DoctorDashboard = () => {
   const scheduledChatsWithUnread = scheduledChats.filter(c => (unreadCounts[c.id] || 0) > 0);
 
   const handleLogout = async () => { try { await logout(); } catch (e) { console.error(e); } };
+
+  // ── Patient history view ──
+  if (viewingPatientHistory) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh', fontFamily: "'Inter', sans-serif" }}>
+        <Sidebar activeTab={activeTab} setActiveTab={tab => { setActiveTab(tab); setViewingPatientHistory(null); }} doctorName={currentUser?.displayName} doctorPhoto={currentUser?.photoURL} onLogout={handleLogout} />
+        <main style={{ marginLeft: '240px', flex: 1, minHeight: '100vh', background: 'linear-gradient(135deg, #f0f4f0 0%, #e8efe5 30%, #f5f0eb 70%, #faf8f5 100%)', padding: '40px 40px' }}>
+          <div style={{ maxWidth: '800px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+              <button onClick={handleBackToDashboard} style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'white', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+                <FaArrowLeft style={{ color: '#6b7280' }} />
+              </button>
+              <img src={viewingPatientHistory.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(viewingPatientHistory.displayName || 'P')}&background=c7d2c4&color=374151`} alt="" style={{ width: '52px', height: '52px', borderRadius: '14px', objectFit: 'cover' }} />
+              <div>
+                <h2 style={{ color: '#1f2937', fontWeight: 800, fontSize: '22px' }}>{viewingPatientHistory.displayName || 'Unknown'}</h2>
+                <p style={{ color: '#9ca3af', fontSize: '13px' }}>Recent History (Last 48 Hours)</p>
+              </div>
+            </div>
+            <div style={{ background: 'white', borderRadius: '20px', padding: '28px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+              {historyLoading ? (
+                <p style={{ textAlign: 'center', color: '#9ca3af', padding: '40px 0' }}>Loading history...</p>
+              ) : patientHistory.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '12px' }}>📋</div>
+                  <p style={{ color: '#9ca3af' }}>No chat history found for this patient.</p>
+                </div>
+              ) : (
+                <ul style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {patientHistory.map((item, index) => {
+                    const isTest = item.historyType === 'test';
+                    
+                    return (
+                    <li key={item.id || index} onClick={() => { if (!isTest) { setChatReport(item); setReportModalOpen(true); } }}
+                      style={{ background: '#f9fafb', borderRadius: '14px', border: '1px solid #f3f4f6', padding: '16px', cursor: isTest ? 'default' : 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'all 0.2s' }}
+                      onMouseEnter={e => { if(!isTest) { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'; e.currentTarget.style.background = 'white'; } }}
+                      onMouseLeave={e => { if(!isTest) { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#f9fafb'; } }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: isTest ? '#eff6ff' : '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {isTest ? <FaBrain style={{ color: '#3b82f6', fontSize: '14px' }} /> : <FaComments style={{ color: '#059669', fontSize: '14px' }} />}
+                        </div>
+                        <div>
+                          <p style={{ fontWeight: 600, color: '#1f2937', fontSize: '14px' }}>
+                            {isTest ? `Mental Health Test: ${item.riskLevel || 'Checked'}` : 'Chat Session'}
+                          </p>
+                          <p style={{ color: '#9ca3af', fontSize: '12px' }}>
+                            {isTest ? `Score: ${item.score || item.totalScore || 'N/A'}` : `${item.messages?.length || 0} messages`}
+                          </p>
+                        </div>
+                      </div>
+                      <p style={{ color: '#9ca3af', fontSize: '12px' }}>{formatTimestamp(item.createdAt)}</p>
+                    </li>
+                  )})}
+                </ul>
+              )}
+            </div>
+          </div>
+        </main>
+        {reportModalOpen && chatReport && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200, padding: '16px' }}>
+            <div style={{ background: 'white', borderRadius: '24px', maxWidth: '640px', width: '100%', maxHeight: '85vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 60px rgba(0,0,0,0.25)' }}>
+              <div style={{ padding: '20px 24px', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ fontWeight: 700, color: '#1f2937', fontSize: '17px' }}>Chat Transcript — {formatTimestamp(chatReport.createdAt)}</h3>
+                <button onClick={() => setReportModalOpen(false)} style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#f3f4f6', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <FaTimes style={{ color: '#6b7280', fontSize: '12px' }} />
+                </button>
+              </div>
+              <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
+                {chatReport.messages.map(msg => (
+                  <div key={msg.id || msg.timestamp?.seconds} style={{ marginBottom: '12px', padding: '12px', borderRadius: '12px', background: '#f9fafb' }}>
+                    <p style={{ fontWeight: 600, fontSize: '13px', color: '#374151' }}>
+                      {msg.senderName || (msg.senderRole === 'doctor' ? 'Doctor' : 'Patient')}
+                      <span style={{ color: '#9ca3af', fontWeight: 400, fontSize: '11px', marginLeft: '8px' }}>{formatTimestamp(msg.timestamp)}</span>
+                    </p>
+                    <p style={{ fontSize: '13px', color: '#4b5563', marginTop: '4px' }}>{msg.text}</p>
+                  </div>
+                ))}
+              </div>
+              <div style={{ padding: '16px 24px', borderTop: '1px solid #f3f4f6', display: 'flex', justifyContent: 'flex-end' }}>
+                <button onClick={() => setReportModalOpen(false)} style={{ background: '#1f2937', color: 'white', border: 'none', borderRadius: '10px', padding: '10px 24px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>Close</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   // ── Main layout ──
   return (
@@ -1474,19 +1580,6 @@ const DoctorDashboard = () => {
         onClose={() => setNotesPatient(null)}
         patient={notesPatient}
         doctorId={currentUser?.uid}
-      />
-
-      {/* NEW MODALS */}
-      <PatientHistoryPanel
-        open={!!viewingPatientHistory}
-        onClose={() => setViewingPatientHistory(null)}
-        patient={viewingPatientHistory}
-      />
-
-      <PreSessionBriefing
-        open={!!preSessionPatient}
-        onClose={() => setPreSessionPatient(null)}
-        patient={preSessionPatient}
       />
     </div>
   );
