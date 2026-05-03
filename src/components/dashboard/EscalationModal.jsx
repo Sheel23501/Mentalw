@@ -72,7 +72,7 @@ const EscalationModal = ({
 
           // Also call the backend escalation endpoint
           try {
-            const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:4000';
+            const serverUrl = import.meta.env.VITE_SERVER_URL || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : '');
             await fetch(`${serverUrl}/api/escalate_chat`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
