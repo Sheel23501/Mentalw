@@ -998,9 +998,9 @@ const DoctorDashboard = () => {
           const negativeEmotions = ['Stressed', 'Anxious', 'Sad', 'Overwhelmed', 'Hopeless', 'Angry', 'Fearful'];
           const allNegative = last3.length >= 3 && last3.every(e => negativeEmotions.includes(e.emotion));
           if (allNegative) {
-            setSustainedStressAlert(`⚠️ Patient showing sustained ${last3[0].emotion.toLowerCase()} pattern`);
+            setSustainedStressAlert('⚠️ Patient showing continuous stress');
           } else if (emotions.length >= 2 && emotions[0].severity === 'high' && emotions[1].severity !== 'high') {
-            setSustainedStressAlert('⚠️ Sudden emotional drop detected');
+            setSustainedStressAlert('⚠️ Emotional spike detected');
           } else {
             setSustainedStressAlert(null);
           }
@@ -1069,9 +1069,9 @@ const DoctorDashboard = () => {
           const negativeEmotions = ['Stressed', 'Anxious', 'Sad', 'Overwhelmed', 'Hopeless', 'Angry', 'Fearful'];
           const allNegative = last3.length >= 3 && last3.every(e => negativeEmotions.includes(e.emotion));
           if (allNegative) {
-            setSustainedStressAlert(`⚠️ Patient showing sustained ${last3[0].emotion.toLowerCase()} pattern`);
+            setSustainedStressAlert('⚠️ Patient showing continuous stress');
           } else if (emotions.length >= 2 && emotions[0].severity === 'high' && emotions[1].severity !== 'high') {
-            setSustainedStressAlert('⚠️ Sudden emotional drop detected');
+            setSustainedStressAlert('⚠️ Emotional spike detected');
           } else {
             setSustainedStressAlert(null);
           }

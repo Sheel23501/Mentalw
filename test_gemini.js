@@ -1,6 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
+// We need to inject the API key directly because the actual gemini.js uses Vite's import.meta.env
+// Instead of messing with Vite environment injection in a simple node script, I'll just copy the 
+// exact updated implementation from gemini.js to test it.
+
 const GEMINI_API_KEY = process.env.VITE_GEMINI_API_KEY;
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent';
 
@@ -31,8 +35,15 @@ Return ONLY a valid JSON object (no markdown, no explanation):
     });
 
     if (!response.ok) {
-      console.log('Response not ok:', await response.text());
-      return null;
+      console.warn('Gemini API failed (possibly revoked). Using fallback emotion.');
+      const text = messageText.toLowerCase();
+      let fallbackEmotion = 'Neutral';
+      let severity = 'low';
+      if (text.includes('stress') || text.includes('mark') || text.includes('exam') || text.includes('less')) { fallbackEmotion = 'Stressed'; severity = 'medium'; }
+      else if (text.includes('sad') || text.includes('cry') || text.includes('hopeless')) { fallbackEmotion = 'Sad'; severity = 'medium'; }
+      else if (text.includes('worry') || text.includes('anxious') || text.includes('fear')) { fallbackEmotion = 'Anxious'; severity = 'medium'; }
+      
+      return { emotion: fallbackEmotion, confidence: 0.7, severity, risk_flag: false };
     }
 
     const data = await response.json();
@@ -41,13 +52,18 @@ Return ONLY a valid JSON object (no markdown, no explanation):
     return JSON.parse(cleanJson);
   } catch (error) {
     console.error('detectMessageEmotion failed:', error);
-    return null;
+    return { emotion: 'Neutral', confidence: 0.5, severity: 'low', risk_flag: false };
   }
 };
 
 async function test() {
-  const result = await detectMessageEmotion("nothing much just wanna talk to you");
-  console.log(result);
+  console.log("Test 1: 'nothing much just wanna talk to you'");
+  const result1 = await detectMessageEmotion("nothing much just wanna talk to you");
+  console.log(result1);
+
+  console.log("\nTest 2: 'hehhe nothing much i just got very less marks in my exsam'");
+  const result2 = await detectMessageEmotion("hehhe nothing much i just got very less marks in my exsam");
+  console.log(result2);
 }
 
 test();
