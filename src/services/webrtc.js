@@ -17,11 +17,12 @@ class WebRTCVideoCall {
       // import.meta may not be available in some contexts; ignore
     }
 
-    // Fallback: build URL from current page host so other devices connect to the correct machine
+    // Fallback: in production use same origin (no port); in dev use port 4000
     if (!resolved && typeof window !== 'undefined') {
       const host = window.location.hostname || 'localhost';
       const protocol = window.location.protocol || 'http:';
-      resolved = `${protocol}//${host}:4000`;
+      const isLocalDev = host === 'localhost' || host === '127.0.0.1' || host.startsWith('192.168.');
+      resolved = isLocalDev ? `${protocol}//${host}:4000` : `${protocol}//${host}`;
     }
 
     // Final fallback
