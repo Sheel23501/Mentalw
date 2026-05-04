@@ -899,6 +899,11 @@ const Dashboard = () => {
     }
   };
 
+  // Called by the AI chat when it recommends escalating to a real doctor
+  const handleEscalationDoctorSelected = () => {
+    setActiveTab('doctors');
+  };
+
   const getChatId = () => {
     if (selectedDoctor && currentUser) {
       const scheduledChat = scheduledChats && scheduledChats.find(
