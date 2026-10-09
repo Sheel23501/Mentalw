@@ -63,8 +63,8 @@ const upload = multer({ dest: path.join(process.cwd(), 'tmp_uploads') });
 const uploadMany = multer({ dest: path.join(process.cwd(), 'tmp_uploads') });
 
 // Twilio credentials - keep these server-side only!
-const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID || 'AC2cc154bd458d2b30823ed81f6a64133f';
-const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN || 'f69a611c61ee033cbec7e2ee5c477bfd';
+const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID || '';
+const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN || '';
 const TWILIO_API_KEY = process.env.TWILIO_API_KEY || '';
 
 const twilio_client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
