@@ -10,7 +10,7 @@ import { getStorage } from 'firebase/storage';
 //old api
 
 // const firebaseConfig = {
-//   apiKey: "AIzaSyBOiqVYf3CZtogGennMpnS6VW8rr4xnThk",
+//   apiKey: "",
 //   authDomain: "truecare-bd5db.firebaseapp.com",
 //   projectId: "truecare-bd5db",
 //   storageBucket: "truecare-bd5db.firebasestorage.app",
@@ -23,7 +23,7 @@ import { getStorage } from 'firebase/storage';
 //new api key:
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD3jwJgKyOFc2ypsHkJK9TiUvSx6TPA_xA",
+  apiKey: "",
   authDomain: "trucare-76365.firebaseapp.com",
   databaseURL: "https://trucare-76365-default-rtdb.firebaseio.com",
   projectId: "trucare-76365",
