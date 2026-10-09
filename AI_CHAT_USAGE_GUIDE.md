@@ -142,7 +142,7 @@ the presentation is worrying you?
 
 ### API Configuration
 - **Model**: Gemini 2.0 Flash
-- **API Key**: AIzaSyDSO4p4MmOi9vD3BoMoj68wf2tndJvgZcQ
+- **API Key**: 
 - **Endpoint**: https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent
 - **Response Time**: 1-3 seconds average
 
